@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Russo+One&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Russo One", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-game-bg: #0F0F23;
+  --color-game-card: #1A1A2E;
+  --color-game-border: #2D2D44;
+  --color-game-accent: #7C3AED;
+  --color-game-cta: #F43F5E;
+  
+  --color-quality-common: #9CA3AF;
+  --color-quality-uncommon: #10B981;
+  --color-quality-rare: #3B82F6;
+  --color-quality-epic: #A855F7;
+  --color-quality-legendary: #F59E0B;
+  --color-quality-mythic: #EF4444;
+}
+
+@layer base {
+  body {
+    @apply bg-game-bg text-gray-100 font-sans antialiased;
+    background-image: 
+      radial-gradient(circle at 20% 10%, rgba(124, 58, 237, 0.15), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(244, 63, 94, 0.1), transparent 35%);
+  }
+}
+
+@keyframes neon-pulse {
+  0%, 100% { 
+    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 20px currentColor;
+  }
+  50% { 
+    text-shadow: 0 0 2px currentColor, 0 0 5px currentColor, 0 0 10px currentColor;
+  }
+}
+
+@keyframes neon-border {
+  0%, 100% { 
+    box-shadow: 0 0 5px var(--color-game-accent), 0 0 10px var(--color-game-accent), inset 0 0 5px rgba(124, 58, 237, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 2px var(--color-game-accent), 0 0 5px var(--color-game-accent), inset 0 0 2px rgba(124, 58, 237, 0.05);
+  }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.neon-text {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+.neon-border {
+  animation: neon-border 2s ease-in-out infinite;
+}
+
+.glitch-hover:hover {
+  animation: glitch 0.3s ease-in-out;
+}
+
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.35);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.55);
+}
+
+.quality-common { color: var(--color-quality-common); }
+.quality-uncommon { color: var(--color-quality-uncommon); }
+.quality-rare { color: var(--color-quality-rare); }
+.quality-epic { color: var(--color-quality-epic); }
+.quality-legendary { color: var(--color-quality-legendary); }
+.quality-mythic { color: var(--color-quality-mythic); }
+
+.bg-quality-common { background-color: var(--color-quality-common); }
+.bg-quality-uncommon { background-color: var(--color-quality-uncommon); }
+.bg-quality-rare { background-color: var(--color-quality-rare); }
+.bg-quality-epic { background-color: var(--color-quality-epic); }
+.bg-quality-legendary { background-color: var(--color-quality-legendary); }
+.bg-quality-mythic { background-color: var(--color-quality-mythic); }
+
+.border-quality-common { border-color: var(--color-quality-common); }
+.border-quality-uncommon { border-color: var(--color-quality-uncommon); }
+.border-quality-rare { border-color: var(--color-quality-rare); }
+.border-quality-epic { border-color: var(--color-quality-epic); }
+.border-quality-legendary { border-color: var(--color-quality-legendary); }
+.border-quality-mythic { border-color: var(--color-quality-mythic); }
+
+.bg-gradient-radial {
+  background-image: radial-gradient(circle, var(--tw-gradient-from), var(--tw-gradient-via, transparent), var(--tw-gradient-to));
+}

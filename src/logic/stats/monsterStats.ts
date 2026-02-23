@@ -1,0 +1,127 @@
+import type { BattleRisk, CounterStatKey, Monster } from '../../types/game';
+import type { FinalPlayerCombatStats } from './playerStats';
+import { getBattleRiskProfile } from './playerStats';
+
+export interface FinalMonsterCombatStats {
+  maxHp: number;
+  attack: number;
+  defense: number;
+  damageReduction: number;
+  shieldReduction: number;
+  rageMultiplier: number;
+  bossSkillInterval: number;
+  statusProcMultiplier: number;
+  objectiveLabel: string | null;
+  objectivePassed: boolean;
+}
+
+const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
+
+const defenseToReductionRate = (
+  defenseValue: number,
+  hardCapRate: number,
+  growthRate: number,
+): number => {
+  const normalized = Math.max(0, defenseValue);
+  const rate = 1 - Math.exp(-growthRate * normalized);
+  return clamp(rate, 0, hardCapRate);
+};
+
+const readPlayerCounterStat = (player: FinalPlayerCombatStats, stat: CounterStatKey): number => {
+  if (stat === '攻击力') return player.attack;
+  if (stat === '防御力') return player.defense;
+  if (stat === '生命值') return player.maxHp;
+  if (stat === '元素伤害') return player.elementalBonus;
+  if (stat === '吸血') return player.lifestealRate * 100;
+  if (stat === '反伤') return player.thornsRate * 100;
+  if (stat === '攻击速度') return player.attackSpeed;
+  return 0;
+};
+
+export const getFinalMonsterStats = (
+  monster: Monster,
+  playerLevel: number,
+  encounterCount: number,
+  isBoss: boolean,
+  battleRisk: BattleRisk,
+  finalPlayer: FinalPlayerCombatStats,
+): FinalMonsterCombatStats => {
+  const levelFactor = 1 + Math.max(0, playerLevel - 1) * 0.08;
+  const encounterFactor = 1 + Math.min(0.65, encounterCount * 0.003);
+  const hpFactor = isBoss ? 1.55 : 1.28;
+  const attackFactor = isBoss ? 1.36 : 1.22;
+  const defenseFactor = isBoss ? 1.32 : 1.18;
+  const riskProfile = getBattleRiskProfile(battleRisk);
+
+  let maxHp = Math.floor(monster.maxHp * levelFactor * encounterFactor * hpFactor);
+  let attack = Math.floor(monster.attack * levelFactor * encounterFactor * attackFactor * riskProfile.monsterDamageMultiplier);
+  let defense = Math.floor(monster.defense * levelFactor * encounterFactor * defenseFactor);
+
+  let objectivePassed = true;
+  let objectiveLabel: string | null = null;
+
+  if (monster.isBoss && monster.counterGoal) {
+    const currentValue = readPlayerCounterStat(finalPlayer, monster.counterGoal.stat);
+    objectivePassed = currentValue >= monster.counterGoal.threshold;
+    objectiveLabel = objectivePassed
+      ? `对抗目标达成：${monster.counterGoal.title}（${monster.counterGoal.successText}）`
+      : `对抗目标未达成：${monster.counterGoal.title}（${monster.counterGoal.failText}）`;
+
+    if (objectivePassed) {
+      attack = Math.floor(attack * 0.95);
+      defense = Math.floor(defense * 0.9);
+    } else {
+      maxHp = Math.floor(maxHp * 1.22);
+      attack = Math.floor(attack * 1.18);
+      defense = Math.floor(defense * 1.15);
+    }
+  }
+
+  const damageReduction = defenseToReductionRate(defense, 0.62, 0.011);
+
+  return {
+    maxHp: Math.max(1, maxHp),
+    attack: Math.max(1, attack),
+    defense: Math.max(0, defense),
+    damageReduction,
+    shieldReduction: 0.6,
+    rageMultiplier: 1.3,
+    bossSkillInterval: riskProfile.bossSkillInterval,
+    statusProcMultiplier: riskProfile.statusProcMultiplier,
+    objectiveLabel,
+    objectivePassed,
+  };
+};
+
+export const calculateFinalMonsterStats = getFinalMonsterStats;
+
+interface TurnSnapshotOptions {
+  monsterIsShocked: boolean;
+  shieldTurns: number;
+  monsterRageActive: boolean;
+}
+
+export interface TurnCombatSnapshot {
+  playerAttack: number;
+  monsterAttack: number;
+  playerDamageReduction: number;
+  monsterDamageReduction: number;
+  shieldMultiplier: number;
+}
+
+export const getTurnCombatSnapshot = (
+  finalPlayer: FinalPlayerCombatStats,
+  finalMonster: FinalMonsterCombatStats,
+  options: TurnSnapshotOptions,
+): TurnCombatSnapshot => {
+  const monsterDamageReduction = finalMonster.damageReduction * (options.monsterIsShocked ? 0.8 : 1);
+  const monsterAttack = finalMonster.attack * (options.monsterRageActive ? finalMonster.rageMultiplier : 1);
+
+  return {
+    playerAttack: finalPlayer.attack,
+    monsterAttack,
+    playerDamageReduction: finalPlayer.damageReduction,
+    monsterDamageReduction: clamp(monsterDamageReduction, 0, 0.85),
+    shieldMultiplier: options.shieldTurns > 0 ? finalMonster.shieldReduction : 1,
+  };
+};

@@ -1,0 +1,47 @@
+import { AnimatePresence, motion } from 'motion/react';
+import type { BattlePhase } from '../../types/game';
+
+interface PlayerAvatarProps {
+  phase: BattlePhase;
+  hpPercent: number;
+  showAttackFlash: boolean;
+}
+
+export function PlayerAvatar({ phase, hpPercent, showAttackFlash }: PlayerAvatarProps) {
+  return (
+    <div className="relative w-[170px]">
+      <motion.div
+        className="relative rounded-2xl border border-violet-500/50 bg-violet-950/30 p-4 backdrop-blur-sm"
+        animate={phase === 'fighting' ? { x: [0, 8, 0] } : { x: 0 }}
+        transition={{ duration: 0.35, repeat: phase === 'fighting' ? Infinity : 0, repeatDelay: 0.2 }}
+      >
+        <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-violet-600/20 to-fuchsia-500/20 blur opacity-50" />
+        <div className="text-center space-y-2 relative">
+          <div className="leading-none text-6xl filter drop-shadow-[0_0_10px_rgba(167,139,250,0.5)]">🧙‍♂️</div>
+          <div className="font-display text-sm tracking-wide text-violet-200 drop-shadow-[0_0_8px_rgba(167,139,250,0.4)]">冒险者</div>
+          <div className="w-full h-2 rounded-full overflow-hidden bg-white/10 border border-white/10 relative">
+            <motion.div
+              className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-400 relative"
+              animate={{ width: `${Math.max(0, Math.min(100, hpPercent))}%` }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+            >
+              <div className="absolute inset-0 bg-white/30 animate-pulse" />
+            </motion.div>
+          </div>
+        </div>
+      </motion.div>
+
+      <AnimatePresence>
+        {showAttackFlash && (
+          <motion.div
+            className="absolute inset-y-8 -right-6 w-24 rounded-full bg-gradient-to-r from-yellow-300/80 to-transparent blur-sm"
+            initial={{ opacity: 0, x: -16, scaleX: 0.4 }}
+            animate={{ opacity: [0, 1, 0], x: [0, 20, 40], scaleX: [0.6, 1.1, 1.2] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
