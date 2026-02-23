@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
 import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../constants/game';
+import { UI_DIMENSIONS } from '../../../constants/settings';
 import type { Monster, MonsterTrait, ThreatType } from '../../../types/game';
-
 const traitLabelMap: Record<MonsterTrait, string> = {
   thorns: '反伤',
   lifesteal: '吸血',
@@ -11,7 +11,6 @@ const traitLabelMap: Record<MonsterTrait, string> = {
   shield_on_start: '开场护盾',
   rage_on_low_hp: '残血狂怒',
 };
-
 const traitColorMap: Record<MonsterTrait, string> = {
   thorns: 'border-rose-400/30 bg-rose-500/10 text-rose-200',
   lifesteal: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
@@ -19,7 +18,6 @@ const traitColorMap: Record<MonsterTrait, string> = {
   shield_on_start: 'border-blue-400/30 bg-blue-500/10 text-blue-200',
   rage_on_low_hp: 'border-red-400/30 bg-red-500/10 text-red-200',
 };
-
 const traitHintMap: Record<MonsterTrait, string[]> = {
   thorns: ['此敌人对爆发输出有反制能力，节奏过快容易被反噬。', '更稳妥的做法是提高生存与续航，拉长有效作战时间。'],
   lifesteal: ['此敌人擅长在缠斗中回稳，久拖会放大其优势。', '建议准备持续压制手段，减少其恢复窗口。'],
@@ -27,15 +25,12 @@ const traitHintMap: Record<MonsterTrait, string[]> = {
   shield_on_start: ['此敌人开局防线稳固，前段硬冲收益较低。', '先建立稳定节奏，再寻找破口更容易滚起优势。'],
   rage_on_low_hp: ['此敌人在残局阶段威胁更高，收尾处理很关键。', '建议保留后段资源，避免在终局被反推。'],
 };
-
 type StrategyTag = '偏进攻' | '偏防守' | '偏续航';
-
 const strategyTagStyleMap: Record<StrategyTag, string> = {
-  偏进攻: 'border-rose-400/35 bg-rose-500/10 text-rose-200',
-  偏防守: 'border-blue-400/35 bg-blue-500/10 text-blue-200',
+  偏进攻: 'border-rose-400/35    bg-rose-500/10    text-rose-200',
+  偏防守: 'border-blue-400/35    bg-blue-500/10    text-blue-200',
   偏续航: 'border-emerald-400/35 bg-emerald-500/10 text-emerald-200',
 };
-
 const threatLabelMap: Record<ThreatType, string> = {
   burst_punish: '爆发反制型',
   sustain_pressure: '持续压制型',
@@ -202,8 +197,13 @@ function MonsterListItem({
             : 'border-game-border/40 bg-game-bg/40 hover:border-violet-500/40 hover:bg-violet-500/10'
       }`}
     >
-      <div className={`w-8 h-8 rounded-md flex items-center justify-center text-lg flex-shrink-0 ${isBoss ? 'bg-rose-500/20' : 'bg-game-card/40'}`}>
-        {monster.icon}
+      <div
+        style={{ width: `${UI_DIMENSIONS.codexIconSize}px`, height: `${UI_DIMENSIONS.codexIconSize}px` }}
+        className={`rounded-md flex items-center justify-center text-lg flex-shrink-0 ${isBoss ? 'bg-rose-500/20' : 'bg-game-card/40'}`}
+      >
+        {monster.icons.map((ic, i) => (
+          <span key={i}>{ic}</span>
+        ))}
       </div>
       <div className="flex-1 min-w-0">
         <div className={`text-[11px] font-medium truncate ${isBoss ? 'text-rose-200' : 'text-gray-200'}`}>
@@ -244,7 +244,7 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
               whileHover={{ scale: 1.05 }}
               className={`w-12 h-12 rounded-lg flex items-center justify-center text-3xl ${isBoss ? 'bg-gradient-to-br from-rose-600/30 to-red-600/20 shadow-lg shadow-rose-500/15' : 'bg-game-card/60 shadow'}`}
             >
-              {monster.icon}
+              {monster.icons.map((ic, i) => (<span key={i}>{ic}</span>))}
             </motion.div>
             <div className="flex-1 min-w-0">
               <h3 className={`text-sm font-display font-bold truncate ${isBoss ? 'text-rose-200 drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]' : 'text-gray-100'}`}>

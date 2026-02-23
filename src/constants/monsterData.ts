@@ -29,12 +29,29 @@ const localizeAdditionalFields = (m: any): any => {
 };
 
 // attach translated name lazily
-const addTranslatedName = (m: any): Monster => ({
-  ...(localizeAdditionalFields(m) as Monster),
-  等级: Math.max(1, Number(m.等级) || 1),
-  name: t(`monster.${m.id}`, { defaultValue: m.id ?? 'unknown_monster' }),
-});
+const addTranslatedName = (m: any): Monster => {
+  // ensure icons array exists, fall back to single icon
+  const icons = [] as string[];
+  if (Array.isArray(m.icons)) icons.push(...m.icons);
+  else if (m.icon) icons.push(m.icon);
+  return {
+    ...(localizeAdditionalFields(m) as Monster),
+    icons,
+    等级: Math.max(1, Number(m.等级) || 1),
+    name: t(`monster.${m.id}`, { defaultValue: m.id ?? 'unknown_monster' }),
+  } as Monster;
+};
 
 export const NORMAL_MONSTERS_DATA: Monster[] = rawNormal.map(addTranslatedName);
 export const BOSS_MONSTERS_DATA: Monster[] = rawBoss.map(addTranslatedName);
+
+// combined lookup table
+const ALL_MONSTERS_DATA: Monster[] = [...NORMAL_MONSTERS_DATA, ...BOSS_MONSTERS_DATA];
+
+/**
+ * Find monster by id across normal and boss pools.
+ */
+export const getMonsterById = (id: string): Monster | undefined => {
+  return ALL_MONSTERS_DATA.find((m) => m.id === id);
+};
 

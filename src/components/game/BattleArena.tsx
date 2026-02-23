@@ -83,7 +83,7 @@ export function BattleArena({
     duration: 2.8 + (index % 5) * 0.6,
   }));
 
-  const bossIdentity = battleState.currentMonster?.bossIdentity;
+  const bossIdentity = battleState.currentMonsters.find((m) => m.isBoss)?.bossIdentity ?? battleState.currentMonster?.bossIdentity;
   const bossThemeStyle = bossIdentity ? bossThemeArenaStyles[bossIdentity.theme] : null;
 
   const defaultPhaseLabel =
@@ -166,6 +166,16 @@ export function BattleArena({
             >
               {phaseLabel}
             </motion.span>
+            {battleState.waveContext && (
+              <motion.span
+                className="text-xs text-emerald-200 ml-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {`波 ${battleState.waveContext.currentWave}/${battleState.waveContext.totalWaves}`}
+                &nbsp;({battleState.waveContext.remainingInWave}剩)
+              </motion.span>
+            )}
           </div>
         </motion.div>
 
@@ -217,38 +227,47 @@ export function BattleArena({
             }
           />
 
-          <div className="self-center min-w-[170px] flex justify-end relative z-10 overflow-visible">
-            {battleState.currentMonster ? (
-              <div className="relative">
-                <MonsterCard
-                  monster={battleState.currentMonster}
-                  phase={battleState.phase}
-                  hpPercent={battleState.monsterHpPercent}
-                />
-                {battleState.monsterStatusLabel && (
-                  <motion.div
-                    key={`monster-status-${battleState.monsterStatusLabel}-${battleState.monsterHpPercent}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute -top-2 right-2 text-[10px] px-2 py-0.5 rounded-full border border-purple-400/40 bg-purple-500/15 text-purple-200"
-                  >
-                    {battleState.monsterStatusLabel}
-                  </motion.div>
-                )}
-                {battleState.monsterDamageLabel && (
-                  <motion.div
-                    key={`monster-hit-${battleState.monsterDamageLabel}-${battleState.monsterHpPercent}`}
-                    initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                    animate={{ opacity: 1, y: -20, scale: 1.02 }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="absolute -left-5 top-10 text-base font-extrabold text-yellow-300 drop-shadow-[0_0_10px_rgba(253,224,71,0.9)]"
-                  >
-                    {battleState.monsterDamageLabel}
-                  </motion.div>
-                )}
+          <div className="self-center min-w-[220px] max-w-[420px] flex justify-end relative z-10 overflow-visible">
+            {battleState.currentMonsters.length > 0 ? (
+              <div className="flex flex-wrap gap-3 justify-end">
+                {battleState.currentMonsters.map((monster, index) => {
+                  const hpPercent = battleState.monsterHpPercents[index] ?? battleState.monsterHpPercent;
+                  const statusLabel = battleState.monsterStatusLabels[index] || '';
+                  const damageLabel = battleState.monsterDamageLabels[index] || '';
+                  return (
+                    <div key={`${monster.id}-${index}`} className="relative">
+                      <MonsterCard
+                        monster={monster}
+                        phase={battleState.phase}
+                        hpPercent={hpPercent}
+                      />
+                      {statusLabel && (
+                        <motion.div
+                          key={`monster-status-${index}-${statusLabel}-${hpPercent}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="absolute -top-2 right-2 text-[10px] px-2 py-0.5 rounded-full border border-purple-400/40 bg-purple-500/15 text-purple-200"
+                        >
+                          {statusLabel}
+                        </motion.div>
+                      )}
+                      {damageLabel && (
+                        <motion.div
+                          key={`monster-hit-${index}-${damageLabel}-${hpPercent}`}
+                          initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                          animate={{ opacity: 1, y: -20, scale: 1.02 }}
+                          transition={{ duration: 0.35, ease: 'easeOut' }}
+                          className="absolute -left-5 top-10 text-base font-extrabold text-yellow-300 drop-shadow-[0_0_10px_rgba(253,224,71,0.9)]"
+                        >
+                          {damageLabel}
+                        </motion.div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ) : (
-              <div className="text-sm text-gray-400">等待下一只怪物...</div>
+              <div className="text-sm text-gray-400">等待下一组怪物...</div>
             )}
           </div>
 

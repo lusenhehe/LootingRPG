@@ -1,4 +1,5 @@
 import { QUALITY_CONFIG, getQualityLabel } from '../constants/game';
+import { PLAYER_GROWTH, BATTLE_REWARD } from '../constants/settings';
 import { generateEquipment } from './equipment';
 import type { GameState } from '../types/game';
 // initialization happens at app entry (main.tsx)
@@ -34,9 +35,9 @@ export const applySingleBattleReward = (
     logs.push(nextState.系统消息);
   }
 
-  const xpGain = isBoss ? 50 : 20;
+  const xpGain = isBoss ? BATTLE_REWARD.xpPerBoss : BATTLE_REWARD.xpPerMonster;
   nextState.玩家状态.经验 += xpGain;
-  const xpNeeded = nextState.玩家状态.等级 * 100;
+  const xpNeeded = nextState.玩家状态.等级 * PLAYER_GROWTH.xpPerLevel;
 
   let levelUpMsg = '';
   if (nextState.玩家状态.经验 >= xpNeeded) {

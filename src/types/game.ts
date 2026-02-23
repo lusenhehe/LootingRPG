@@ -90,7 +90,7 @@ export interface MonsterPhase {
 export interface Monster {
   id: string;
   name: string;
-  icon: string;
+  icons: string[]; // 支持多个图标
   等级: number;
   tier: MonsterTier;
   isBoss?: boolean;
@@ -113,11 +113,21 @@ export type BattlePhase = 'idle' | 'entering' | 'fighting' | 'dying' | 'dropping
 
 export interface BattleState {
   phase: BattlePhase;
+  currentMonsters: Monster[];
+  monsterHpPercents: number[];
   currentMonster: Monster | null;
   isBossBattle: boolean;
   playerHpPercent: number;
   monsterHpPercent: number;
   showAttackFlash: boolean;
+  waveContext?: {
+    currentWave: number;
+    totalWaves: number;
+    remainingInWave: number;
+    remainingTotal: number;
+  };
+  monsterDamageLabels: string[];
+  monsterStatusLabels: string[];
   playerDamageLabel: string | null;
   monsterDamageLabel: string | null;
   playerStatusLabel: string | null;
@@ -131,11 +141,14 @@ export interface BattleState {
 export interface BattleFrame {
   playerHpPercent: number;
   monsterHpPercent: number;
+  monsterHpPercents?: number[];
   showAttackFlash: boolean;
   playerDamageLabel?: string;
   monsterDamageLabel?: string;
+  monsterDamageLabels?: string[];
   playerStatusLabel?: string;
   monsterStatusLabel?: string;
+  monsterStatusLabels?: string[];
   elementLabel?: string;
   combatLogs?: string[];
 }

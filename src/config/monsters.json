@@ -3,6 +3,7 @@
     { "id": "skeleton", "icon": "💀", "tier": "normal", "maxHp": 130, "attack": 16, "defense": 7, "threatTypes": ["tank_breaker"] },
     { "id": "zombie", "icon": "🧟", "tier": "normal", "maxHp": 152, "attack": 14, "defense": 10, "threatTypes": ["attrition"] },
     { "id": "goblin", "icon": "👺", "tier": "normal", "maxHp": 118, "attack": 19, "defense": 6, "threatTypes": ["sustain_pressure"] },
+    { "id": "wolf", "icon": "🐺", "tier": "normal", "maxHp": 110, "attack": 18, "defense": 5, "threatTypes": ["sustain_pressure"] },
     { "id": "wraith", "icon": "👻", "tier": "normal", "maxHp": 140, "attack": 17, "defense": 8, "threatTypes": ["attrition"] },
     { "id": "slime", "icon": "🟢", "tier": "normal", "maxHp": 104, "attack": 12, "defense": 4, "threatTypes": ["tank_breaker"] },
     { "id": "bandit", "icon": "🦹", "tier": "normal", "maxHp": 124, "attack": 20, "defense": 7, "threatTypes": ["sustain_pressure"] },

@@ -1,4 +1,5 @@
-import { STAT_KEY_MAP } from '../constants/game';
+import { INITIAL_STATE, STAT_KEY_MAP } from '../constants/game';
+import { PLAYER_GROWTH } from '../constants/settings';
 import type { GameState } from '../types/game';
 
 const toNumber = (value: unknown): number => {
@@ -15,10 +16,10 @@ export const recalculatePlayerStats = (state: GameState): GameState => {
   const next = structuredClone(state);
 
   const level = Math.max(1, next.玩家状态.等级);
-  const baseAttack = 10 + (level - 1) * 5;
-  const baseHp = 100 + (level - 1) * 20;
-  const baseDefense = 5 + (level - 1) * 2;
-  const baseCritRate = 5;
+  const baseAttack = INITIAL_STATE.玩家状态.攻击力 + (level - 1) * PLAYER_GROWTH.attackPerLevel;
+  const baseHp = INITIAL_STATE.玩家状态.生命值 + (level - 1) * PLAYER_GROWTH.hpPerLevel;
+  const baseDefense = INITIAL_STATE.玩家状态.防御力 + (level - 1) * PLAYER_GROWTH.defensePerLevel;
+  const baseCritRate = toNumber(`${PLAYER_GROWTH.baseCritRate}`);
 
   let attackBonus = 0;
   let hpBonus = 0;

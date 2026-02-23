@@ -10,18 +10,15 @@ import { useProfileSave } from './hooks/profile/useProfileSave';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { GameScreen } from './components/game/GameScreen';
 import { createFreshInitialState, createInitialBattleState } from './logic/gameState';
-import { applySingleBattleReward, applyWaveBattleReward } from './logic/battleRewards';
+import { applySingleBattleReward } from './logic/battleRewards';
+import { getMonsterById } from './constants/monsterData';
+import { getRandomMonster } from './constants/game';
 import { quickSellByQualityRange as quickSellBackpackByRange } from './logic/inventory';
 import { applyPlayerCommand } from './logic/playerCommands';
 import { recalculatePlayerStats } from './logic/playerStats';
 import { MAP_CHAPTERS, type MapChapterDef, type MapNodeDef } from './config/mapChapters';
-import {
-  applyMapNodeResult,
-  createInitialMapProgress,
-  getChapterProgress,
-  isNodeUnlocked,
-  normalizeMapProgress,
-} from './logic/mapProgress';
+import type { Monster } from './types/game';
+import { applyMapNodeResult, createInitialMapProgress, getChapterProgress, isNodeUnlocked, normalizeMapProgress} from './logic/mapProgress';
 
 export default function App() {
   // pulled out into hooks; some pieces remain for passing down
@@ -125,6 +122,25 @@ export default function App() {
     }
   };
 
+  const applyBatchBattleRewards = (state: GameState, monsters: Monster[]) => {
+    let nextState = state;
+    const allLogs: string[] = [];
+    let droppedName = '未知战利品';
+
+    monsters.forEach((monster) => {
+      const result = applySingleBattleReward(nextState, !!monster.isBoss, autoSellQualities);
+      nextState = result.nextState;
+      droppedName = result.droppedName;
+      allLogs.push(...result.logs);
+    });
+
+    return {
+      nextState,
+      droppedName,
+      logs: allLogs,
+    };
+  };
+
   const startBattleSequence = (isBoss: boolean) => {
     hookStartBattleSequence(isBoss, undefined, ({ simulation, isBoss }) => {
       try {
@@ -166,6 +182,10 @@ export default function App() {
               ...prev,
               phase: 'idle',
               currentMonster: null,
+              currentMonsters: [],
+              monsterHpPercents: [],
+              monsterDamageLabels: [],
+              monsterStatusLabels: [],
               showDropAnimation: false,
               showAttackFlash: false,
               playerDamageLabel: null,
@@ -192,6 +212,10 @@ export default function App() {
               ...prev,
               phase: 'idle',
               currentMonster: null,
+              currentMonsters: [],
+              monsterHpPercents: [],
+              monsterDamageLabels: [],
+              monsterStatusLabels: [],
               showDropAnimation: false,
               showAttackFlash: false,
               playerDamageLabel: null,
@@ -212,38 +236,143 @@ export default function App() {
   const startMonsterWaveBattle = (waveSize = 5, mapChallenge?: { node: MapNodeDef; chapter: MapChapterDef }) => {
     if (loading || battleState.phase !== 'idle' || waveSize <= 0) return;
 
-    clearBattleTimers();
-    setLoading(true);
+    // generate each random monster and treat each as one wave
+    const monsters = Array.from({ length: waveSize }).map(() =>
+      getRandomMonster({
+        isBoss: false,
+        playerLevel: gameState.玩家状态.等级,
+        encounterCount: battleState.encounterCount,
+      }),
+    );
 
-    scheduleBattleStep(() => {
-      let waveSummary = '';
+    let waveIndex = 0;
+    const total = monsters.length;
 
-      setGameState((prev) => {
-        const result = applyWaveBattleReward(prev, waveSize, autoSellQualities);
-        waveSummary = result.summary;
-
-        return recalculatePlayerStats(result.nextState);
-      });
-
+    const runWave = (index: number) => {
+      const group = [monsters[index]];
       setBattleState((prev) => ({
         ...prev,
-        encounterCount: prev.encounterCount + waveSize,
+        waveContext: {
+          currentWave: index + 1,
+          totalWaves: total,
+          remainingInWave: group.length,
+          remainingTotal: total - index,
+        },
       }));
 
-      if (waveSummary) {
-        addLog(waveSummary);
-      }
+      hookStartBattleSequence(false, undefined, ({ simulation }) => {
+        try {
+          const frameStep = 260;
+          const frameStartDelay = 760;
+          const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
 
-      if (mapChallenge) {
-        resolveMapChallengeResult(true, mapChallenge);
-      }
+          if (simulation.playerWon) {
+            scheduleBattleStep(() => {
+              setBattleState((prev) => ({
+                ...prev,
+                phase: 'dying',
+                monsterHpPercent: 0,
+                monsterHpPercents: prev.currentMonsters.map(() => 0),
+                showAttackFlash: false,
+              }));
+            }, battleEndDelay + 180);
 
-      setLoading(false);
-    }, 220);
+            scheduleBattleStep(() => {
+              let dropLabel = '未知战利品';
+              setGameState((prev) => {
+                const batch = applyBatchBattleRewards(prev, simulation.monsters);
+                dropLabel = batch.droppedName;
+                batch.logs.forEach(addLog);
+                return recalculatePlayerStats(batch.nextState);
+              });
+
+              if (mapChallenge && index === total - 1) {
+                resolveMapChallengeResult(true, mapChallenge);
+              }
+
+              setBattleState((prev) => ({
+                ...prev,
+                phase: 'dropping',
+                showDropAnimation: true,
+                dropLabel,
+                playerDamageLabel: null,
+                monsterDamageLabel: null,
+                monsterDamageLabels: prev.currentMonsters.map(() => ''),
+              }));
+            }, battleEndDelay + 420);
+
+            scheduleBattleStep(() => {
+              if (index < total - 1) {
+                runWave(index + 1);
+              } else {
+                setBattleState((prev) => ({
+                  ...prev,
+                  phase: 'idle',
+                  currentMonster: null,
+                  currentMonsters: [],
+                  monsterHpPercents: [],
+                  monsterDamageLabels: [],
+                  monsterStatusLabels: [],
+                  showDropAnimation: false,
+                  showAttackFlash: false,
+                  playerDamageLabel: null,
+                  monsterDamageLabel: null,
+                  playerStatusLabel: null,
+                  monsterStatusLabel: null,
+                  elementLabel: null,
+                  waveContext: undefined,
+                }));
+                setLoading(false);
+              }
+            }, battleEndDelay + 1100);
+          } else {
+            scheduleBattleStep(() => {
+              const failMessage = '战斗失败：你被怪群压制了，继续强化装备再来挑战！';
+              setGameState((prev) => ({
+                ...prev,
+                系统消息: failMessage,
+                战斗结果: failMessage,
+              }));
+              addLog(failMessage);
+
+              if (mapChallenge) {
+                resolveMapChallengeResult(false, mapChallenge);
+              }
+
+              setBattleState((prev) => ({
+                ...prev,
+                phase: 'idle',
+                currentMonster: null,
+                currentMonsters: [],
+                monsterHpPercents: [],
+                showDropAnimation: false,
+                showAttackFlash: false,
+                playerDamageLabel: null,
+                monsterDamageLabel: null,
+                monsterDamageLabels: [],
+                playerStatusLabel: null,
+                monsterStatusLabel: null,
+                monsterStatusLabels: [],
+                elementLabel: null,
+                waveContext: undefined,
+              }));
+              setLoading(false);
+            }, battleEndDelay + 320);
+          }
+        } catch (err) {
+          reportError(err, { action: 'wave-battle' });
+        }
+      }, group);
+    };
+
+    runWave(0);
+    setActiveTab('status');
   };
 
   const startMapNodeBattle = (node: MapNodeDef, chapter: MapChapterDef) => {
     if (loading || battleState.phase !== 'idle') return;
+    // ensure any leftover wave context is cleared when user triggers a standalone fight
+    setBattleState((prev) => ({ ...prev, waveContext: undefined }));
 
     const normalizedProgress = normalizeMapProgress(mapProgress, MAP_CHAPTERS);
     if (!isNodeUnlocked(normalizedProgress, node.id)) {
@@ -255,6 +384,8 @@ export default function App() {
     pendingMapChallengeRef.current = { node, chapter };
 
     if (node.encounterType === 'boss') {
+      // clear wave context before starting a single map boss battle
+      setBattleState((prev) => ({ ...prev, waveContext: undefined }));
       hookStartBattleSequence(true, { mapNodeId: node.id }, ({ simulation, isBoss }) => {
         try {
           const { playerWon, monster } = simulation;
@@ -295,6 +426,10 @@ export default function App() {
                 ...prev,
                 phase: 'idle',
                 currentMonster: null,
+                currentMonsters: [],
+                monsterHpPercents: [],
+                monsterDamageLabels: [],
+                monsterStatusLabels: [],
                 showDropAnimation: false,
                 showAttackFlash: false,
                 playerDamageLabel: null,
@@ -321,6 +456,10 @@ export default function App() {
                 ...prev,
                 phase: 'idle',
                 currentMonster: null,
+                currentMonsters: [],
+                monsterHpPercents: [],
+                monsterDamageLabels: [],
+                monsterStatusLabels: [],
                 showDropAnimation: false,
                 showAttackFlash: false,
                 playerDamageLabel: null,
@@ -340,8 +479,176 @@ export default function App() {
       return;
     }
 
-    if (node.encounterType === 'wave') {
-      startMonsterWaveBattle(node.waveSize ?? 5, { node, chapter });
+    // treat any node that has waves defined (or a legacy waveSize) as a multi‑monster encounter
+    // sequentially process each configured wave so monsters arrive in batches
+    const hasExplicitWaves = node.waves && node.waves.length > 0;
+    const hasLegacySize = !!node.waveSize;
+    if (hasExplicitWaves || hasLegacySize) {
+      let waveGroups: Monster[][];
+      if (hasExplicitWaves) {
+        // build groups from explicit definitions
+        waveGroups = node.waves!.map((w) => {
+          const group: Monster[] = [];
+          w.monsters.forEach((m) => {
+            const count = m.count ?? 1;
+            for (let k = 0; k < count; k++) {
+              const mon =
+                getMonsterById(m.monsterId) ||
+                getRandomMonster({
+                  isBoss: false,
+                  playerLevel: gameState.玩家状态.等级,
+                  encounterCount: battleState.encounterCount,
+                });
+              if (!getMonsterById(m.monsterId)) {
+                console.warn(`配置的波次怪物 id "${m.monsterId}" 未找到，使用随机怪替代。`);
+              }
+              group.push(mon);
+            }
+          });
+          return group;
+        });
+      } else {
+        // legacy waveSize: create that many random single‑monster waves
+        waveGroups = Array.from({ length: node.waveSize! }).map(() => [
+          getRandomMonster({
+            isBoss: false,
+            playerLevel: gameState.玩家状态.等级,
+            encounterCount: battleState.encounterCount,
+          }),
+        ]);
+      }
+
+      const totalEnemies = waveGroups.reduce((sum, g) => sum + g.length, 0);
+      let currentWaveIndex = 0;
+
+      const runWave = (index: number) => {
+        const monstersThisWave = waveGroups[index];
+        const remainingBefore = waveGroups.slice(0, index).reduce((s, g) => s + g.length, 0);
+
+        setBattleState((prev) => ({
+          ...prev,
+          waveContext: {
+            currentWave: index + 1,
+            totalWaves: waveGroups.length,
+            remainingInWave: monstersThisWave.length,
+            remainingTotal: totalEnemies - remainingBefore,
+          },
+        }));
+
+        hookStartBattleSequence(
+          monstersThisWave.some((m) => m.isBoss),
+          { mapNodeId: node.id },
+          ({ simulation }) => {
+            try {
+              const { playerWon, monsters } = simulation;
+              const frameStep = 260;
+              const frameStartDelay = 760;
+              const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
+
+              if (playerWon) {
+                scheduleBattleStep(() => {
+                  setBattleState((prev) => ({
+                    ...prev,
+                    phase: 'dying',
+                    monsterHpPercent: 0,
+                    monsterHpPercents: prev.currentMonsters.map(() => 0),
+                    showAttackFlash: false,
+                  }));
+                }, battleEndDelay + 180);
+
+                scheduleBattleStep(() => {
+                  let dropLabel = '未知战利品';
+
+                  setGameState((prev) => {
+                    const batch = applyBatchBattleRewards(prev, monsters);
+                    dropLabel = batch.droppedName;
+                    batch.logs.forEach(addLog);
+                    return recalculatePlayerStats(batch.nextState);
+                  });
+
+                  // only resolve map challenge on final wave
+                  if (index === waveGroups.length - 1) {
+                    resolveMapChallengeResult(true, { node, chapter });
+                  }
+
+                  setBattleState((prev) => ({
+                    ...prev,
+                    phase: 'dropping',
+                    showDropAnimation: true,
+                    dropLabel,
+                    playerDamageLabel: null,
+                    monsterDamageLabel: null,
+                    monsterDamageLabels: prev.currentMonsters.map(() => ''),
+                  }));
+                }, battleEndDelay + 420);
+
+                scheduleBattleStep(() => {
+                  if (index < waveGroups.length - 1) {
+                    // start next wave after a short pause
+                    runWave(index + 1);
+                  } else {
+                    // all done, return to idle
+                    setBattleState((prev) => ({
+                      ...prev,
+                      phase: 'idle',
+                      currentMonster: null,
+                      currentMonsters: [],
+                      monsterHpPercents: [],
+                      monsterDamageLabels: [],
+                      monsterStatusLabels: [],
+                      showDropAnimation: false,
+                      showAttackFlash: false,
+                      playerDamageLabel: null,
+                      monsterDamageLabel: null,
+                      playerStatusLabel: null,
+                      monsterStatusLabel: null,
+                      elementLabel: null,
+                      waveContext: undefined,
+                    }));
+                    setLoading(false);
+                  }
+                }, battleEndDelay + 1100);
+              } else {
+                scheduleBattleStep(() => {
+                  const failMessage = `战斗失败：你被怪群压制了，继续强化装备再来挑战！`;
+                  setGameState((prev) => ({
+                    ...prev,
+                    系统消息: failMessage,
+                    战斗结果: failMessage,
+                  }));
+                  addLog(failMessage);
+
+                  resolveMapChallengeResult(false, { node, chapter });
+
+                  setBattleState((prev) => ({
+                    ...prev,
+                    phase: 'idle',
+                    currentMonster: null,
+                    currentMonsters: [],
+                    monsterHpPercents: [],
+                    monsterDamageLabels: [],
+                    monsterStatusLabels: [],
+                    showDropAnimation: false,
+                    showAttackFlash: false,
+                    playerDamageLabel: null,
+                    monsterDamageLabel: null,
+                    playerStatusLabel: null,
+                    monsterStatusLabel: null,
+                    elementLabel: null,
+                    waveContext: undefined,
+                  }));
+                  setLoading(false);
+                }, battleEndDelay + 320);
+              }
+            } catch (err) {
+              reportError(err, { action: 'map-wave-battle' });
+            }
+          },
+          monstersThisWave,
+        );
+      };
+
+      runWave(0);
       setActiveTab('status');
       return;
     }
@@ -386,6 +693,10 @@ export default function App() {
               ...prev,
               phase: 'idle',
               currentMonster: null,
+              currentMonsters: [],
+              monsterHpPercents: [],
+              monsterDamageLabels: [],
+              monsterStatusLabels: [],
               showDropAnimation: false,
               showAttackFlash: false,
               playerDamageLabel: null,
@@ -412,6 +723,10 @@ export default function App() {
               ...prev,
               phase: 'idle',
               currentMonster: null,
+              currentMonsters: [],
+              monsterHpPercents: [],
+              monsterDamageLabels: [],
+              monsterStatusLabels: [],
               showDropAnimation: false,
               showAttackFlash: false,
               playerDamageLabel: null,

@@ -82,28 +82,26 @@ export const getRandomMonster = ({ isBoss, playerLevel, encounterCount }: Monste
   const basePool = isBoss ? BOSS_MONSTERS_DATA : NORMAL_MONSTERS_DATA;
   const pool = basePool;
   const picked = pool[Math.floor(Math.random() * pool.length)];
-  const secondIcon = pool[Math.floor(Math.random() * pool.length)].icon;
+  const secondIcon = pool[Math.floor(Math.random() * pool.length)].icons[0] || '';
   const affixIcons = ['🔥', '⚡', '❄️', '☠️', '🛡️', '🌪️', '🩸', '✨'];
   const affix = affixIcons[Math.floor(Math.random() * affixIcons.length)];
 
-  let icon = picked.icon;
-  if (Math.random() < 0.5) {
-    icon = `${picked.icon}${secondIcon}`;
-  } else if (Math.random() < 0.45) {
-    icon = `${picked.icon}${affix}`;
-  }
+  // build display icon string from available icons
+  let displayIcon = picked.icons[0] || '';
+  // 50可能性性添加第二个图标，45%可能性添加一个属性图标（如果没有添加第二个图标）
+  displayIcon += Math.random() < 0.5 ? secondIcon : '' + (Math.random() < 0.45 ? affix : '');
 
-  const eliteChance = isBoss ? 0 : 0.08;
-  const isElite = Math.random() < eliteChance;
-  const levelFromEncounter = Math.floor(Math.max(0, encounterCount) / 8);
-  const levelVariance = Math.floor(Math.random() * 3) - 1;
-  const bossLevelBonus = isBoss ? 3 : 0;
-  const monsterLevel = Math.max(1, playerLevel + levelFromEncounter + levelVariance + bossLevelBonus);
+  const eliteChance = isBoss ? 0 : 0.08;                   // boss 不能成为精英，普通怪有小概率成为精英
+  const isElite     = Math.random() < eliteChance;         // 是否成为精英怪
+  const levelFromEncounter = Math.floor(Math.max(0, encounterCount) / 8); // 随着遭遇次数增加，怪物等级会逐渐提升，每8次增加1级
+  // const levelVariance = Math.floor(Math.random() * 3) - 1; // 等级波动范围：-1, 0, +1，增加一些随机性
+  const bossLevelBonus = isBoss ? 3 : 0;                   // boss 怪物比同等级的普通怪物更强，额外增加3级的属性加成
+  const monsterLevel = Math.max(1, playerLevel + levelFromEncounter + bossLevelBonus);
   const levelScale = 1 + (monsterLevel - 1) * 0.08;
 
   let monster: Monster = {
     ...picked,
-    icon,
+    icons: [displayIcon],
     等级: monsterLevel,
     elite: isElite,
     maxHp: Math.max(1, Math.floor(picked.maxHp * levelScale)),
@@ -137,15 +135,15 @@ export const INITIAL_STATE: GameState = {
   玩家状态: {
     等级: 1,
     经验: 0,
-    攻击力: 10,
-    生命值: 100,
+    攻击力: 50,
+    生命值: 300,
     防御力: 5,
     暴击率: '5%',
     伤害加成: 0,
     吸血: 0,
     反伤: 0,
     元素伤害: 0,
-    攻击速度: 0,
+    攻击速度: 100,
     金币: 100,
   },
   战斗结果: '欢迎来到 AI 刷装备 RPG！(本地逻辑版)',
@@ -153,7 +151,6 @@ export const INITIAL_STATE: GameState = {
   背包: [],
   系统消息: '准备好开始你的冒险了吗？',
   当前装备: {
-    // use english slot keys internally; labels are translated with getSlotLabel
     weapon: null,
     helmet: null,
     armor: null,
@@ -161,8 +158,5 @@ export const INITIAL_STATE: GameState = {
     necklace: null,
     boots: null,
   },
-  保底计数: {
-    传说: 0,
-    神话: 0,
-  },
+  保底计数: { 传说: 0, 神话: 0, },
 };

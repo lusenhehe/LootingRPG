@@ -11,6 +11,13 @@ export interface MapNodeDef {
     y: number;
   };
   waveSize?: number;
+  waves?: NodeWave[];
+}
+
+export interface NodeWave {
+  id: string;
+  label?: string;
+  monsters: { monsterId: string; count?: number }[];
 }
 
 export interface MapChapterDef {
@@ -28,7 +35,12 @@ export const MAP_CHAPTERS: MapChapterDef[] = [
     levelRange: 'Lv.1-10',
     theme: '林地',
     nodes: [
-      { id: '1-1', name: '侦查营地', recommendedLevel: 2, encounterType: 'normal', firstClearRewardGold: 120, position: { x: 20, y: 45 } },
+      { id: '1-1', name: '侦查营地', recommendedLevel: 2, encounterType: 'normal', firstClearRewardGold: 120, position: { x: 20, y: 45 },
+        waves: [
+          { id: '1-1-a', label: '第一波', monsters: [ { monsterId: 'wolf' }, { monsterId: 'goblin' } ] },
+          { id: '1-1-b', label: '第二波', monsters: [ { monsterId: 'wolf' } ] },
+        ],
+      },
       { id: '1-2', name: '苔石峡谷', recommendedLevel: 4, encounterType: 'elite', firstClearRewardGold: 160, position: { x: 50, y: 45 } },
       { id: '1-3', name: '林地小径', recommendedLevel: 6, encounterType: 'normal', firstClearRewardGold: 180, position: { x: 80, y: 45 } },
       { id: '1-4', name: '荒树基地', recommendedLevel: 8, encounterType: 'elite', firstClearRewardGold: 200, position: { x: 20, y: 50 } },

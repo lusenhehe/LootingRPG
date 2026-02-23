@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {getNodeAttempts,isNodeCleared,isNodeUnlocked} from '../../../logic/mapProgress';
 import { Lock, Sparkles, Star, Zap, Skull, Crown, Trophy, Swords, Ghost } from 'lucide-react';
 import { chapterThemeStyles, encounterBadge, getNodeState, stateOverlayStyles, getZigzagNodePosition } from './mapConfig';
+import { UI_DIMENSIONS, UI_STYLES } from '../../../constants/settings';
 import type { MapProgressState } from '../../../types/game';
 import type { MapNodeDef, MapChapterDef, MapEncounterType } from '../../../config/mapChapters';
 
@@ -58,6 +59,13 @@ export default function MapNode({
   const unlocked = isNodeUnlocked(normalizedProgress, node.id);
   const cleared = isNodeCleared(normalizedProgress, node.id);
   const attempts = getNodeAttempts(normalizedProgress, node.id);
+  const waves =
+    node.waves && node.waves.length > 0
+      ? node.waves
+      : node.waveSize
+      ? Array.from({ length: node.waveSize }).map((_,i)=>({ id: `${node.id}-auto-${i}`, monsters: [] }))
+      : [];
+  const waveCount = waves.length;
   const state = getNodeState(unlocked, cleared, playerLevel, node.recommendedLevel);
   const disabled = loading || state === 'locked';
   const themeStyle = chapterThemeStyles[selectedChapter.theme as any];
@@ -101,11 +109,14 @@ export default function MapNode({
           </div>
 
           <div className="relative flex flex-col items-center">
+            {waveCount > 1 && (
+              <div className={UI_STYLES.nodeWaveLabel}>
+                {waveCount} 波
+              </div>)}
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex gap-1">
               {Array.from({ length: starCount }).map((_, i) => (
                 <motion.div
-                  key={i}
-                  animate={disabled ? {} : { scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
+                  key={i} animate={disabled ? {} : { scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
                 >
                   <Star size={10} className="text-yellow-400" fill="currentColor" strokeWidth={1.5} />

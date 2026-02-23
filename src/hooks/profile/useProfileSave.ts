@@ -55,6 +55,42 @@ export function useProfileSave({
   useEffect(() => {
     if (!isAuthenticated || !activeProfileId) return;
 
+    const profileKey = getProfileSaveKey(activeProfileId);
+    const profileExists = Boolean(localStorage.getItem(profileKey));
+    if (!profileExists) {
+      const freshGameState = createFreshInitialState();
+      const freshLogs = ['[系统] 检测到本地存档已清理，已按最新初始配置重建。'];
+      const freshMapProgress = createInitialMapProgress(MAP_CHAPTERS);
+      const freshAutoSell = createAutoSellQualityMap();
+
+      setGameState(freshGameState);
+      setLogs(freshLogs);
+      setMapProgress(freshMapProgress);
+      setAutoSellQualities(freshAutoSell);
+      if (setBattleState) setBattleState(createInitialBattleState());
+
+      localStorage.setItem(
+        profileKey,
+        JSON.stringify({
+          gameState: freshGameState,
+          logs: freshLogs,
+          autoSellQualities: freshAutoSell,
+          mapProgress: freshMapProgress,
+        } satisfies SavePayload),
+      );
+
+      setProfiles((prev) => {
+        const next = prev.map((profile) =>
+          profile.id === activeProfileId ? { ...profile, updatedAt: Date.now() } : profile,
+        );
+        localStorage.setItem(PROFILE_INDEX_KEY, JSON.stringify(next));
+        return next;
+      });
+
+      addLog('检测到本地缓存已清空，已重建为最新初始存档。');
+      return;
+    }
+
     const payload: SavePayload = { gameState, logs, autoSellQualities, mapProgress };
     localStorage.setItem(getProfileSaveKey(activeProfileId), JSON.stringify(payload));
 
@@ -83,7 +119,9 @@ export function useProfileSave({
     if (!payloadText) {
       setGameState(createFreshInitialState());
       setLogs(['[系统] 新玩家存档已创建。']);
+      setAutoSellQualities(createAutoSellQualityMap());
       setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
+      if (setBattleState) setBattleState(createInitialBattleState());
       return;
     }
 

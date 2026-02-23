@@ -94,7 +94,7 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
           transition={{ duration: 0.8, repeat: phase === 'fighting' ? Infinity : 0 }}
           style={isBoss ? { filter: 'drop-shadow(0_0_15px rgba(244,63,94,0.6))' } : {}}
         >
-          {monster.icon}
+          {monster.icons[0]}
         </motion.div>
         <div className={`font-display text-sm tracking-wide ${isBoss ? `${bossThemeStyle?.name ?? 'text-red-200'} drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]` : 'text-gray-200'}`}>{monster.name}</div>
         <div className="text-[10px] text-gray-300/80 font-mono">Lv.{monster.等级}</div>

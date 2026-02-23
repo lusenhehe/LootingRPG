@@ -6,11 +6,15 @@ export const createFreshInitialState = (): GameState => structuredClone(INITIAL_
 
 export const createInitialBattleState = (): BattleState => ({
   phase: 'idle',
+  currentMonsters: [],
+  monsterHpPercents: [],
   currentMonster: null,
   isBossBattle: false,
   playerHpPercent: 100,
   monsterHpPercent: 100,
   showAttackFlash: false,
+  monsterDamageLabels: [],
+  monsterStatusLabels: [],
   playerDamageLabel: null,
   monsterDamageLabel: null,
   playerStatusLabel: null,

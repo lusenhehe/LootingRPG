@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import type { BattleState, GameState } from '../../types/game';
+import type { BattleState, GameState, Monster } from '../../types/game';
 import { createInitialBattleState } from '../../logic/gameState';
-import { simulateBattle } from '../../logic/battle/battleEngine';
+import { simulateBattle } from '../../logic/battle/battleEngine.ts';
 import { getRandomMonster } from '../../constants/game';
 
 export interface BattleStartOptions {
@@ -47,6 +47,7 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
     isBoss: boolean,
     options?: BattleStartOptions,
     onComplete?: (args: { simulation: ReturnType<typeof simulateBattle>; isBoss: boolean; mapNodeId?: string }) => void,
+    forcedMonster?: Monster | Monster[],
   ) => {
     if (loading || battleState.phase !== 'idle') return;
 
@@ -56,7 +57,7 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
     const mapNodeId = options?.mapNodeId;
 
     const simulation = simulateBattle(
-      getRandomMonster({
+      forcedMonster || getRandomMonster({
         isBoss,
         playerLevel: gameState.玩家状态.等级,
         encounterCount: battleState.encounterCount,
@@ -66,6 +67,7 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
       isBoss,
     );
     const monster = simulation.monster;
+    const monsters = simulation.monsters;
 
     if (isBoss && monster.bossIdentity?.introLine) {
       addLog(monster.bossIdentity.introLine);
@@ -74,10 +76,14 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
     setBattleState((prev) => ({
       ...prev,
       phase: 'entering',
+      currentMonsters: monsters,
+      monsterHpPercents: monsters.map(() => 100),
       currentMonster: monster,
       isBossBattle: isBoss,
       monsterHpPercent: 100,
       showAttackFlash: true,
+      monsterDamageLabels: monsters.map(() => ''),
+      monsterStatusLabels: monsters.map(() => ''),
       encounterCount: prev.encounterCount + 1,
     }));
 
@@ -88,17 +94,35 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
       }
 
       const f = simulation.frames[frame];
-      setBattleState((prev) => ({
-        ...prev,
-        playerHpPercent: f.playerHpPercent,
-        monsterHpPercent: f.monsterHpPercent,
-        showAttackFlash: f.showAttackFlash,
-        playerDamageLabel: f.playerDamageLabel ?? null,
-        monsterDamageLabel: f.monsterDamageLabel ?? null,
-        playerStatusLabel: f.playerStatusLabel ?? null,
-        monsterStatusLabel: f.monsterStatusLabel ?? null,
-        elementLabel: f.elementLabel ?? null,
-      }));
+      setBattleState((prev) => {
+        const updated: Partial<typeof prev> = {
+          playerHpPercent: f.playerHpPercent,
+          monsterHpPercents: f.monsterHpPercents ?? prev.monsterHpPercents,
+          monsterHpPercent: f.monsterHpPercent,
+          showAttackFlash: f.showAttackFlash,
+          monsterDamageLabels: f.monsterDamageLabels ?? prev.monsterDamageLabels,
+          monsterStatusLabels: f.monsterStatusLabels ?? prev.monsterStatusLabels,
+          playerDamageLabel: f.playerDamageLabel ?? null,
+          monsterDamageLabel: f.monsterDamageLabel ?? null,
+          playerStatusLabel: f.playerStatusLabel ?? null,
+          monsterStatusLabel: f.monsterStatusLabel ?? null,
+          elementLabel: f.elementLabel ?? null,
+        };
+
+        // update wave context remaining count if applicable
+        if (prev.waveContext) {
+          const alive = (f.monsterHpPercents ?? prev.monsterHpPercents).filter((p) => p > 0).length;
+          updated.waveContext = {
+            ...prev.waveContext,
+            remainingInWave: alive,
+          };
+        }
+
+        return {
+          ...prev,
+          ...updated,
+        } as typeof prev;
+      });
 
       scheduleBattleStep(() => advance(frame + 1), 120);
     };
