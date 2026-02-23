@@ -69,13 +69,13 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
   const isBoss = monster.tier === 'boss';
   const bossThemeStyle = isBoss && monster.bossIdentity ? bossThemeCardStyles[monster.bossIdentity.theme] : null;
   const traitTags: string[] = (monster.traits ?? []).map((trait) => t(`trait.${trait}`));
-  const x = phase === 'entering' ? 180 : 0;
-  const scale = phase === 'dying' ? 0.75 : isBoss ? 1.25 : 1;
+  const x = phase === 'entering' ? 18 : 0;
+  const scale = phase === 'dying' ? 0.75 : isBoss ? 1.02 : 1;
   const opacity = phase === 'dying' ? 0 : 1;
   return (
     <motion.div
-      className={`relative rounded-2xl border ${isBoss ? (bossThemeStyle?.card ?? 'border-red-500/60 bg-red-950/30') : 'border-gray-600/60 bg-black/30'} p-4 backdrop-blur-sm min-w-[150px]`}
-      initial={{ x: 220, opacity: 0 }}
+      className={`relative rounded-2xl border ${isBoss ? (bossThemeStyle?.card ?? 'border-red-500/60 bg-red-950/30') : 'border-gray-600/60 bg-black/30'} p-4 backdrop-blur-sm min-w-[140px]`}
+      initial={{ x: 80, opacity: 0 }}
       animate={{
         x,
         opacity,
@@ -84,7 +84,7 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
       transition={{ duration: phase === 'entering' ? 0.5 : 0.35, ease: 'easeOut' }}
     >
       {isBoss && <div className={`absolute -inset-0.5 rounded-2xl bg-gradient-to-r ${bossThemeStyle?.glow ?? 'from-red-600/20 to-orange-500/20'} blur opacity-50`} />}
-      <div className="absolute -top-2 -right-2 text-[9px] px-2 py-0.5 rounded-full bg-black/70 border border-white/20 uppercase tracking-widest">
+      <div className="absolute top-1 right-1 text-[9px] px-2 py-0.5 rounded-full bg-black/70 border border-white/20 uppercase tracking-widest">
         {isBoss ? t('label.boss') : t('label.monster')}
       </div>
       <div className="text-center space-y-2 relative">
@@ -97,6 +97,7 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
           {monster.icon}
         </motion.div>
         <div className={`font-display text-sm tracking-wide ${isBoss ? `${bossThemeStyle?.name ?? 'text-red-200'} drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]` : 'text-gray-200'}`}>{monster.name}</div>
+        <div className="text-[10px] text-gray-300/80 font-mono">Lv.{monster.等级}</div>
 
         {isBoss && monster.counterGoalLabel && (
           <div

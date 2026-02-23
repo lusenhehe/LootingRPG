@@ -1,27 +1,27 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { useEffect, useRef, useState } from 'react';
 import {
   ACTIVE_PROFILE_KEY,
   createAutoSellQualityMap,
 } from './constants/game';
-import type { ActiveTab, BattleRegion, BattleRisk, GameState } from './types/game';
+import type { ActiveTab, GameState, MapProgressState } from './types/game';
 // extracted hooks for better separation of concerns
 import { useBattleFlow } from './hooks/battle/useBattleFlow';
 import { useProfileSave } from './hooks/profile/useProfileSave';
-import { useMapProgress } from './hooks/map/useMapProgress';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { GameScreen } from './components/game/GameScreen';
-import { createFreshInitialState, createInitialBattleState, normalizeGameState } from './logic/gameState';
+import { createFreshInitialState, createInitialBattleState } from './logic/gameState';
 import { applySingleBattleReward, applyWaveBattleReward } from './logic/battleRewards';
 import { quickSellByQualityRange as quickSellBackpackByRange } from './logic/inventory';
 import { applyPlayerCommand } from './logic/playerCommands';
 import { recalculatePlayerStats } from './logic/playerStats';
-import type { MapNode } from './types/map';
-import { createInitialMapProgress, getCurrentMapNode } from './logic/mapProgress';
+import { MAP_CHAPTERS, type MapChapterDef, type MapNodeDef } from './config/mapChapters';
+import {
+  applyMapNodeResult,
+  createInitialMapProgress,
+  getChapterProgress,
+  isNodeUnlocked,
+  normalizeMapProgress,
+} from './logic/mapProgress';
 
 export default function App() {
   // pulled out into hooks; some pieces remain for passing down
@@ -34,22 +34,12 @@ export default function App() {
     setLogs((prev) => [...prev.slice(-99), `[${time}] ${msg}`]);
   };
   const [autoSellQualities, setAutoSellQualities] = useState<Record<string, boolean>>(createAutoSellQualityMap());
-  // mapProgress will be managed by useMapProgress hook below
+  const [mapProgress, setMapProgress] = useState<MapProgressState>(() => createInitialMapProgress(MAP_CHAPTERS));
   const [activeTab, setActiveTab] = useState<ActiveTab>('status');
   const [forgeSelectedId, setForgeSelectedId] = useState<string | null>(null);
   const [autoBattleEnabled, setAutoBattleEnabled] = useState(false);
   const autoBattleTimeoutRef = useRef<number | null>(null);
-  const [battleRegion, setBattleRegion] = useState<BattleRegion>('forest');
-  const [battleRisk, setBattleRisk] = useState<BattleRisk>('normal');
-  const [spawnMultiplier, setSpawnMultiplier] = useState(1);
-
-  // ---------- hooks ----------
-  const {
-    mapProgress,
-    setMapProgress,
-    markVictory: registerMapNodeVictoryHook,
-    markFailure: registerMapNodeFailureHook,
-  } = useMapProgress();
+  const pendingMapChallengeRef = useRef<{ node: MapNodeDef; chapter: MapChapterDef } | null>(null);
 
   const {
     battleState,
@@ -80,18 +70,63 @@ export default function App() {
     setGameState,
     setLogs,
     setAutoSellQualities,
-    setBattleState,
     setMapProgress,
+    setBattleState,
     addLog,
   });
-  interface BattleStartOptions {
-    region?: BattleRegion;
-    risk?: BattleRisk;
-    spawn?: number;
-    mapNodeId?: string;
-  }
-  const startBattleSequence = (isBoss: boolean, options?: BattleStartOptions) => {
-    hookStartBattleSequence(isBoss, options, ({ simulation, isBoss, mapNodeId }) => {
+
+  const resolveMapChallengeResult = (won: boolean, context?: { node: MapNodeDef; chapter: MapChapterDef } | null) => {
+    const challenge = context ?? pendingMapChallengeRef.current;
+    pendingMapChallengeRef.current = null;
+    if (!challenge) return;
+
+    const { node, chapter } = challenge;
+    const currentProgress = normalizeMapProgress(mapProgress, MAP_CHAPTERS);
+    const result = applyMapNodeResult({
+      progress: currentProgress,
+      chapters: MAP_CHAPTERS,
+      chapterId: chapter.id,
+      nodeId: node.id,
+      won,
+    });
+
+    setMapProgress(result.nextProgress);
+
+    if (!won) {
+      const failCount = result.nextProgress.failedAttempts[node.id] ?? 0;
+      addLog(`[地图] ${node.name} 挑战失败（累计失败 ${failCount} 次）`);
+      return;
+    }
+
+    if (result.firstClear) {
+      setGameState((prev) => ({
+        ...prev,
+        玩家状态: {
+          ...prev.玩家状态,
+          金币: prev.玩家状态.金币 + node.firstClearRewardGold,
+        },
+      }));
+      addLog(`[地图] 首通 ${node.name}，获得 ${node.firstClearRewardGold} 金币。`);
+    } else {
+      addLog(`[地图] ${node.name} 已通关，未触发首通奖励。`);
+    }
+
+    if (result.unlockedNodeId) {
+      addLog(`[地图] 新节点已解锁：${result.unlockedNodeId}`);
+    }
+    if (result.unlockedChapterId) {
+      addLog(`[地图] 新章节已解锁：${result.unlockedChapterId}`);
+    }
+    if (result.chapterCompleted) {
+      const chapterProgress = getChapterProgress(result.nextProgress, chapter);
+      if (chapterProgress.completed) {
+        addLog(`[地图] ${chapter.name} 已完成。`);
+      }
+    }
+  };
+
+  const startBattleSequence = (isBoss: boolean) => {
+    hookStartBattleSequence(isBoss, undefined, ({ simulation, isBoss }) => {
       try {
         const { playerWon, monster } = simulation;
         const frameStep = 260;   // these values match previous hardcoded ones
@@ -111,25 +146,10 @@ export default function App() {
               dropLabel = result.droppedName;
               result.logs.forEach(addLog);
 
-              if (mapNodeId) {
-                const mapResult = registerMapNodeVictoryHook(mapNodeId);
-                if (mapResult?.firstClear) {
-                  const nodeReward = getCurrentMapNode({
-                    ...mapProgress,
-                    currentNodeId: mapNodeId,
-                  })?.firstClearRewardGold ?? 0;
-                  if (nodeReward > 0) {
-                    result.nextState.玩家状态.金币 += nodeReward;
-                    addLog(`地图首通奖励：+${nodeReward} 金币`);
-                  }
-                }
-                if (mapResult?.nextNode) {
-                  addLog(`地图推进：已进入节点 ${mapResult.nextNode.order}. ${mapResult.nextNode.name}`);
-                }
-              }
-
               return recalculatePlayerStats(result.nextState);
             });
+
+            resolveMapChallengeResult(true);
 
             setBattleState((prev) => ({
               ...prev,
@@ -166,9 +186,7 @@ export default function App() {
             }));
             addLog(failMessage);
 
-            if (mapNodeId) {
-              registerMapNodeFailureHook(mapNodeId);
-            }
+            resolveMapChallengeResult(false);
 
             setBattleState((prev) => ({
               ...prev,
@@ -186,12 +204,12 @@ export default function App() {
           }, battleEndDelay + 320);
         }
       } catch (err) {
-        reportError(err, { action: 'battle', mapNodeId });
+        reportError(err, { action: 'battle' });
       }
     });
   };
 
-  const startMonsterWaveBattle = (waveSize = 5, mapNodeId?: string) => {
+  const startMonsterWaveBattle = (waveSize = 5, mapChallenge?: { node: MapNodeDef; chapter: MapChapterDef }) => {
     if (loading || battleState.phase !== 'idle' || waveSize <= 0) return;
 
     clearBattleTimers();
@@ -203,23 +221,6 @@ export default function App() {
       setGameState((prev) => {
         const result = applyWaveBattleReward(prev, waveSize, autoSellQualities);
         waveSummary = result.summary;
-
-        if (mapNodeId) {
-          const mapResult = registerMapNodeVictoryHook(mapNodeId);
-          if (mapResult?.firstClear) {
-            const nodeReward = getCurrentMapNode({
-              ...mapProgress,
-              currentNodeId: mapNodeId,
-            })?.firstClearRewardGold ?? 0;
-            if (nodeReward > 0) {
-              result.nextState.玩家状态.金币 += nodeReward;
-              addLog(`地图首通奖励：+${nodeReward} 金币`);
-            }
-          }
-          if (mapResult?.nextNode) {
-            addLog(`地图推进：已进入节点 ${mapResult.nextNode.order}. ${mapResult.nextNode.name}`);
-          }
-        }
 
         return recalculatePlayerStats(result.nextState);
       });
@@ -233,25 +234,200 @@ export default function App() {
         addLog(waveSummary);
       }
 
+      if (mapChallenge) {
+        resolveMapChallengeResult(true, mapChallenge);
+      }
+
       setLoading(false);
     }, 220);
   };
 
-  const startCurrentMapNodeBattle = () => {
-    const node = getCurrentMapNode(mapProgress);
-    if (!node || loading || battleState.phase !== 'idle') return;
+  const startMapNodeBattle = (node: MapNodeDef, chapter: MapChapterDef) => {
+    if (loading || battleState.phase !== 'idle') return;
 
-    if (node.encounterType === 'wave') {
-      startMonsterWaveBattle(node.waveSize ?? 5, node.id);
+    const normalizedProgress = normalizeMapProgress(mapProgress, MAP_CHAPTERS);
+    if (!isNodeUnlocked(normalizedProgress, node.id)) {
+      addLog(`[地图] ${node.name} 尚未解锁。`);
       return;
     }
 
-    startBattleSequence(node.encounterType === 'boss', {
-      region: node.region,
-      risk: node.risk,
-      spawn: node.spawnMultiplier,
-      mapNodeId: node.id,
+    addLog(`[地图] 进入 ${chapter.name} - ${node.name}（${node.encounterType}，推荐Lv.${node.recommendedLevel}）`);
+    pendingMapChallengeRef.current = { node, chapter };
+
+    if (node.encounterType === 'boss') {
+      hookStartBattleSequence(true, { mapNodeId: node.id }, ({ simulation, isBoss }) => {
+        try {
+          const { playerWon, monster } = simulation;
+          const frameStep = 260;
+          const frameStartDelay = 760;
+          const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
+
+          if (playerWon) {
+            scheduleBattleStep(() => {
+              setBattleState((prev) => ({ ...prev, phase: 'dying', monsterHpPercent: 0, showAttackFlash: false }));
+            }, battleEndDelay + 180);
+
+            scheduleBattleStep(() => {
+              let dropLabel = '未知战利品';
+
+              setGameState((prev) => {
+                const result = applySingleBattleReward(prev, isBoss, autoSellQualities);
+                dropLabel = result.droppedName;
+                result.logs.forEach(addLog);
+
+                return recalculatePlayerStats(result.nextState);
+              });
+
+              resolveMapChallengeResult(true, { node, chapter });
+
+              setBattleState((prev) => ({
+                ...prev,
+                phase: 'dropping',
+                showDropAnimation: true,
+                dropLabel,
+                playerDamageLabel: null,
+                monsterDamageLabel: null,
+              }));
+            }, battleEndDelay + 420);
+
+            scheduleBattleStep(() => {
+              setBattleState((prev) => ({
+                ...prev,
+                phase: 'idle',
+                currentMonster: null,
+                showDropAnimation: false,
+                showAttackFlash: false,
+                playerDamageLabel: null,
+                monsterDamageLabel: null,
+                playerStatusLabel: null,
+                monsterStatusLabel: null,
+                elementLabel: null,
+              }));
+              setLoading(false);
+            }, battleEndDelay + 1100);
+          } else {
+            scheduleBattleStep(() => {
+              const failMessage = `战斗失败：你被 ${monster.name} 压制了，继续强化装备再来挑战！`;
+              setGameState((prev) => ({
+                ...prev,
+                系统消息: failMessage,
+                战斗结果: failMessage,
+              }));
+              addLog(failMessage);
+
+              resolveMapChallengeResult(false, { node, chapter });
+
+              setBattleState((prev) => ({
+                ...prev,
+                phase: 'idle',
+                currentMonster: null,
+                showDropAnimation: false,
+                showAttackFlash: false,
+                playerDamageLabel: null,
+                monsterDamageLabel: null,
+                playerStatusLabel: null,
+                monsterStatusLabel: null,
+                elementLabel: null,
+              }));
+              setLoading(false);
+            }, battleEndDelay + 320);
+          }
+        } catch (err) {
+          reportError(err, { action: 'map-battle' });
+        }
+      });
+      setActiveTab('status');
+      return;
+    }
+
+    if (node.encounterType === 'wave') {
+      startMonsterWaveBattle(node.waveSize ?? 5, { node, chapter });
+      setActiveTab('status');
+      return;
+    }
+
+    hookStartBattleSequence(false, { mapNodeId: node.id }, ({ simulation, isBoss }) => {
+      try {
+        const { playerWon, monster } = simulation;
+        const frameStep = 260;
+        const frameStartDelay = 760;
+        const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
+
+        if (playerWon) {
+          scheduleBattleStep(() => {
+            setBattleState((prev) => ({ ...prev, phase: 'dying', monsterHpPercent: 0, showAttackFlash: false }));
+          }, battleEndDelay + 180);
+
+          scheduleBattleStep(() => {
+            let dropLabel = '未知战利品';
+
+            setGameState((prev) => {
+              const result = applySingleBattleReward(prev, isBoss, autoSellQualities);
+              dropLabel = result.droppedName;
+              result.logs.forEach(addLog);
+
+              return recalculatePlayerStats(result.nextState);
+            });
+
+            resolveMapChallengeResult(true, { node, chapter });
+
+            setBattleState((prev) => ({
+              ...prev,
+              phase: 'dropping',
+              showDropAnimation: true,
+              dropLabel,
+              playerDamageLabel: null,
+              monsterDamageLabel: null,
+            }));
+          }, battleEndDelay + 420);
+
+          scheduleBattleStep(() => {
+            setBattleState((prev) => ({
+              ...prev,
+              phase: 'idle',
+              currentMonster: null,
+              showDropAnimation: false,
+              showAttackFlash: false,
+              playerDamageLabel: null,
+              monsterDamageLabel: null,
+              playerStatusLabel: null,
+              monsterStatusLabel: null,
+              elementLabel: null,
+            }));
+            setLoading(false);
+          }, battleEndDelay + 1100);
+        } else {
+          scheduleBattleStep(() => {
+            const failMessage = `战斗失败：你被 ${monster.name} 压制了，继续强化装备再来挑战！`;
+            setGameState((prev) => ({
+              ...prev,
+              系统消息: failMessage,
+              战斗结果: failMessage,
+            }));
+            addLog(failMessage);
+
+            resolveMapChallengeResult(false, { node, chapter });
+
+            setBattleState((prev) => ({
+              ...prev,
+              phase: 'idle',
+              currentMonster: null,
+              showDropAnimation: false,
+              showAttackFlash: false,
+              playerDamageLabel: null,
+              monsterDamageLabel: null,
+              playerStatusLabel: null,
+              monsterStatusLabel: null,
+              elementLabel: null,
+            }));
+            setLoading(false);
+          }, battleEndDelay + 320);
+        }
+      } catch (err) {
+        reportError(err, { action: 'map-battle' });
+      }
     });
+    setActiveTab('status');
   };
 
   const toggleAutoBattle = () => {
@@ -281,12 +457,12 @@ export default function App() {
     clearAutoBattleTimerLocal();
     autoBattleTimeoutRef.current = window.setTimeout(() => {
       autoBattleTimeoutRef.current = null;
-      const bossChance = battleRisk === 'nightmare' ? 0.35 : battleRisk === 'normal' ? 0.2 : 0.1;
+      const bossChance = 0.2;
       startBattleSequence(Math.random() < bossChance);
     }, 450);
 
     return () => clearAutoBattleTimerLocal();
-  }, [autoBattleEnabled, battleRisk, battleState.phase, loading]);
+  }, [autoBattleEnabled, battleState.phase, loading]);
 
   const quickSellByQualityRange = (minQuality: string, maxQuality: string) => {
     setGameState((prev) => {
@@ -296,11 +472,10 @@ export default function App() {
     });
   };
 
-  const reportError = (err: unknown, context: { action?: string; mapNodeId?: string } = {}) => {
+  const reportError = (err: unknown, context: { action?: string } = {}) => {
     const message = err instanceof Error ? err.message : String(err);
     const parts = [`[错误] ${message}`, `profile=${activeProfileId}`];
     if (context.action) parts.push(`action=${context.action}`);
-    if (context.mapNodeId) parts.push(`mapNode=${context.mapNodeId}`);
     addLog(parts.join(' '));
   };
 
@@ -335,9 +510,7 @@ export default function App() {
       />
     );
   }
-
   const currentProfile = profiles.find((profile) => profile.id === activeProfileId);
-  const currentMapNode: MapNode | null = getCurrentMapNode(mapProgress) ?? null;
 
   return (
     <GameScreen
@@ -347,12 +520,7 @@ export default function App() {
       loading={loading}
       playerName={currentProfile?.name || '未知玩家'}
       autoBattleEnabled={autoBattleEnabled}
-      battleRegion={battleRegion}
-      battleRisk={battleRisk}
-      spawnMultiplier={spawnMultiplier}
       autoSellQualities={autoSellQualities}
-      mapProgress={mapProgress}
-      currentMapNode={currentMapNode}
       forgeSelectedId={forgeSelectedId}
       onExportSave={handleExportSave}
       onImportSave={handleImportSave}
@@ -363,7 +531,6 @@ export default function App() {
         setBattleState(createInitialBattleState());
         setLoading(false);
         setAutoBattleEnabled(false);
-        setMapProgress(createInitialMapProgress());
         localStorage.removeItem(ACTIVE_PROFILE_KEY);
       }}
       onReset={() => {
@@ -374,19 +541,20 @@ export default function App() {
           setBattleState(createInitialBattleState());
           setLoading(false);
           setAutoBattleEnabled(false);
-          setMapProgress(createInitialMapProgress());
           setLogs(['[系统] 存档已重置。']);
+          setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
         }
       }}
+      mapProgress={mapProgress}
+      onSelectMapChapter={(chapterId) => {
+        setMapProgress((prev) => ({ ...prev, selectedChapterId: chapterId }));
+      }}
       onSetTab={setActiveTab}
-      onChallengeCurrentMapNode={startCurrentMapNodeBattle}
       onChallengeMonster={() => startBattleSequence(false)}
       onChallengeBoss={() => startBattleSequence(true)}
       onChallengeWave={() => startMonsterWaveBattle(5)}
+      onEnterMapNode={startMapNodeBattle}
       onToggleAutoBattle={toggleAutoBattle}
-      onSetBattleRegion={setBattleRegion}
-      onSetBattleRisk={setBattleRisk}
-      onSetSpawnMultiplier={setSpawnMultiplier}
       onQuickSellByQualityRange={quickSellByQualityRange}
       onEquip={(id) => processAction(`装备 ${id}`)}
       onSell={(id) => processAction(`出售 ${id}`)}

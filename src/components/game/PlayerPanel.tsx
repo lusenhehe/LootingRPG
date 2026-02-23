@@ -2,7 +2,7 @@ import { ArrowUpCircle, Heart, Shield, Sword, User, Zap, Gem, Crown, Star, Hexag
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
 import type { Equipment, GameState } from '../../types/game';
-import { getQualityColor, QUALITY_CONFIG, getSlotLabel } from '../../constants/game';
+import { getQualityColor, getQualityLabel, QUALITY_CONFIG, getSlotLabel } from '../../constants/game';
 
 const slotIconMap: Record<string, ReactNode> = {
   shield: <Shield size={14} className="text-gray-400" />,
@@ -239,17 +239,21 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
             <div key={slot} className="relative group">
               <motion.div
                 whileHover={{ scale: 1.02 }}
-                className={`h-20 rounded-xl border border-dashed flex flex-col items-center justify-center transition-all duration-200 ${item 
+                className={`h-24 rounded-xl border border-dashed flex flex-col items-center justify-center transition-all duration-200 ${item 
                   ? `bg-game-bg/80 border-solid ${getQualityColor(item.品质).replace('text-', 'border-')}` 
                   : 'border-game-border/50 hover:border-violet-500/50 hover:bg-game-card'}`}
               >
                 {item ? (
-                  <div className="flex flex-col items-center">
-                    <div className="mb-1 flex items-center gap-1">
-                      <span className="text-base leading-none">{item.icon || '🧰'}</span>
-                      {slotIconMap[QUALITY_CONFIG[item.品质]?.iconName || 'shield']}
+                  <div className="flex flex-col items-center w-full px-1">
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <span className="text-2xl leading-none">{item.icon || '🧰'}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-white/15 bg-game-card/50 text-gray-200 font-mono inline-flex items-center gap-1">
+                        {slotIconMap[QUALITY_CONFIG[item.品质]?.iconName || 'shield']}
+                        {getQualityLabel(item.品质)}
+                      </span>
                     </div>
-                    <span className="text-xs font-medium truncate w-full text-center px-1 text-gray-200">{item.名称}</span>
+                    <span className="text-[11px] font-medium truncate w-full text-center px-1 text-gray-200">{item.名称}</span>
+                    <span className="text-[10px] text-violet-300/80 font-mono mt-0.5">Lv.{item.等级}</span>
                     {item.强化等级 > 0 && (
                       <motion.span 
                         initial={{ scale: 0 }}
@@ -259,10 +263,10 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
                         +{item.强化等级}
                       </motion.span>
                     )}
-                    {item.品质 === '传说' && (
+                    {item.品质 === 'legendary' && (
                       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-yellow-500/10 to-transparent pointer-events-none" />
                     )}
-                    {item.品质 === '神话' && (
+                    {item.品质 === 'mythic' && (
                       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/10 to-transparent animate-pulse pointer-events-none" />
                     )}
                   </div>

@@ -1,4 +1,4 @@
-import type { BattleFrame, BattleRisk, Monster, PlayerStats } from '../../types/game';
+import type { BattleFrame, Monster, PlayerStats } from '../../types/game';
 import { calculateDamage } from './damageCalculator';
 import {
   createTraitDispatcher,
@@ -9,7 +9,7 @@ import {
 } from './traitRegistry';
 import {
   getFinalPlayerStats,
-  getBattleRiskProfile,
+  getCombatProfile,
 } from '../stats/playerStats';
 import { getFinalMonsterStats, getTurnCombatSnapshot } from '../stats/monsterStats';
 
@@ -128,18 +128,16 @@ export const simulateBattle = (
   playerStats: PlayerStats,
   encounterCount: number,
   isBoss: boolean,
-  battleRisk: BattleRisk,
 ): SimulatedBattle => {
-  const finalPlayer = getFinalPlayerStats(playerStats, battleRisk, encounterCount);
+  const finalPlayer = getFinalPlayerStats(playerStats, encounterCount);
   const finalMonster = getFinalMonsterStats(
     rawMonster,
     playerStats.等级,
     encounterCount,
     isBoss,
-    battleRisk,
     finalPlayer,
   );
-  const riskProfile = getBattleRiskProfile(battleRisk);
+  const combatProfile = getCombatProfile();
 
   const monster: Monster = {
     ...rawMonster,
@@ -186,7 +184,7 @@ export const simulateBattle = (
   dispatchTraitEvent('onBattleStart', { turn: 0 });
 
   const bonusTurns = finalPlayer.attackSpeed >= 40 ? 2 : finalPlayer.attackSpeed >= 20 ? 1 : 0;
-  const maxTurns = (isBoss ? 10 : 7) + bonusTurns + riskProfile.turnBonus;
+  const maxTurns = (isBoss ? 10 : 7) + bonusTurns + combatProfile.turnBonus;
   const frames: BattleFrame[] = [];
 
   for (let turn = 0; turn < maxTurns; turn++) {
@@ -298,7 +296,7 @@ export const simulateBattle = (
       const damage = calculateDamage(
         turnStats.monsterAttack,
         turnStats.playerDamageReduction,
-        riskProfile.monsterDamageMultiplier,
+        combatProfile.monsterDamageMultiplier,
       );
       totalMonsterDamage += damage;
       turnState.playerHp = Math.max(0, turnState.playerHp - damage);

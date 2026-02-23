@@ -69,7 +69,7 @@ export const getDefaultEquipmentIcon = (slot: string): string => {
 export const generateEquipment = (
   isBoss: boolean,
   pity: { 传说: number; 神话: number },
-  level: number,
+  playerLevel: number,
 ): { item: Equipment; newPity: { 传说: number; 神话: number } } => {
   // english keys used internally
   let quality = 'common';
@@ -115,10 +115,14 @@ export const generateEquipment = (
   const slot = SLOTS[Math.floor(Math.random() * SLOTS.length)];
   const config = QUALITY_CONFIG[quality];
   const stats: Record<string, number> = {};
+  const qualityIndex = Math.max(0, QUALITIES.indexOf(quality));
+  const levelVariance = Math.floor(Math.random() * 3) - 1;
+  const bossLevelBonus = isBoss ? 2 : 0;
+  const equipmentLevel = Math.max(1, playerLevel + levelVariance + bossLevelBonus);
 
   // use english keys internally; keep STAT_POOL in sync
   const mainStat = slot === 'weapon' ? 'attack' : slot === 'armor' || slot === 'helmet' ? 'hp' : 'defense';
-  const baseValue = (QUALITIES.indexOf(quality) + 1) * 5 * level;
+  const baseValue = Math.floor((qualityIndex + 1) * 5 * equipmentLevel);
   stats[mainStat] = baseValue;
 
   // when rerolling or adding secondary stats we rely on english STAT_POOL values
@@ -131,6 +135,7 @@ export const generateEquipment = (
   const item: Equipment = {
     id: Math.random().toString(36).slice(2, 11),
     icon: getDefaultEquipmentIcon(slot),
+    等级: equipmentLevel,
     名称: buildEquipmentName(quality, slot),
     品质: quality,
     部位: slot,

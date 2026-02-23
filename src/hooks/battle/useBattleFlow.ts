@@ -1,13 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import type { BattleState, BattleRegion, BattleRisk, GameState } from '../../types/game';
+import type { BattleState, GameState } from '../../types/game';
 import { createInitialBattleState } from '../../logic/gameState';
 import { simulateBattle } from '../../logic/battle/battleEngine';
 import { getRandomMonster } from '../../constants/game';
 
 export interface BattleStartOptions {
-  region?: BattleRegion;
-  risk?: BattleRisk;
-  spawn?: number;
   mapNodeId?: string;
 }
 
@@ -56,17 +53,17 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
     clearBattleTimers();
     setLoading(true);
 
-    const region = options?.region ?? 'forest';
-    const risk = options?.risk ?? 'normal';
-    const spawn = options?.spawn ?? 1;
     const mapNodeId = options?.mapNodeId;
 
     const simulation = simulateBattle(
-      getRandomMonster({ isBoss, region, risk, spawnMultiplier: spawn }),
+      getRandomMonster({
+        isBoss,
+        playerLevel: gameState.玩家状态.等级,
+        encounterCount: battleState.encounterCount,
+      }),
       gameState.玩家状态,
       battleState.encounterCount,
       isBoss,
-      risk,
     );
     const monster = simulation.monster;
 

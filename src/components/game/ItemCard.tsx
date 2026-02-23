@@ -1,6 +1,6 @@
 import { Coins, Trash2, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { QUALITY_CONFIG, getStatLabel } from '../../constants/game';
+import { QUALITY_CONFIG, getQualityLabel, getStatLabel } from '../../constants/game';
 import type { Equipment } from '../../types/game';
 import { useTranslation } from 'react-i18next';
 
@@ -49,15 +49,18 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
       )}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-game-card/50 text-lg leading-none">{item.icon || '🧰'}</div>
-          <div className="p-1.5 rounded-lg bg-game-card/50">{qualityIcon}</div>
+          <div className="p-2 rounded-lg bg-game-card/60 text-2xl leading-none">{item.icon || '🧰'}</div>
           <div>
             <h4 className={`font-bold text-sm ${qualityColor}`}>
               {item.名称} {item.强化等级 > 0 ? `+${item.强化等级}` : ''}
             </h4>
-            <p className="text-[10px] text-gray-500 uppercase font-mono">
-              {item.部位} • {item.品质}
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[10px] text-gray-500 uppercase font-mono">Lv.{item.等级} • {item.部位}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded border border-white/15 bg-game-card/40 text-gray-300 font-mono inline-flex items-center gap-1">
+                {qualityIcon}
+                {getQualityLabel(item.品质)}
+              </span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-1 text-[10px] text-yellow-400 font-mono">

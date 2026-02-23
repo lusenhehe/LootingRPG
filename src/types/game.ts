@@ -1,5 +1,3 @@
-import type { MapProgressState } from './map';
-
 export interface PlayerStats {
   等级: number;
   经验: number;
@@ -25,6 +23,7 @@ export interface EquipmentAffixValue {
 export interface Equipment {
   id: string;
   icon: string;
+  等级: number;
   名称: string;
   品质: string;
   部位: string;
@@ -92,6 +91,7 @@ export interface Monster {
   id: string;
   name: string;
   icon: string;
+  等级: number;
   tier: MonsterTier;
   isBoss?: boolean;
   elite?: boolean;
@@ -140,16 +140,20 @@ export interface BattleFrame {
   combatLogs?: string[];
 }
 
-export type ActiveTab = 'status' | 'inventory' | 'forge' | 'codex';
-
-export type BattleRegion = 'forest' | 'dungeon' | 'volcano';
-
-export type BattleRisk = 'safe' | 'normal' | 'nightmare';
+export type ActiveTab = 'status' | 'map' | 'inventory' | 'forge' | 'codex';
 
 export interface SaveProfile {
   id: string;
   name: string;
   updatedAt: number;
+}
+
+export interface MapProgressState {
+  selectedChapterId: string;
+  unlockedChapters: string[];
+  unlockedNodes: string[];
+  clearedNodes: string[];
+  failedAttempts: Record<string, number>;
 }
 
 export interface SavePayload {

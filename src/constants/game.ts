@@ -1,5 +1,5 @@
-import type { BattleRisk, GameState, Monster, MonsterTrait } from '../types/game';
-import { BOSS_MONSTERS_DATA, NORMAL_MONSTERS_DATA, REGION_MONSTER_IDS } from './monsterData';
+import type { GameState, Monster, MonsterTrait } from '../types/game';
+import { BOSS_MONSTERS_DATA, NORMAL_MONSTERS_DATA } from './monsterData';
 import { attachMonsterLore } from './monsterLore';
 
 // configuration loaded from JSON, names/labels are translated at render time
@@ -74,15 +74,13 @@ const maybeAddTrait = (base: Monster, force = false): Monster => {
 
 interface MonsterSpawnOptions {
   isBoss: boolean;
-  region: 'forest' | 'dungeon' | 'volcano';
-  risk: BattleRisk;
-  spawnMultiplier: number;
+  playerLevel: number;
+  encounterCount: number;
 }
 
-export const getRandomMonster = ({ isBoss, region, risk, spawnMultiplier }: MonsterSpawnOptions): Monster => {
+export const getRandomMonster = ({ isBoss, playerLevel, encounterCount }: MonsterSpawnOptions): Monster => {
   const basePool = isBoss ? BOSS_MONSTERS_DATA : NORMAL_MONSTERS_DATA;
-  const scopedPool = isBoss ? basePool : basePool.filter((monster) => REGION_MONSTER_IDS[region].includes(monster.id));
-  const pool = scopedPool.length ? scopedPool : basePool;
+  const pool = basePool;
   const picked = pool[Math.floor(Math.random() * pool.length)];
   const secondIcon = pool[Math.floor(Math.random() * pool.length)].icon;
   const affixIcons = ['🔥', '⚡', '❄️', '☠️', '🛡️', '🌪️', '🩸', '✨'];
@@ -95,12 +93,23 @@ export const getRandomMonster = ({ isBoss, region, risk, spawnMultiplier }: Mons
     icon = `${picked.icon}${affix}`;
   }
 
-  const riskEliteBonus = risk === 'nightmare' ? 0.18 : risk === 'normal' ? 0.08 : 0.02;
-  const spawnEliteBonus = Math.max(0, spawnMultiplier - 1) * 0.06;
-  const eliteChance = isBoss ? 0 : Math.min(0.45, riskEliteBonus + spawnEliteBonus);
+  const eliteChance = isBoss ? 0 : 0.08;
   const isElite = Math.random() < eliteChance;
+  const levelFromEncounter = Math.floor(Math.max(0, encounterCount) / 8);
+  const levelVariance = Math.floor(Math.random() * 3) - 1;
+  const bossLevelBonus = isBoss ? 3 : 0;
+  const monsterLevel = Math.max(1, playerLevel + levelFromEncounter + levelVariance + bossLevelBonus);
+  const levelScale = 1 + (monsterLevel - 1) * 0.08;
 
-  let monster: Monster = { ...picked, icon, elite: isElite };
+  let monster: Monster = {
+    ...picked,
+    icon,
+    等级: monsterLevel,
+    elite: isElite,
+    maxHp: Math.max(1, Math.floor(picked.maxHp * levelScale)),
+    attack: Math.max(1, Math.floor(picked.attack * levelScale)),
+    defense: Math.max(0, Math.floor(picked.defense * (1 + (monsterLevel - 1) * 0.06))),
+  };
 
   if (isElite) {
     monster = maybeAddTrait(
@@ -110,16 +119,6 @@ export const getRandomMonster = ({ isBoss, region, risk, spawnMultiplier }: Mons
         maxHp: Math.floor(monster.maxHp * 1.35),
         attack: Math.floor(monster.attack * 1.28),
         defense: Math.floor(monster.defense * 1.22),
-      },
-      true,
-    );
-  } else if (risk === 'nightmare' && isBoss) {
-    monster = maybeAddTrait(
-      {
-        ...monster,
-        maxHp: Math.floor(monster.maxHp * 1.12),
-        attack: Math.floor(monster.attack * 1.12),
-        defense: Math.floor(monster.defense * 1.08),
       },
       true,
     );

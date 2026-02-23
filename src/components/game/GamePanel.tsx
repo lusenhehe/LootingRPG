@@ -1,12 +1,14 @@
 import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import { Trophy } from 'lucide-react';
-import type { ActiveTab, BattleRegion, BattleRisk, BattleState, GameState } from '../../types/game';
-import type { MapNode, MapProgressState } from '../../types/map';
+import type { ActiveTab, BattleState, GameState, MapProgressState } from '../../types/game';
 import { TabButton } from '../ui/TabButton';
 import { InventoryTab } from './tabs/InventoryTab';
 import { ForgeTab } from './tabs/ForgeTab';
 import { MonsterCodexTab } from './tabs/MonsterCodexTab';
+import { MapTab } from './tabs/MapTab';
 import { BattleArena } from './BattleArena';
+import type { MapChapterDef, MapNodeDef } from '../../config/mapChapters';
 
 interface GamePanelProps {
   gameState: GameState;
@@ -17,21 +19,15 @@ interface GamePanelProps {
   onChallengeMonster: () => void;
   onChallengeBoss: () => void;
   onChallengeWave: () => void;
-  onChallengeCurrentMapNode: () => void;
+  onEnterMapNode: (node: MapNodeDef, chapter: MapChapterDef) => void;
+  mapProgress: MapProgressState;
+  onSelectMapChapter: (chapterId: string) => void;
   autoBattleEnabled: boolean;
   onToggleAutoBattle: () => void;
-  battleRegion: BattleRegion;
-  battleRisk: BattleRisk;
-  spawnMultiplier: number;
-  onSetBattleRegion: (region: BattleRegion) => void;
-  onSetBattleRisk: (risk: BattleRisk) => void;
-  onSetSpawnMultiplier: (value: number) => void;
   onEquip: (id: string) => void;
   onSell: (id: string) => void;
   onForge: (id: string) => void;
   onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
-  mapProgress: MapProgressState;
-  currentMapNode: MapNode | null;
   autoSellQualities: Record<string, boolean>;
   onToggleAutoSellQuality: (quality: string) => void;
   onReroll: (id: string) => void;
@@ -48,44 +44,40 @@ export function GamePanel({
   onChallengeMonster,
   onChallengeBoss,
   onChallengeWave,
-  onChallengeCurrentMapNode,
+  onEnterMapNode,
+  mapProgress,
+  onSelectMapChapter,
   autoBattleEnabled,
   onToggleAutoBattle,
-  battleRegion,
-  battleRisk,
-  spawnMultiplier,
-  onSetBattleRegion,
-  onSetBattleRisk,
-  onSetSpawnMultiplier,
   onEquip,
   onSell,
   onForge,
   onQuickSellByQualityRange,
-  mapProgress,
-  currentMapNode,
   autoSellQualities,
   onToggleAutoSellQuality,
   onReroll,
   forgeSelectedId,
   onSelectForgeItem,
 }: GamePanelProps) {
+  const { t } = useTranslation();
   const inventoryItems = gameState.背包
     .filter((item) => !item.已装备)
     .map((item) => ({ ...item, 已装备: false }));
 
   return (
     <div className="lg:col-span-8 flex flex-col gap-6">
-      <div className="flex-1 bg-gradient-to-br from-game-card/90 to-game-card/70 border border-game-border/50 rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-purple-500/5 min-h-[400px] relative">
+      <div className="bg-gradient-to-br from-game-card/90 to-game-card/70 border border-game-border/50 rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-purple-500/5 min-h-[400px] relative">
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/3 via-transparent to-rose-500/3 pointer-events-none" />
         
         <div className="flex border-b border-game-border relative z-10">
           <TabButton active={activeTab === 'status'} onClick={() => onSetTab('status')} label="战斗场景" />
+          <TabButton active={activeTab === 'map'} onClick={() => onSetTab('map')} label={t('map.explore')} />
           <TabButton active={activeTab === 'inventory'} onClick={() => onSetTab('inventory')} label="背包仓库" />
           <TabButton active={activeTab === 'forge'} onClick={() => onSetTab('forge')} label="强化中心" />
           <TabButton active={activeTab === 'codex'} onClick={() => onSetTab('codex')} label="怪物图鉴" />
         </div>
 
-        <div className="flex-1 p-4 overflow-hidden relative z-10">
+        <div className="p-4 overflow-hidden relative z-10">
           <AnimatePresence mode="wait">
             {activeTab === 'status' && (
               <motion.div 
@@ -99,21 +91,11 @@ export function GamePanel({
                 <BattleArena
                   battleState={battleState}
                   loading={loading}
-                  battleResult={gameState.战斗结果}
                   onChallengeMonster={onChallengeMonster}
                   onChallengeBoss={onChallengeBoss}
                   onChallengeWave={onChallengeWave}
-                  onChallengeCurrentMapNode={onChallengeCurrentMapNode}
                   autoBattleEnabled={autoBattleEnabled}
                   onToggleAutoBattle={onToggleAutoBattle}
-                  mapProgress={mapProgress}
-                  currentMapNode={currentMapNode}
-                  battleRegion={battleRegion}
-                  battleRisk={battleRisk}
-                  spawnMultiplier={spawnMultiplier}
-                  onSetBattleRegion={onSetBattleRegion}
-                  onSetBattleRisk={onSetBattleRisk}
-                  onSetSpawnMultiplier={onSetSpawnMultiplier}
                 />
               </motion.div>
             )}
@@ -125,6 +107,7 @@ export function GamePanel({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
                 transition={{ duration: 0.3 }}
+                className="h-full"
               >
                 <InventoryTab
                   items={inventoryItems}
@@ -139,6 +122,25 @@ export function GamePanel({
               </motion.div>
             )}
 
+            {activeTab === 'map' && (
+              <motion.div
+                key="map"
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.3 }}
+                className="h-full"
+              >
+                <MapTab
+                  playerLevel={gameState.玩家状态.等级}
+                  loading={loading}
+                  progress={mapProgress}
+                  onSelectChapter={onSelectMapChapter}
+                  onEnterNode={onEnterMapNode}
+                />
+              </motion.div>
+            )}
+
             {activeTab === 'forge' && (
               <motion.div 
                 key="forge"
@@ -146,6 +148,7 @@ export function GamePanel({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
                 transition={{ duration: 0.3 }}
+                className="h-full"
               >
                 <ForgeTab
                   gameState={gameState}
@@ -173,7 +176,7 @@ export function GamePanel({
           </AnimatePresence>
         </div>
 
-        <div className="bg-game-bg/80 border-t border-game-border/50 p-3 flex items-center justify-between text-[10px] font-mono text-gray-500 relative z-10">
+        <div className="bg-game-bg/80 border-t border-game-border/50 h-16 px-3 flex items-center justify-between text-[10px] font-mono text-gray-500 relative z-10 shrink-0">
           <div className="flex gap-4">
             <motion.span 
               whileHover={{ scale: 1.05 }}
@@ -181,7 +184,12 @@ export function GamePanel({
             >
               <Trophy size={10} className="text-yellow-500" /> 
               <span>传说保底:</span> 
-              <span className="text-gray-300">{gameState.保底计数.传说}/50</span>
+              <div className="w-20 h-2 bg-gray-700 rounded overflow-hidden">
+                <div
+                  className="h-full bg-yellow-500"
+                  style={{ width: `${(gameState.保底计数.传说 / 50) * 100}%` }}
+                />
+              </div>
             </motion.span>
             <motion.span 
               whileHover={{ scale: 1.05 }}
@@ -189,7 +197,12 @@ export function GamePanel({
             >
               <Trophy size={10} className="text-red-500" /> 
               <span>神话保底:</span> 
-              <span className="text-gray-300">{gameState.保底计数.神话}/200</span>
+              <div className="w-20 h-2 bg-gray-700 rounded overflow-hidden">
+                <div
+                  className="h-full bg-red-500"
+                  style={{ width: `${(gameState.保底计数.神话 / 200) * 100}%` }}
+                />
+              </div>
             </motion.span>
           </div>
           <motion.div 

@@ -1,86 +1,170 @@
-import { MAP_CHAPTERS, MAP_NODES } from '../config/mapProgression';
-import type { MapNode, MapProgressState } from '../types/map';
+import type { MapChapterDef } from '../config/mapChapters';
+import type { MapProgressState } from '../types/game';
 
-const NODE_MAP = new Map<string, MapNode>(MAP_NODES.map((node) => [node.id, node]));
-
-export const createInitialMapProgress = (): MapProgressState => ({
-  currentNodeId: 'n1',
-  unlockedNodeIds: ['n1'],
-  clearedNodeIds: [],
-  failedNodeIds: {},
-  firstClearRewardClaimedIds: [],
-});
-
-export const getMapNode = (nodeId: string): MapNode | undefined => NODE_MAP.get(nodeId);
-
-export const getCurrentMapNode = (progress: MapProgressState): MapNode | undefined => getMapNode(progress.currentNodeId);
-
-export const getChapterByNode = (nodeId: string) => {
-  const node = getMapNode(nodeId);
-  if (!node) return undefined;
-  return MAP_CHAPTERS.find((chapter) => chapter.id === node.chapterId);
-};
-
-export const normalizeMapProgress = (raw?: Partial<MapProgressState> | null): MapProgressState => {
-  const initial = createInitialMapProgress();
-  if (!raw) return initial;
-
-  const currentNode = raw.currentNodeId && getMapNode(raw.currentNodeId) ? raw.currentNodeId : initial.currentNodeId;
-  const unlockedNodeIds = (raw.unlockedNodeIds ?? []).filter((id) => Boolean(getMapNode(id)));
-  const clearedNodeIds = (raw.clearedNodeIds ?? []).filter((id) => Boolean(getMapNode(id)));
-  const firstClearRewardClaimedIds = (raw.firstClearRewardClaimedIds ?? []).filter((id) => Boolean(getMapNode(id)));
+export const createInitialMapProgress = (chapters: MapChapterDef[]): MapProgressState => {
+  const firstChapter = chapters[0];
+  const firstNode = firstChapter?.nodes[0];
 
   return {
-    currentNodeId: currentNode,
-    unlockedNodeIds: Array.from(new Set([initial.currentNodeId, ...unlockedNodeIds])),
-    clearedNodeIds: Array.from(new Set(clearedNodeIds)),
-    failedNodeIds: raw.failedNodeIds ?? {},
-    firstClearRewardClaimedIds: Array.from(new Set(firstClearRewardClaimedIds)),
+    selectedChapterId: firstChapter?.id ?? 'chapter-1',
+    unlockedChapters: firstChapter ? [firstChapter.id] : [],
+    unlockedNodes: firstNode ? [firstNode.id] : [],
+    clearedNodes: [],
+    failedAttempts: {},
   };
 };
 
-export const registerMapNodeFailure = (progress: MapProgressState, nodeId: string): MapProgressState => {
-  const nextFailCount = (progress.failedNodeIds[nodeId] ?? 0) + 1;
+export const normalizeMapProgress = (
+  progress: MapProgressState | undefined,
+  chapters: MapChapterDef[],
+): MapProgressState => {
+  const base = createInitialMapProgress(chapters);
+  if (!progress) return base;
+
+  const chapterIds = new Set(chapters.map((chapter) => chapter.id));
+  const nodeIds = new Set(chapters.flatMap((chapter) => chapter.nodes.map((node) => node.id)));
+
+  const unlockedChapters = Array.from(new Set(progress.unlockedChapters ?? [])).filter((id) => chapterIds.has(id));
+  if (base.unlockedChapters.length > 0 && unlockedChapters.length === 0) {
+    unlockedChapters.push(base.unlockedChapters[0]);
+  }
+
+  const unlockedNodes = Array.from(new Set(progress.unlockedNodes ?? [])).filter((id) => nodeIds.has(id));
+  base.unlockedNodes.forEach((id) => {
+    if (!unlockedNodes.includes(id)) unlockedNodes.push(id);
+  });
+
+  const clearedNodes = Array.from(new Set(progress.clearedNodes ?? [])).filter((id) => nodeIds.has(id));
+
+  const failedAttempts: Record<string, number> = {};
+  Object.entries(progress.failedAttempts ?? {}).forEach(([nodeId, attempts]) => {
+    if (!nodeIds.has(nodeId)) return;
+    failedAttempts[nodeId] = Math.max(0, Number(attempts) || 0);
+  });
+
+  const selectedChapterId = chapterIds.has(progress.selectedChapterId)
+    ? progress.selectedChapterId
+    : (unlockedChapters[0] ?? base.selectedChapterId);
+
   return {
-    ...progress,
-    failedNodeIds: {
-      ...progress.failedNodeIds,
-      [nodeId]: nextFailCount,
-    },
+    selectedChapterId,
+    unlockedChapters,
+    unlockedNodes,
+    clearedNodes,
+    failedAttempts,
   };
 };
 
-export const registerMapNodeVictory = (
+export const isChapterUnlocked = (progress: MapProgressState, chapterId: string) =>
+  progress.unlockedChapters.includes(chapterId);
+
+export const isNodeUnlocked = (progress: MapProgressState, nodeId: string) =>
+  progress.unlockedNodes.includes(nodeId);
+
+export const isNodeCleared = (progress: MapProgressState, nodeId: string) =>
+  progress.clearedNodes.includes(nodeId);
+
+export const getNodeAttempts = (progress: MapProgressState, nodeId: string) =>
+  progress.failedAttempts[nodeId] ?? 0;
+
+export const getChapterProgress = (
   progress: MapProgressState,
-  nodeId: string,
-): { next: MapProgressState; firstClear: boolean; nextNode?: MapNode } => {
-  const node = getMapNode(nodeId);
-  if (!node) return { next: progress, firstClear: false };
+  chapter: MapChapterDef,
+): { cleared: number; total: number; completed: boolean } => {
+  const total = chapter.nodes.length;
+  const cleared = chapter.nodes.reduce((acc, node) => acc + (isNodeCleared(progress, node.id) ? 1 : 0), 0);
+  return {
+    cleared,
+    total,
+    completed: total > 0 && cleared === total,
+  };
+};
 
-  const alreadyCleared = progress.clearedNodeIds.includes(nodeId);
-  const firstClear = !alreadyCleared;
+interface ApplyNodeResultInput {
+  progress: MapProgressState;
+  chapters: MapChapterDef[];
+  chapterId: string;
+  nodeId: string;
+  won: boolean;
+}
 
-  const unlocked = new Set(progress.unlockedNodeIds);
-  node.nextNodeIds.forEach((id) => unlocked.add(id));
+export interface ApplyNodeResultOutput {
+  nextProgress: MapProgressState;
+  firstClear: boolean;
+  unlockedNodeId?: string;
+  unlockedChapterId?: string;
+  chapterCompleted: boolean;
+}
 
-  const cleared = alreadyCleared ? progress.clearedNodeIds : [...progress.clearedNodeIds, nodeId];
+export const applyMapNodeResult = ({ progress, chapters, chapterId, nodeId, won }: ApplyNodeResultInput): ApplyNodeResultOutput => {
+  const nextProgress = normalizeMapProgress(progress, chapters);
 
-  const nextNodeId = node.nextNodeIds.find((id) => unlocked.has(id)) ?? nodeId;
-  const nextNode = getMapNode(nextNodeId);
+  if (!won) {
+    nextProgress.failedAttempts[nodeId] = (nextProgress.failedAttempts[nodeId] ?? 0) + 1;
+    return {
+      nextProgress,
+      firstClear: false,
+      chapterCompleted: false,
+    };
+  }
 
-  const rewardClaimed = firstClear
-    ? [...progress.firstClearRewardClaimedIds, nodeId]
-    : progress.firstClearRewardClaimedIds;
+  const firstClear = !nextProgress.clearedNodes.includes(nodeId);
+  if (firstClear) {
+    nextProgress.clearedNodes.push(nodeId);
+  }
+
+  if (!nextProgress.unlockedNodes.includes(nodeId)) {
+    nextProgress.unlockedNodes.push(nodeId);
+  }
+
+  if (nextProgress.failedAttempts[nodeId]) {
+    delete nextProgress.failedAttempts[nodeId];
+  }
+
+  const chapterIndex = chapters.findIndex((chapter) => chapter.id === chapterId);
+  const chapter = chapterIndex >= 0 ? chapters[chapterIndex] : undefined;
+  const nodeIndex = chapter?.nodes.findIndex((node) => node.id === nodeId) ?? -1;
+
+  let unlockedNodeId: string | undefined;
+  let unlockedChapterId: string | undefined;
+
+  if (chapter && nodeIndex >= 0) {
+    const nextNode = chapter.nodes[nodeIndex + 1];
+    if (nextNode && !nextProgress.unlockedNodes.includes(nextNode.id)) {
+      nextProgress.unlockedNodes.push(nextNode.id);
+      unlockedNodeId = nextNode.id;
+    }
+
+    const chapterCompleted = chapter.nodes.every((node) => nextProgress.clearedNodes.includes(node.id));
+    if (chapterCompleted) {
+      const nextChapter = chapters[chapterIndex + 1];
+      if (nextChapter && !nextProgress.unlockedChapters.includes(nextChapter.id)) {
+        nextProgress.unlockedChapters.push(nextChapter.id);
+        unlockedChapterId = nextChapter.id;
+        const nextChapterFirstNode = nextChapter.nodes[0];
+        if (nextChapterFirstNode && !nextProgress.unlockedNodes.includes(nextChapterFirstNode.id)) {
+          nextProgress.unlockedNodes.push(nextChapterFirstNode.id);
+          if (!unlockedNodeId) {
+            unlockedNodeId = nextChapterFirstNode.id;
+          }
+        }
+      }
+    }
+
+    return {
+      nextProgress,
+      firstClear,
+      unlockedNodeId,
+      unlockedChapterId,
+      chapterCompleted,
+    };
+  }
 
   return {
+    nextProgress,
     firstClear,
-    nextNode,
-    next: {
-      ...progress,
-      currentNodeId: nextNodeId,
-      unlockedNodeIds: Array.from(unlocked),
-      clearedNodeIds: cleared,
-      firstClearRewardClaimedIds: rewardClaimed,
-    },
+    unlockedNodeId,
+    unlockedChapterId,
+    chapterCompleted: false,
   };
 };

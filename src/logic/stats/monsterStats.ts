@@ -1,6 +1,6 @@
-import type { BattleRisk, CounterStatKey, Monster } from '../../types/game';
+import type { CounterStatKey, Monster } from '../../types/game';
 import type { FinalPlayerCombatStats } from './playerStats';
-import { getBattleRiskProfile } from './playerStats';
+import { getCombatProfile } from './playerStats';
 
 export interface FinalMonsterCombatStats {
   maxHp: number;
@@ -43,19 +43,20 @@ export const getFinalMonsterStats = (
   playerLevel: number,
   encounterCount: number,
   isBoss: boolean,
-  battleRisk: BattleRisk,
   finalPlayer: FinalPlayerCombatStats,
 ): FinalMonsterCombatStats => {
+  const monsterLevel = Math.max(1, Number(monster.等级) || 1);
+  const monsterLevelFactor = 1 + (monsterLevel - 1) * 0.08;
   const levelFactor = 1 + Math.max(0, playerLevel - 1) * 0.08;
   const encounterFactor = 1 + Math.min(0.65, encounterCount * 0.003);
   const hpFactor = isBoss ? 1.55 : 1.28;
   const attackFactor = isBoss ? 1.36 : 1.22;
   const defenseFactor = isBoss ? 1.32 : 1.18;
-  const riskProfile = getBattleRiskProfile(battleRisk);
+  const combatProfile = getCombatProfile();
 
-  let maxHp = Math.floor(monster.maxHp * levelFactor * encounterFactor * hpFactor);
-  let attack = Math.floor(monster.attack * levelFactor * encounterFactor * attackFactor * riskProfile.monsterDamageMultiplier);
-  let defense = Math.floor(monster.defense * levelFactor * encounterFactor * defenseFactor);
+  let maxHp = Math.floor(monster.maxHp * levelFactor * encounterFactor * hpFactor * monsterLevelFactor);
+  let attack = Math.floor(monster.attack * levelFactor * encounterFactor * attackFactor * combatProfile.monsterDamageMultiplier * monsterLevelFactor);
+  let defense = Math.floor(monster.defense * levelFactor * encounterFactor * defenseFactor * (1 + (monsterLevel - 1) * 0.06));
 
   let objectivePassed = true;
   let objectiveLabel: string | null = null;
@@ -86,8 +87,8 @@ export const getFinalMonsterStats = (
     damageReduction,
     shieldReduction: 0.6,
     rageMultiplier: 1.3,
-    bossSkillInterval: riskProfile.bossSkillInterval,
-    statusProcMultiplier: riskProfile.statusProcMultiplier,
+    bossSkillInterval: combatProfile.bossSkillInterval,
+    statusProcMultiplier: combatProfile.statusProcMultiplier,
     objectiveLabel,
     objectivePassed,
   };

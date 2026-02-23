@@ -39,6 +39,7 @@ const normalizeEquipment = (item: Equipment): Equipment => {
 
   return {
     ...item,
+    等级: Math.max(1, Number((item as any).等级) || 1),
     品质: quality,
     部位: slot,
     icon: item.icon || getDefaultEquipmentIcon(slot),

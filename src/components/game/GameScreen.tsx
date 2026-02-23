@@ -1,5 +1,6 @@
-import type { ActiveTab, BattleRegion, BattleRisk, BattleState, GameState } from '../../types/game';
-import type { MapNode, MapProgressState } from '../../types/map';
+import type { ActiveTab, BattleState, GameState } from '../../types/game';
+import type { MapProgressState } from '../../types/game';
+import type { MapChapterDef, MapNodeDef } from '../../config/mapChapters';
 import { AppHeader } from './AppHeader';
 import { GamePanel } from './GamePanel';
 import { PlayerPanel } from './PlayerPanel';
@@ -11,13 +12,9 @@ interface GameScreenProps {
   loading: boolean;
   playerName: string;
   autoBattleEnabled: boolean;
-  battleRegion: BattleRegion;
-  battleRisk: BattleRisk;
-  spawnMultiplier: number;
   autoSellQualities: Record<string, boolean>;
-  mapProgress: MapProgressState;
-  currentMapNode: MapNode | null;
   forgeSelectedId: string | null;
+  mapProgress: MapProgressState;
   onExportSave: () => void;
   onImportSave: () => void;
   onLogout: () => void;
@@ -26,11 +23,9 @@ interface GameScreenProps {
   onChallengeMonster: () => void;
   onChallengeBoss: () => void;
   onChallengeWave: () => void;
-  onChallengeCurrentMapNode: () => void;
+  onEnterMapNode: (node: MapNodeDef, chapter: MapChapterDef) => void;
+  onSelectMapChapter: (chapterId: string) => void;
   onToggleAutoBattle: () => void;
-  onSetBattleRegion: (region: BattleRegion) => void;
-  onSetBattleRisk: (risk: BattleRisk) => void;
-  onSetSpawnMultiplier: (value: number) => void;
   onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
   onEquip: (id: string) => void;
   onSell: (id: string) => void;
@@ -48,13 +43,9 @@ export function GameScreen({
   loading,
   playerName,
   autoBattleEnabled,
-  battleRegion,
-  battleRisk,
-  spawnMultiplier,
   autoSellQualities,
-  mapProgress,
-  currentMapNode,
   forgeSelectedId,
+  mapProgress,
   onExportSave,
   onImportSave,
   onLogout,
@@ -63,11 +54,9 @@ export function GameScreen({
   onChallengeMonster,
   onChallengeBoss,
   onChallengeWave,
-  onChallengeCurrentMapNode,
+  onEnterMapNode,
+  onSelectMapChapter,
   onToggleAutoBattle,
-  onSetBattleRegion,
-  onSetBattleRisk,
-  onSetSpawnMultiplier,
   onQuickSellByQualityRange,
   onEquip,
   onSell,
@@ -93,7 +82,7 @@ export function GameScreen({
           onReset={onReset}
         />
 
-        <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <main className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <PlayerPanel gameState={gameState} onUnequip={onUnequip} />
           <GamePanel
             gameState={gameState}
@@ -104,26 +93,20 @@ export function GameScreen({
             onChallengeMonster={onChallengeMonster}
             onChallengeBoss={onChallengeBoss}
             onChallengeWave={onChallengeWave}
+            onEnterMapNode={onEnterMapNode}
+            mapProgress={mapProgress}
+            onSelectMapChapter={onSelectMapChapter}
             autoBattleEnabled={autoBattleEnabled}
             onToggleAutoBattle={onToggleAutoBattle}
-            battleRegion={battleRegion}
-            battleRisk={battleRisk}
-            spawnMultiplier={spawnMultiplier}
-            onSetBattleRegion={onSetBattleRegion}
-            onSetBattleRisk={onSetBattleRisk}
-            onSetSpawnMultiplier={onSetSpawnMultiplier}
             onQuickSellByQualityRange={onQuickSellByQualityRange}
             onEquip={onEquip}
             onSell={onSell}
             onForge={onForge}
             autoSellQualities={autoSellQualities}
-            mapProgress={mapProgress}
-            currentMapNode={currentMapNode}
             onToggleAutoSellQuality={onToggleAutoSellQuality}
             onReroll={onReroll}
             forgeSelectedId={forgeSelectedId}
             onSelectForgeItem={onSelectForgeItem}
-            onChallengeCurrentMapNode={onChallengeCurrentMapNode}
           />
         </main>
       </div>

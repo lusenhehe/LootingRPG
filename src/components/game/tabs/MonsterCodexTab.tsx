@@ -191,6 +191,7 @@ function MonsterListItem({
 }) {
   return (
     <motion.button
+      onClick={onClick}
       className={`w-full flex items-center gap-2 p-2 rounded-lg border transition-all duration-150 text-left ${
         isSelected
           ? isBoss
@@ -209,6 +210,7 @@ function MonsterListItem({
           {monster.name}
         </div>
         <div className="text-[9px] text-gray-500 flex items-center gap-1.5">
+          <span className="text-violet-300/80">Lv.{monster.等级}</span>
           <span className="text-red-400/70">{monster.maxHp}</span>
           <span className="text-orange-400/70">{monster.attack}</span>
           <span className="text-blue-400/70">{monster.defense}</span>
@@ -248,6 +250,7 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
               <h3 className={`text-sm font-display font-bold truncate ${isBoss ? 'text-rose-200 drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]' : 'text-gray-100'}`}>
                 {monster.name}
               </h3>
+              <div className="text-[10px] text-violet-300/80 font-mono mt-0.5">Lv.{monster.等级}</div>
               {isBoss && (
                 <div className="flex items-center gap-1 mt-0.5">
                   <Crown size={10} className="text-yellow-400" />
@@ -402,7 +405,7 @@ export function MonsterCodexTab() {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className="h-[560px] flex flex-col gap-3 overflow-hidden"
+      className="h-[560px] max-h-[560px] flex flex-col gap-3 overflow-hidden"
     >
       <motion.section
         initial={{ opacity: 0, x: -20 }}

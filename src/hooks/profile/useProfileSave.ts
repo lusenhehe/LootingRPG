@@ -1,45 +1,27 @@
 import { useState, useEffect } from 'react';
-import {
-  ACTIVE_PROFILE_KEY,
-  PROFILE_INDEX_KEY,
-  createAutoSellQualityMap,
-  QUALITY_KEY_MAP,
-  STORAGE_KEY,
-} from '../../constants/game';
-import type { GameState, SavePayload, SaveProfile } from '../../types/game';
-import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
+import { MAP_CHAPTERS } from '../../config/mapChapters';
 import { recalculatePlayerStats } from '../../logic/playerStats';
 import { createInitialBattleState } from '../../logic/gameState';
+import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
 import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
+import type { GameState, MapProgressState, SavePayload, SaveProfile } from '../../types/game';
+import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, createAutoSellQualityMap, QUALITY_KEY_MAP, STORAGE_KEY } from '../../constants/game';
 
 interface UseProfileSaveParams {
-  gameState: GameState;
-  logs: string[];
-  autoSellQualities: Record<string, boolean>;
-  // mapProgress may be managed externally by another hook
-  mapProgress?: any;
+  gameState: GameState; logs: string[]; autoSellQualities: Record<string, boolean>; mapProgress: MapProgressState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   setLogs: React.Dispatch<React.SetStateAction<string[]>>;
   setAutoSellQualities: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-  // battle state resetting is left to the caller to avoid ordering constraints
+  setMapProgress: React.Dispatch<React.SetStateAction<MapProgressState>>;
   setBattleState?: React.Dispatch<React.SetStateAction<any>>;
-  setMapProgress?: React.Dispatch<React.SetStateAction<any>>;
   addLog: (msg: string) => void;
 }
 
 const getProfileSaveKey = (profileId: string) => `${STORAGE_KEY}_${profileId}`;
 
 export function useProfileSave({
-  gameState,
-  logs,
-  autoSellQualities,
-  mapProgress,
-  setGameState,
-  setLogs,
-  setAutoSellQualities,
-  setBattleState,
-  setMapProgress,
-  addLog,
+  gameState, logs, autoSellQualities, mapProgress,
+  setGameState, setLogs, setAutoSellQualities, setMapProgress, setBattleState, addLog,
 }: UseProfileSaveParams) {
   const [profiles, setProfiles] = useState<SaveProfile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
@@ -73,7 +55,7 @@ export function useProfileSave({
   useEffect(() => {
     if (!isAuthenticated || !activeProfileId) return;
 
-    const payload: SavePayload = { gameState, logs, autoSellQualities, mapProgress: mapProgress ?? null };
+    const payload: SavePayload = { gameState, logs, autoSellQualities, mapProgress };
     localStorage.setItem(getProfileSaveKey(activeProfileId), JSON.stringify(payload));
 
     setProfiles((prev) => {
@@ -97,12 +79,11 @@ export function useProfileSave({
   };
 
   const loadProfile = (profileId: string) => {
-    // when mapProgress hook is used, caller can update via its own setter
     const payloadText = localStorage.getItem(getProfileSaveKey(profileId));
     if (!payloadText) {
       setGameState(createFreshInitialState());
       setLogs(['[系统] 新玩家存档已创建。']);
-      if (setMapProgress) setMapProgress(createInitialMapProgress());
+      setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
       return;
     }
 
@@ -111,13 +92,13 @@ export function useProfileSave({
       setGameState(recalculatePlayerStats(normalizeGameState(payload.gameState)));
       setLogs(payload.logs?.length ? payload.logs : ['[系统] 存档已载入。']);
       setAutoSellQualities(convertAutoSell(payload.autoSellQualities));
-      if (setMapProgress) setMapProgress(normalizeMapProgress(payload.mapProgress));
+      setMapProgress(normalizeMapProgress(payload.mapProgress, MAP_CHAPTERS));
     } catch {
       setGameState(createFreshInitialState());
       setLogs(['[系统] 存档损坏，已重置为新存档。']);
       setAutoSellQualities(createAutoSellQualityMap());
+      setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
       if (setBattleState) setBattleState(createInitialBattleState());
-      if (setMapProgress) setMapProgress(createInitialMapProgress());
     }
   };
 
@@ -148,7 +129,7 @@ export function useProfileSave({
       JSON.stringify({
         gameState: createFreshInitialState(),
         logs: ['[系统] 新玩家存档已创建。'],
-        mapProgress: createInitialMapProgress(),
+        mapProgress: createInitialMapProgress(MAP_CHAPTERS),
       } satisfies SavePayload),
     );
     handleLogin(id);
@@ -169,7 +150,7 @@ export function useProfileSave({
       setGameState(createFreshInitialState());
       setLogs(['[系统] 请登录玩家存档。']);
       setAutoSellQualities(createAutoSellQualityMap());
-      if (setMapProgress) setMapProgress(createInitialMapProgress());
+      setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
     }
   };
 
@@ -210,15 +191,15 @@ export function useProfileSave({
           setGameState(recalculatePlayerStats(normalizeGameState(parsed)));
           setLogs(['[系统] 存档导入成功。']);
           setAutoSellQualities(createAutoSellQualityMap());
+          setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
           if (setBattleState) setBattleState(createInitialBattleState());
-          if (setMapProgress) setMapProgress(createInitialMapProgress());
         } else {
           loadProfile('');
           setGameState(recalculatePlayerStats(normalizeGameState(parsed.gameState)));
           setLogs(parsed.logs?.length ? parsed.logs : ['[系统] 存档导入成功。']);
           setAutoSellQualities(parsed.autoSellQualities ?? createAutoSellQualityMap());
+          setMapProgress(normalizeMapProgress(parsed.mapProgress, MAP_CHAPTERS));
           if (setBattleState) setBattleState(createInitialBattleState());
-          if (setMapProgress) setMapProgress(normalizeMapProgress(parsed.mapProgress));
         }
         addLog('已从 JSON 文件导入存档。');
       } catch {

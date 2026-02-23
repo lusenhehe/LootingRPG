@@ -1,4 +1,4 @@
-import type { BattleRegion, Monster } from '../types/game';
+import type { Monster } from '../types/game';
 
 // main.tsx already initializes i18n; keep this file pure and only import `t`
 import { t } from 'i18next';
@@ -7,7 +7,7 @@ import { t } from 'i18next';
 import monsterConfig from '../config/monsters.json';
 
 // cast to any because JSON shape may include i18n keys that don't match Monster exactly
-const { normal: rawNormal, boss: rawBoss, regionIds: REGION_MONSTER_IDS } = monsterConfig as any;
+const { normal: rawNormal, boss: rawBoss } = monsterConfig as any;
 
 // helper that converts optional key fields (labelKey, titleKey, etc) using t()
 const localizeAdditionalFields = (m: any): any => {
@@ -31,11 +31,10 @@ const localizeAdditionalFields = (m: any): any => {
 // attach translated name lazily
 const addTranslatedName = (m: any): Monster => ({
   ...(localizeAdditionalFields(m) as Monster),
+  等级: Math.max(1, Number(m.等级) || 1),
   name: t(`monster.${m.id}`, { defaultValue: m.id ?? 'unknown_monster' }),
 });
 
 export const NORMAL_MONSTERS_DATA: Monster[] = rawNormal.map(addTranslatedName);
 export const BOSS_MONSTERS_DATA: Monster[] = rawBoss.map(addTranslatedName);
-
-export { REGION_MONSTER_IDS };
 

@@ -1,6 +1,6 @@
-import type { BattleRisk, PlayerStats } from '../../types/game';
+import type { PlayerStats } from '../../types/game';
 
-export interface RiskProfile {
+export interface CombatProfile {
   playerDamageMultiplier: number;
   monsterDamageMultiplier: number;
   statusProcMultiplier: number;
@@ -56,44 +56,21 @@ const defenseToReductionRate = (
   return clamp(rate, 0, hardCapRate);
 };
 
-const getRiskProfile = (risk: BattleRisk): RiskProfile => {
-  if (risk === 'safe') {
-    return {
-      playerDamageMultiplier: 1.04,
-      monsterDamageMultiplier: 0.9,
-      statusProcMultiplier: 0.85,
-      turnBonus: 1,
-      bossSkillInterval: 4,
-    };
-  }
-
-  if (risk === 'nightmare') {
-    return {
-      playerDamageMultiplier: 0.92,
-      monsterDamageMultiplier: 1.16,
-      statusProcMultiplier: 1.2,
-      turnBonus: 0,
-      bossSkillInterval: 2,
-    };
-  }
-
-  return {
-    playerDamageMultiplier: 1,
-    monsterDamageMultiplier: 1,
-    statusProcMultiplier: 1,
-    turnBonus: 0,
-    bossSkillInterval: 3,
-  };
+const DEFAULT_COMBAT_PROFILE: CombatProfile = {
+  playerDamageMultiplier: 1,
+  monsterDamageMultiplier: 1,
+  statusProcMultiplier: 1,
+  turnBonus: 0,
+  bossSkillInterval: 3,
 };
 
-export const getBattleRiskProfile = (risk: BattleRisk): RiskProfile => getRiskProfile(risk);
+export const getCombatProfile = (): CombatProfile => DEFAULT_COMBAT_PROFILE;
 
 export const getFinalPlayerStats = (
   source: PlayerStats,
-  battleRisk: BattleRisk,
   encounterCount: number,
 ): FinalPlayerCombatStats => {
-  const riskProfile = getRiskProfile(battleRisk);
+  const combatProfile = DEFAULT_COMBAT_PROFILE;
   const rawCritPercent = toNumber(source.暴击率);
   const rawLifestealPercent = toNumber(source.吸血);
   const rawThornsPercent = toNumber(source.反伤);
@@ -112,7 +89,7 @@ export const getFinalPlayerStats = (
     maxHp: Math.max(1, Math.floor(source.生命值 * levelFactor * encounterFactor)),
     attack: Math.max(
       1,
-      Math.floor(source.攻击力 * levelFactor * encounterFactor * riskProfile.playerDamageMultiplier),
+      Math.floor(source.攻击力 * levelFactor * encounterFactor * combatProfile.playerDamageMultiplier),
     ),
     defense: Math.max(0, Math.floor(rawDefense * levelFactor * encounterFactor)),
     damageReduction,
@@ -126,6 +103,5 @@ export const getFinalPlayerStats = (
 
 export const calculateFinalPlayerStats = (
   source: PlayerStats,
-  battleRisk: BattleRisk,
   encounterCount: number,
-) => getFinalPlayerStats(source, battleRisk, encounterCount);
+) => getFinalPlayerStats(source, encounterCount);
