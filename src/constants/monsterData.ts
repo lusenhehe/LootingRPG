@@ -68,7 +68,7 @@ interface RawMonsterData {
   defense?: number;
 }
 
-const { normal: rawNormal, boss: rawBoss } = monsterConfig as { normal: RawMonsterData[]; boss: RawMonsterData[] };
+const { normal: rawNormal, boss: rawBoss } = monsterConfig as unknown as { normal: RawMonsterData[]; boss: RawMonsterData[] };
 
 // helper that converts optional key fields (labelKey, titleKey, etc) using t()
 const localizeAdditionalFields = (m: RawMonsterData): RawMonsterData => {

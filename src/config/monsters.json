@@ -1,38 +1,6 @@
 {
   "normal": [
     {
-      "id": "skeleton",
-      "icon": "💀",
-      "tier": "normal",
-      "threatTypes": [
-        "tank_breaker"
-      ],
-      "baseStats": {
-        "hp": 1.08,
-        "attack": 1,
-        "defense": 1
-      },
-      "scalingProfile": "normal",
-      "tags": [],
-      "skillSet": []
-    },
-    {
-      "id": "zombie",
-      "icon": "🧟",
-      "tier": "normal",
-      "threatTypes": [
-        "attrition"
-      ],
-      "baseStats": {
-        "hp": 1.27,
-        "attack": 0.88,
-        "defense": 1.43
-      },
-      "scalingProfile": "tank",
-      "tags": [],
-      "skillSet": []
-    },
-    {
       "id": "goblin",
       "icon": "👺",
       "tier": "normal",
@@ -65,38 +33,6 @@
       "skillSet": []
     },
     {
-      "id": "wraith",
-      "icon": "👻",
-      "tier": "normal",
-      "threatTypes": [
-        "attrition"
-      ],
-      "baseStats": {
-        "hp": 1.17,
-        "attack": 1.06,
-        "defense": 1.14
-      },
-      "scalingProfile": "normal",
-      "tags": [],
-      "skillSet": []
-    },
-    {
-      "id": "slime",
-      "icon": "🟢",
-      "tier": "normal",
-      "threatTypes": [
-        "tank_breaker"
-      ],
-      "baseStats": {
-        "hp": 0.87,
-        "attack": 0.75,
-        "defense": 0.57
-      },
-      "scalingProfile": "normal",
-      "tags": [],
-      "skillSet": []
-    },
-    {
       "id": "bandit",
       "icon": "🦹",
       "tier": "normal",
@@ -113,22 +49,6 @@
       "skillSet": []
     },
     {
-      "id": "cultist",
-      "icon": "🔮",
-      "tier": "normal",
-      "threatTypes": [
-        "attrition"
-      ],
-      "baseStats": {
-        "hp": 1.13,
-        "attack": 0.94,
-        "defense": 1.14
-      },
-      "scalingProfile": "normal",
-      "tags": [],
-      "skillSet": []
-    },
-    {
       "id": "giant_rat",
       "icon": "🐀",
       "tier": "normal",
@@ -141,39 +61,6 @@
         "defense": 0.43
       },
       "scalingProfile": "normal",
-      "tags": [],
-      "skillSet": []
-    },
-    {
-      "id": "stone_golem",
-      "icon": "🗿",
-      "tier": "normal",
-      "threatTypes": [
-        "burst_punish",
-        "tank_breaker"
-      ],
-      "baseStats": {
-        "hp": 1.57,
-        "attack": 1,
-        "defense": 2.43
-      },
-      "scalingProfile": "tank",
-      "tags": [],
-      "skillSet": []
-    },
-    {
-      "id": "lava_hound",
-      "icon": "🐺",
-      "tier": "normal",
-      "threatTypes": [
-        "sustain_pressure"
-      ],
-      "baseStats": {
-        "hp": 1.25,
-        "attack": 1.44,
-        "defense": 1
-      },
-      "scalingProfile": "bruiser",
       "tags": [],
       "skillSet": []
     },
@@ -200,6 +87,126 @@
         "doubleStrike"
       ]
     },
+    {
+      "id": "harpy",
+      "icon": "🪶",
+      "tier": "normal",
+      "threatTypes": [
+        "burst_punish"
+      ],
+      "baseStats": {
+        "hp": 0.95,
+        "attack": 1.32,
+        "defense": 0.68
+      },
+      "scalingProfile": "normal",
+      "tags": [],
+      "skillSet": []
+    },
+    {
+      "id": "blood_bat",
+      "icon": "🦇",
+      "tier": "normal",
+      "traits": [
+        "lifesteal"
+      ],
+      "threatTypes": [
+        "attrition",
+        "sustain_pressure"
+      ],
+      "baseStats": {
+        "hp": 0.93,
+        "attack": 1.44,
+        "defense": 0.57
+      },
+      "scalingProfile": "glass",
+      "tags": [
+        "lifesteal"
+      ],
+      "skillSet": [
+        "lifeSteal"
+      ]
+    },
+    {
+      "id": "moon_huntress",
+      "icon": "🌙",
+      "tier": "normal",
+      "threatTypes": [
+        "sustain_pressure"
+      ],
+      "baseStats": {
+        "hp": 1.05,
+        "attack": 1.56,
+        "defense": 1
+      },
+      "scalingProfile": "striker",
+      "tags": [],
+      "skillSet": []
+    },
+    {
+      "id": "thorn_beast",
+      "icon": "🌵",
+      "tier": "normal",
+      "traits": [
+        "thorns"
+      ],
+      "threatTypes": [
+        "burst_punish",
+        "attrition"
+      ],
+      "baseStats": {
+        "hp": 1.47,
+        "attack": 1.19,
+        "defense": 1.71
+      },
+      "scalingProfile": "bruiser",
+      "tags": [
+        "thorns"
+      ],
+      "skillSet": [
+        "thornAura"
+      ]
+    }
+  ],
+  "boss": [
+    {
+      "id": "forest_satyr",
+      "icon": "🦌",
+      "tier": "boss",
+      "theme": "forest",
+      "introLine": "你闯入了我的地盘，外来者",
+      "battleLogLine": "萨堤咆哮！",
+      "phasePrompts": {
+        "entering": "森林之力护佑我！",
+        "dying": "不……我的森林……"
+      },
+      "baseStats": {
+        "hp": 2.4,
+        "attack": 1.8,
+        "defense": 1.2
+      },
+      "scalingProfile": "boss",
+      "tags": [
+        "boss"
+      ],
+      "skillSet": []
+    }
+  ],
+  "regionIds": {
+    "forest": [
+      "goblin",
+      "wolf",
+      "bandit",
+      "giant_rat",
+      "poison_spider",
+      "harpy",
+      "blood_bat",
+      "moon_huntress",
+      "thorn_beast",
+      "forest_satyr"
+    ]
+  }
+}
     {
       "id": "frost_mage",
       "icon": "🧊",

@@ -76,40 +76,40 @@ export default function MapViewport({
   };
 
   return (
-    <section className="flex-1 border border-game-border/50 rounded-xl bg-gradient-to-br from-game-card/60 via-game-bg/40 to-game-card/50 p-3 flex flex-col overflow-hidden relative">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(124,58,237,0.08),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(34,211,238,0.06),transparent_50%)] pointer-events-none" />
+    <section className="flex-1 border border-stone-700/50 rounded-xl bg-gradient-to-br from-stone-900/60 via-stone-950/40 to-stone-900/50 p-3 flex flex-col overflow-hidden relative">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(180,83,9,0.06),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(153,27,27,0.04),transparent_50%)] pointer-events-none" />
 
-      <header className="mb-3 flex items-center justify-between border-b border-game-border/50 pb-3 relative z-10">
+      <header className="mb-3 flex items-center justify-between border-b border-stone-700/50 pb-3 relative z-10">
         <div>
-          <h3 className="text-sm font-display font-bold text-violet-200 flex items-center gap-2">
-            <div className="p-1 rounded-md bg-violet-500/20 border border-violet-500/30">
-              <Mountain size={12} className="text-violet-400" />
+          <h3 className="text-sm font-display font-bold text-amber-200 flex items-center gap-2">
+            <div className="p-1 rounded-md bg-amber-900/30 border border-amber-700/30">
+              <Mountain size={12} className="text-amber-600" />
             </div>
             {t(selectedChapter.name)}
           </h3>
-          <p className="text-[10px] text-gray-400 mt-1 flex items-center gap-2">
+          <p className="text-[10px] text-stone-500 mt-1 flex items-center gap-2">
             <span>{t('map.recommended')} {selectedChapter.levelRange}</span>
-            <span className="text-gray-600">·</span>
-            <span className="text-cyan-400">{t('map.level', { level: playerLevel })}</span>
+            <span className="text-stone-600">·</span>
+            <span className="text-amber-600/80">{t('map.level', { level: playerLevel })}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-[10px] text-gray-300 border border-game-border/50 rounded-lg px-2.5 py-1.5 bg-black/30 backdrop-blur-sm flex items-center gap-2">
-            <span className="text-gray-500">{t('map.progress')}</span>
-            <span className="text-violet-300 font-semibold">{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
+          <div className="text-[10px] text-stone-400 border border-stone-700/50 rounded-lg px-2.5 py-1.5 bg-black/30 backdrop-blur-sm flex items-center gap-2">
+            <span className="text-stone-500">{t('map.progress')}</span>
+            <span className="text-amber-600/80 font-semibold">{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
           </div>
         </div>
       </header>
 
       <div
         ref={mapViewportRef}
-        className="flex-1 min-h-0 rounded-xl border border-white/10 relative overflow-hidden cursor-grab active:cursor-grabbing"
+        className="flex-1 min-h-0 rounded-xl border border-stone-700/30 relative overflow-hidden cursor-grab active:cursor-grabbing"
         style={{
           background: `
-              radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
-              radial-gradient(ellipse at 20% 80%, rgba(34,211,238,0.1) 0%, transparent 40%),
-              radial-gradient(ellipse at 80% 60%, rgba(168,85,247,0.08) 0%, transparent 35%),
-              linear-gradient(180deg, #0a0a1a 0%, #0f0f2a 50%, #0a0a1a 100%)
+              radial-gradient(ellipse at 50% 0%, rgba(180,83,9,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 20% 80%, rgba(21,128,61,0.05) 0%, transparent 40%),
+              radial-gradient(ellipse at 80% 60%, rgba(153,27,27,0.05) 0%, transparent 35%),
+              linear-gradient(180deg, #0A0908 0%, #0F0F0F 50%, #0A0908 100%)
             `,
         }}
         onWheel={onWheel}
@@ -128,14 +128,14 @@ export default function MapViewport({
           <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
             <defs>
               <linearGradient id="pathGradientCleared" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="rgb(52, 211, 153)" stopOpacity="0.9" />
-                <stop offset="50%" stopColor="rgb(34, 211, 238)" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="rgb(52, 211, 153)" stopOpacity="0.9" />
+                <stop offset="0%" stopColor="rgb(180, 83, 9)" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="rgb(217, 119, 6)" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="rgb(180, 83, 9)" stopOpacity="0.9" />
               </linearGradient>
               <linearGradient id="pathGradientReady" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="rgb(34, 211, 238)" stopOpacity="0.7" />
-                <stop offset="50%" stopColor="rgb(124, 58, 237)" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="rgb(34, 211, 238)" stopOpacity="0.7" />
+                <stop offset="0%" stopColor="rgb(180, 83, 9)" stopOpacity="0.6" />
+                <stop offset="50%" stopColor="rgb(217, 119, 6)" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="rgb(180, 83, 9)" stopOpacity="0.6" />
               </linearGradient>
               <filter id="pathGlow">
                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -156,7 +156,7 @@ export default function MapViewport({
                 ? 'url(#pathGradientCleared)'
                 : nextUnlocked
                 ? 'url(#pathGradientReady)'
-                : 'rgba(100,116,139,0.3)';
+                : 'rgba(87, 83, 78, 0.4)';
 
               return (
                 <>

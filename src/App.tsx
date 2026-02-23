@@ -12,6 +12,7 @@ import { useAutoBattle } from './hooks/game/useAutoBattle';
 import { useInventoryActions } from './hooks/game/useInventoryActions';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { GameScreen } from './components/game/GameScreen';
+import { BackgroundEffects } from './components/game/BackgroundEffects';
 import { createFreshInitialState, createInitialBattleState } from './logic/gameState';
 import { applySingleBattleReward } from './logic/battleRewards';
 import { createInitialMapProgress } from './logic/mapProgress';
@@ -161,7 +162,9 @@ export default function App() {
   const currentProfile = profiles.find((profile) => profile.id === activeProfileId);
 
   return (
-    <GameScreen
+    <>
+      <BackgroundEffects />
+      <GameScreen
       gameState={gameState}
       battleState={battleState}
       activeTab={activeTab}
@@ -215,5 +218,6 @@ export default function App() {
       onSelectForgeItem={setForgeSelectedId}
       onUnequip={(slot) => processAction(`卸下槽位 ${slot}`)}
     />
+    </>
   );
 }
