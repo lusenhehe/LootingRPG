@@ -110,10 +110,7 @@ export const chapterThemeStyles: Record<ChapterTheme, {
 };
 
 export const getNodeState = (
-  unlocked: boolean,
-  cleared: boolean,
-  playerLevel: number,
-  nodeLevel: number,
+  unlocked: boolean, cleared: boolean, playerLevel: number, nodeLevel: number,
 ): 'locked' | 'warning' | 'ready' | 'cleared' => {
   if (!unlocked) return 'locked';
   if (cleared) return 'cleared';

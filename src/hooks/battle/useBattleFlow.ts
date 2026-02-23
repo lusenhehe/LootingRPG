@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { BattleState, GameState, Monster } from '../../types/game';
 import { createInitialBattleState } from '../../logic/gameState';
 import { simulateBattle } from '../../logic/battle/battleEngine.ts';
-import { getRandomMonster } from '../../constants/game';
+import { getRandomMonster } from '../../logic/monsterGeneration';
 
 export interface BattleStartOptions {
   mapNodeId?: string;

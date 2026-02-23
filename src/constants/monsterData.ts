@@ -1,5 +1,4 @@
-import type { Monster } from '../types/game';
-import type { MonsterBaseStats, MonsterScalingProfile } from '../types/game';
+import type { Monster, MonsterBaseStats, MonsterScalingProfile, MonsterTrait, BossIdentity, MonsterPhase } from '../types/game';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
 // main.tsx already initializes i18n; keep this file pure and only import `t`
@@ -8,26 +7,98 @@ import { t } from 'i18next';
 // load static configuration from JSON; names are handled via i18n keys
 import monsterConfig from '../config/monsters.json';
 
-// cast to any because JSON shape may include i18n keys that don't match Monster exactly
-const { normal: rawNormal, boss: rawBoss } = monsterConfig as any;
+// Define strict types for raw JSON data
+interface RawMonsterBaseStats {
+  hp?: number;
+  attack?: number;
+  defense?: number;
+}
+
+interface RawMonsterPhase {
+  id?: string;
+  label?: string;
+  labelKey?: string;
+  interval?: number;
+  action?: string;
+}
+
+interface RawBossCounterGoal {
+  title?: string;
+  titleKey?: string;
+  stat?: string;
+  threshold?: number;
+  successText?: string;
+  successTextKey?: string;
+  failText?: string;
+  failTextKey?: string;
+}
+
+interface RawMonsterData {
+  id?: string;
+  name?: string;
+  nameKey?: string;
+  icons?: string[];
+  icon?: string; // legacy support
+  等级?: number;
+  tier?: string;
+  isBoss?: boolean;
+  elite?: boolean;
+  baseStats?: RawMonsterBaseStats;
+  scalingProfile?: string;
+  tags?: string[];
+  skillSet?: string[];
+  traits?: MonsterTrait[];
+  uniqueTraits?: MonsterTrait[];
+  phases?: RawMonsterPhase[];
+  threatTypes?: string[];
+  background?: string;
+  bossIdentity?: {
+    theme?: string;
+    introLine?: string;
+    introLineKey?: string;
+    battleLogLine?: string;
+    battleLogLineKey?: string;
+    phasePrompts?: Record<string, string>;
+  };
+  counterGoal?: RawBossCounterGoal;
+  counterGoalLabel?: string;
+  // Legacy fields for backward compatibility
+  maxHp?: number;
+  attack?: number;
+  defense?: number;
+}
+
+const { normal: rawNormal, boss: rawBoss } = monsterConfig as { normal: RawMonsterData[]; boss: RawMonsterData[] };
 
 // helper that converts optional key fields (labelKey, titleKey, etc) using t()
-const localizeAdditionalFields = (m: any): any => {
+const localizeAdditionalFields = (m: RawMonsterData): RawMonsterData => {
+  const result = { ...m };
+
   if (m.phases) {
-    m.phases = m.phases.map((p: any) => ({
+    result.phases = m.phases.map((p: RawMonsterPhase) => ({
       ...p,
       label: p.labelKey ? t(p.labelKey) : p.label || '',
-    }));
+    })) as RawMonsterPhase[];
   }
+
   if (m.counterGoal) {
-    m.counterGoal = {
+    result.counterGoal = {
       ...m.counterGoal,
       title: m.counterGoal.titleKey ? t(m.counterGoal.titleKey) : m.counterGoal.title,
-      successText: m.counterGoal.successText ? t(m.counterGoal.successText) : m.counterGoal.successText,
-      failText: m.counterGoal.failText ? t(m.counterGoal.failText) : m.counterGoal.failText,
+      successText: m.counterGoal.successTextKey ? t(m.counterGoal.successTextKey) : m.counterGoal.successText,
+      failText: m.counterGoal.failTextKey ? t(m.counterGoal.failTextKey) : m.counterGoal.failText,
     };
   }
-  return m;
+
+  if (m.bossIdentity) {
+    result.bossIdentity = {
+      ...m.bossIdentity,
+      introLine: m.bossIdentity.introLineKey ? t(m.bossIdentity.introLineKey) : m.bossIdentity.introLine,
+      battleLogLine: m.bossIdentity.battleLogLineKey ? t(m.bossIdentity.battleLogLineKey) : m.bossIdentity.battleLogLine,
+    };
+  }
+
+  return result;
 };
 
 const TRAIT_TO_SKILL: Record<string, string> = {
@@ -38,7 +109,7 @@ const TRAIT_TO_SKILL: Record<string, string> = {
   rage_on_low_hp: 'rageMode',
 };
 
-const normalizeBaseStats = (m: any): MonsterBaseStats => {
+const normalizeBaseStats = (m: RawMonsterData): MonsterBaseStats => {
   if (m.baseStats) {
     return {
       hp: Number(m.baseStats.hp) || 1,
@@ -60,33 +131,34 @@ const normalizeBaseStats = (m: any): MonsterBaseStats => {
   };
 };
 
-const normalizeScalingProfile = (m: any): MonsterScalingProfile => {
+const normalizeScalingProfile = (m: RawMonsterData): MonsterScalingProfile => {
   if (m.scalingProfile) return m.scalingProfile as MonsterScalingProfile;
-  return m.tier === 'boss' ? 'boss' : 'normal';
+  return m.tier === 'boss' || m.isBoss ? 'boss' : 'normal';
 };
 
-const normalizeTags = (m: any): string[] => {
+const normalizeTags = (m: RawMonsterData): string[] => {
   const base = Array.isArray(m.tags) ? [...m.tags] : [];
   if (m.tier === 'boss' || m.isBoss) base.push('boss');
   if (Array.isArray(m.traits)) {
-    m.traits.forEach((trait: string) => base.push(trait));
+    m.traits.forEach((trait: MonsterTrait) => base.push(trait));
   }
   return Array.from(new Set(base));
 };
 
-const normalizeSkillSet = (m: any): string[] => {
+const normalizeSkillSet = (m: RawMonsterData): string[] => {
   if (Array.isArray(m.skillSet)) return m.skillSet;
-  const traits: string[] = Array.isArray(m.traits) ? m.traits : [];
+  const traits: MonsterTrait[] = Array.isArray(m.traits) ? m.traits : [];
   const skills = traits.map((trait) => TRAIT_TO_SKILL[trait]).filter(Boolean);
   return Array.from(new Set(skills));
 };
 
 // attach translated name lazily
-const addTranslatedName = (m: any): Monster => {
+const addTranslatedName = (m: RawMonsterData): Monster => {
   // ensure icons array exists, fall back to single icon
   const icons = [] as string[];
   if (Array.isArray(m.icons)) icons.push(...m.icons);
-  else if (m.icon) icons.push(m.icon);
+  else if (m.icon) icons.push(m.icon); // legacy support
+
   const baseStats = normalizeBaseStats(m);
   const scalingProfile = normalizeScalingProfile(m);
   const previewStats = resolveMonsterTemplateStats(

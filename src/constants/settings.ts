@@ -1,9 +1,9 @@
 // 存放项目范围内可调的基础配置和UI尺寸
 
 export const PLAYER_GROWTH = {
-  baseAttack: 10,
+  baseAttack: 50,
   attackPerLevel: 5,
-  baseHp: 100,
+  baseHp: 300,
   hpPerLevel: 20,
   baseDefense: 5,
   defensePerLevel: 2,

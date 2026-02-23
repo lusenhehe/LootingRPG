@@ -11,6 +11,8 @@ interface GameScreenProps {
   activeTab: ActiveTab;
   loading: boolean;
   playerName: string;
+  /** current player stats summary used by header */
+  playerStats: import('../../types/game').PlayerStats;
   autoBattleEnabled: boolean;
   autoSellQualities: Record<string, boolean>;
   forgeSelectedId: string | null;
@@ -76,6 +78,7 @@ export function GameScreen({
         <AppHeader
           gold={gameState.玩家状态.金币}
           playerName={playerName}
+          playerStats={gameState.玩家状态}
           onExportSave={onExportSave}
           onImportSave={onImportSave}
           onLogout={onLogout}

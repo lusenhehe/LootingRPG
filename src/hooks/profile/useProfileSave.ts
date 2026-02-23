@@ -4,7 +4,7 @@ import { recalculatePlayerStats } from '../../logic/playerStats';
 import { createInitialBattleState } from '../../logic/gameState';
 import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
 import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
-import type { GameState, MapProgressState, SavePayload, SaveProfile } from '../../types/game';
+import type { GameState, MapProgressState, SavePayload, SaveProfile, BattleState } from '../../types/game';
 import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, createAutoSellQualityMap, QUALITY_KEY_MAP, STORAGE_KEY } from '../../constants/game';
 
 interface UseProfileSaveParams {
@@ -13,7 +13,7 @@ interface UseProfileSaveParams {
   setLogs: React.Dispatch<React.SetStateAction<string[]>>;
   setAutoSellQualities: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   setMapProgress: React.Dispatch<React.SetStateAction<MapProgressState>>;
-  setBattleState?: React.Dispatch<React.SetStateAction<any>>;
+  setBattleState?: React.Dispatch<React.SetStateAction<BattleState>>;
   addLog: (msg: string) => void;
 }
 
@@ -251,12 +251,6 @@ export function useProfileSave({
     profiles,
     activeProfileId,
     isAuthenticated,
-    handleLogin,
-    handleCreateProfile,
-    handleDeleteProfile,
-    handleExportSave,
-    handleImportSave,
-    loadProfile,
-    handleLogout,
+    handleLogin, handleCreateProfile, handleDeleteProfile, handleExportSave, handleImportSave, loadProfile, handleLogout,
   };
 }

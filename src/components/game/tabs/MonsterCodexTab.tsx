@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
 import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../constants/game';
 import { UI_DIMENSIONS } from '../../../constants/settings';
+import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/monsterStrategyConfig';
 import type { Monster, MonsterTrait, ThreatType } from '../../../types/game';
 const traitLabelMap: Record<MonsterTrait, string> = {
   thorns: '反伤',
@@ -25,7 +26,6 @@ const traitHintMap: Record<MonsterTrait, string[]> = {
   shield_on_start: ['此敌人开局防线稳固，前段硬冲收益较低。', '先建立稳定节奏，再寻找破口更容易滚起优势。'],
   rage_on_low_hp: ['此敌人在残局阶段威胁更高，收尾处理很关键。', '建议保留后段资源，避免在终局被反推。'],
 };
-type StrategyTag = '偏进攻' | '偏防守' | '偏续航';
 const strategyTagStyleMap: Record<StrategyTag, string> = {
   偏进攻: 'border-rose-400/35    bg-rose-500/10    text-rose-200',
   偏防守: 'border-blue-400/35    bg-blue-500/10    text-blue-200',
@@ -81,43 +81,24 @@ const getStrategyTags = (monster: Monster): StrategyTag[] => {
     偏防守: 0,
     偏续航: 0,
   };
-
   if (monster.tier === 'boss') {
     score.偏防守 += 1;
     score.偏续航 += 1;
   }
-
   (monster.traits ?? []).forEach((trait) => {
-    if (trait === 'thorns') {
-      score.偏防守 += 2;
-      score.偏续航 += 1;
-    }
-    if (trait === 'lifesteal') {
-      score.偏进攻 += 1;
-      score.偏续航 += 2;
-    }
-    if (trait === 'double_attack') {
-      score.偏防守 += 1;
-      score.偏进攻 += 2;
-    }
-    if (trait === 'shield_on_start') {
-      score.偏进攻 += 2;
-      score.偏防守 += 1;
-    }
-    if (trait === 'rage_on_low_hp') {
-      score.偏防守 += 2;
-      score.偏续航 += 1;
+    const traitScores = traitScoreMap[trait];
+    if (traitScores) {
+      Object.entries(traitScores).forEach(([key, value]) => {
+        score[key as StrategyTag] += value;
+      });
     }
   });
 
-  if (monster.counterGoal?.stat === '攻击力' || monster.counterGoal?.stat === '元素伤害' || monster.counterGoal?.stat === '攻击速度') {
-    score.偏进攻 += 2;
-  }
-  if (monster.counterGoal?.stat === '防御力' || monster.counterGoal?.stat === '生命值') {
-    score.偏防守 += 2;
-  }
-  if (monster.counterGoal?.stat === '吸血' || monster.counterGoal?.stat === '反伤') {
-    score.偏续航 += 2;
+  if (monster.counterGoal?.stat) {
+    const tag = counterGoalScoreMap[monster.counterGoal.stat];
+    if (tag) {
+      score[tag] += 2;
+    }
   }
 
   return (Object.entries(score) as [StrategyTag, number][])

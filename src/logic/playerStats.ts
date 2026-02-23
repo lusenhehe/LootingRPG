@@ -1,5 +1,6 @@
-import { INITIAL_STATE, STAT_KEY_MAP } from '../constants/game';
+import { INITIAL_STATE } from '../config/gameConfig';
 import { PLAYER_GROWTH } from '../constants/settings';
+import { STAT_KEY_MAP } from '../constants/game';
 import type { GameState } from '../types/game';
 
 const toNumber = (value: unknown): number => {
