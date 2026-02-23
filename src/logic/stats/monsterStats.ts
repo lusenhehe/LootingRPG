@@ -1,6 +1,8 @@
 import type { CounterStatKey, Monster } from '../../types/game';
 import type { FinalPlayerCombatStats } from './playerStats';
 import { getCombatProfile } from './playerStats';
+import { getMapNodeById } from '../../config/mapChapters';
+import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../../constants/monsterScaling';
 
 export interface FinalMonsterCombatStats {
   maxHp: number;
@@ -44,6 +46,7 @@ export const getFinalMonsterStats = (
   encounterCount: number,
   isBoss: boolean,
   finalPlayer: FinalPlayerCombatStats,
+  mapNodeId?: string,
 ): FinalMonsterCombatStats => {
   const monsterLevel = Math.max(1, Number(monster.等级) || 1);
   const monsterLevelFactor = 1 + (monsterLevel - 1) * 0.08;
@@ -54,9 +57,13 @@ export const getFinalMonsterStats = (
   const defenseFactor = isBoss ? 1.32 : 1.18;
   const combatProfile = getCombatProfile();
 
-  let maxHp = Math.floor(monster.maxHp * levelFactor * encounterFactor * hpFactor * monsterLevelFactor);
-  let attack = Math.floor(monster.attack * levelFactor * encounterFactor * attackFactor * combatProfile.monsterDamageMultiplier * monsterLevelFactor);
-  let defense = Math.floor(monster.defense * levelFactor * encounterFactor * defenseFactor * (1 + (monsterLevel - 1) * 0.06));
+  const mapNode = mapNodeId ? getMapNodeById(mapNodeId) : undefined;
+  const mapBaseline = getMapMonsterBaselineByLevel(mapNode?.recommendedLevel ?? playerLevel);
+  const templateStats = resolveMonsterTemplateStats(monster, mapBaseline);
+
+  let maxHp = Math.floor(templateStats.maxHp * levelFactor * encounterFactor * hpFactor * monsterLevelFactor);
+  let attack = Math.floor(templateStats.attack * levelFactor * encounterFactor * attackFactor * combatProfile.monsterDamageMultiplier * monsterLevelFactor);
+  let defense = Math.floor(templateStats.defense * levelFactor * encounterFactor * defenseFactor * (1 + (monsterLevel - 1) * 0.06));
 
   let objectivePassed = true;
   let objectiveLabel: string | null = null;

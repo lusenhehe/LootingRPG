@@ -1,6 +1,7 @@
 import type { GameState, Monster, MonsterTrait } from '../types/game';
 import { BOSS_MONSTERS_DATA, NORMAL_MONSTERS_DATA } from './monsterData';
 import { attachMonsterLore } from './monsterLore';
+import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
 // configuration loaded from JSON, names/labels are translated at render time
 // i18n initialization is handled in main.tsx; avoid re-importing side effects here
@@ -98,15 +99,19 @@ export const getRandomMonster = ({ isBoss, playerLevel, encounterCount }: Monste
   const bossLevelBonus = isBoss ? 3 : 0;                   // boss 怪物比同等级的普通怪物更强，额外增加3级的属性加成
   const monsterLevel = Math.max(1, playerLevel + levelFromEncounter + bossLevelBonus);
   const levelScale = 1 + (monsterLevel - 1) * 0.08;
+  const templateStats = resolveMonsterTemplateStats(
+    { baseStats: picked.baseStats, scalingProfile: picked.scalingProfile },
+    getMapMonsterBaselineByLevel(monsterLevel),
+  );
 
   let monster: Monster = {
     ...picked,
     icons: [displayIcon],
     等级: monsterLevel,
     elite: isElite,
-    maxHp: Math.max(1, Math.floor(picked.maxHp * levelScale)),
-    attack: Math.max(1, Math.floor(picked.attack * levelScale)),
-    defense: Math.max(0, Math.floor(picked.defense * (1 + (monsterLevel - 1) * 0.06))),
+    maxHp: Math.max(1, Math.floor(templateStats.maxHp * levelScale)),
+    attack: Math.max(1, Math.floor(templateStats.attack * levelScale)),
+    defense: Math.max(0, Math.floor(templateStats.defense * (1 + (monsterLevel - 1) * 0.06))),
   };
 
   if (isElite) {

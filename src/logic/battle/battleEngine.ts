@@ -21,13 +21,14 @@ export const simulateBattle = (
   playerStats: PlayerStats,
   encounterCount: number,
   isBoss: boolean,
+  mapNodeId?: string,
 ): SimulatedBattle => {
   const rawMonsters = toArray(rawMonsterOrMonsters);
   const finalPlayer = getFinalPlayerStats(playerStats, encounterCount);
   const combatProfile = getCombatProfile();
 
   const finalMonsters: FinalMonsterCombatStats[] = rawMonsters.map((rawMonster) =>
-    getFinalMonsterStats(rawMonster, playerStats.等级, encounterCount, isBoss || !!rawMonster.isBoss, finalPlayer),
+    getFinalMonsterStats(rawMonster, playerStats.等级, encounterCount, isBoss || !!rawMonster.isBoss, finalPlayer, mapNodeId),
   );
 
   const monsters = rawMonsters.map((rawMonster, idx) => ({

@@ -1,4 +1,6 @@
 import type { Monster } from '../types/game';
+import type { MonsterBaseStats, MonsterScalingProfile } from '../types/game';
+import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
 // main.tsx already initializes i18n; keep this file pure and only import `t`
 import { t } from 'i18next';
@@ -28,16 +30,81 @@ const localizeAdditionalFields = (m: any): any => {
   return m;
 };
 
+const TRAIT_TO_SKILL: Record<string, string> = {
+  lifesteal: 'lifeSteal',
+  double_attack: 'doubleStrike',
+  thorns: 'thornAura',
+  shield_on_start: 'shieldStart',
+  rage_on_low_hp: 'rageMode',
+};
+
+const normalizeBaseStats = (m: any): MonsterBaseStats => {
+  if (m.baseStats) {
+    return {
+      hp: Number(m.baseStats.hp) || 1,
+      attack: Number(m.baseStats.attack) || 1,
+      defense: Number(m.baseStats.defense) || 1,
+    };
+  }
+
+  // backward-compatible path for legacy data carrying concrete stats
+  const legacyHp = Math.max(1, Number(m.maxHp) || 120);
+  const legacyAttack = Math.max(1, Number(m.attack) || 16);
+  const legacyDefense = Math.max(0, Number(m.defense) || 7);
+  const baseline = getMapMonsterBaselineByLevel(1);
+
+  return {
+    hp: Number((legacyHp / baseline.hp).toFixed(2)),
+    attack: Number((legacyAttack / baseline.attack).toFixed(2)),
+    defense: Number((legacyDefense / baseline.defense).toFixed(2)),
+  };
+};
+
+const normalizeScalingProfile = (m: any): MonsterScalingProfile => {
+  if (m.scalingProfile) return m.scalingProfile as MonsterScalingProfile;
+  return m.tier === 'boss' ? 'boss' : 'normal';
+};
+
+const normalizeTags = (m: any): string[] => {
+  const base = Array.isArray(m.tags) ? [...m.tags] : [];
+  if (m.tier === 'boss' || m.isBoss) base.push('boss');
+  if (Array.isArray(m.traits)) {
+    m.traits.forEach((trait: string) => base.push(trait));
+  }
+  return Array.from(new Set(base));
+};
+
+const normalizeSkillSet = (m: any): string[] => {
+  if (Array.isArray(m.skillSet)) return m.skillSet;
+  const traits: string[] = Array.isArray(m.traits) ? m.traits : [];
+  const skills = traits.map((trait) => TRAIT_TO_SKILL[trait]).filter(Boolean);
+  return Array.from(new Set(skills));
+};
+
 // attach translated name lazily
 const addTranslatedName = (m: any): Monster => {
   // ensure icons array exists, fall back to single icon
   const icons = [] as string[];
   if (Array.isArray(m.icons)) icons.push(...m.icons);
   else if (m.icon) icons.push(m.icon);
+  const baseStats = normalizeBaseStats(m);
+  const scalingProfile = normalizeScalingProfile(m);
+  const previewStats = resolveMonsterTemplateStats(
+    { baseStats, scalingProfile },
+    getMapMonsterBaselineByLevel(1),
+  );
+
   return {
     ...(localizeAdditionalFields(m) as Monster),
     icons,
     等级: Math.max(1, Number(m.等级) || 1),
+    baseStats,
+    scalingProfile,
+    tags: normalizeTags(m),
+    skillSet: normalizeSkillSet(m),
+    maxHp: previewStats.maxHp,
+    attack: previewStats.attack,
+    defense: previewStats.defense,
     name: t(`monster.${m.id}`, { defaultValue: m.id ?? 'unknown_monster' }),
   } as Monster;
 };

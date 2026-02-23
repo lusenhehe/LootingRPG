@@ -50,6 +50,14 @@ export interface GameState {
 
 export type MonsterTier = 'normal' | 'boss';
 
+export type MonsterScalingProfile = 'normal' | 'tank' | 'glass' | 'bruiser' | 'striker' | 'boss';
+
+export interface MonsterBaseStats {
+  hp: number;
+  attack: number;
+  defense: number;
+}
+
 export type MonsterTrait =
   | 'thorns'
   | 'lifesteal'
@@ -95,6 +103,10 @@ export interface Monster {
   tier: MonsterTier;
   isBoss?: boolean;
   elite?: boolean;
+  baseStats: MonsterBaseStats;
+  scalingProfile: MonsterScalingProfile;
+  tags?: string[];
+  skillSet?: string[];
   maxHp: number;
   attack: number;
   defense: number;

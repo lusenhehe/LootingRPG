@@ -65,6 +65,7 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
       gameState.玩家状态,
       battleState.encounterCount,
       isBoss,
+      mapNodeId,
     );
     const monster = simulation.monster;
     const monsters = simulation.monsters;

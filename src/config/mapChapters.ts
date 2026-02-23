@@ -215,3 +215,11 @@ export const MAP_CHAPTERS: MapChapterDef[] = [
     ],
   },
 ];
+
+export const getMapNodeById = (nodeId: string): MapNodeDef | undefined => {
+  for (const chapter of MAP_CHAPTERS) {
+    const found = chapter.nodes.find((node) => node.id === nodeId);
+    if (found) return found;
+  }
+  return undefined;
+};
