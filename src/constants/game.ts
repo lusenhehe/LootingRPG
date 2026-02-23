@@ -2,23 +2,57 @@ import type { BattleRisk, GameState, Monster, MonsterTrait } from '../types/game
 import { BOSS_MONSTERS_DATA, NORMAL_MONSTERS_DATA, REGION_MONSTER_IDS } from './monsterData';
 import { attachMonsterLore } from './monsterLore';
 
-export const QUALITIES = ['普通', '优秀', '稀有', '史诗', '传说', '神话'];
-export const SLOTS = ['武器', '头盔', '护甲', '戒指', '项链', '鞋子'];
-export const STAT_POOL = ['攻击力', '生命值', '防御力', '暴击率', '暴击伤害', '攻击速度', '吸血', '元素伤害'];
+// configuration loaded from JSON, names/labels are translated at render time
+// i18n initialization is handled in main.tsx; avoid re-importing side effects here
+import { t } from 'i18next';
+import gameConstants from '../config/gameConstants.json';
 
-export const QUALITY_CONFIG: Record<string, { stats: number; price: number; color: string; iconName: string }> = {
-  普通: { stats: 1, price: 50, color: 'quality-common', iconName: 'shield' },
-  优秀: { stats: 2, price: 100, color: 'quality-uncommon', iconName: 'zap' },
-  稀有: { stats: 3, price: 300, color: 'quality-rare', iconName: 'gem' },
-  史诗: { stats: 4, price: 1000, color: 'quality-epic', iconName: 'hexagon' },
-  传说: { stats: 5, price: 5000, color: 'quality-legendary', iconName: 'crown' },
-  神话: { stats: 6, price: 20000, color: 'quality-mythic', iconName: 'star' },
+export const QUALITIES: string[] = gameConstants.qualities as string[];
+export const SLOTS: string[] = gameConstants.slots as string[];
+export const STAT_POOL: string[] = gameConstants.statPool as string[];
+
+// legacy Chinese-to-English maps to migrate old saves
+export const QUALITY_KEY_MAP: Record<string, string> = {
+  普通: 'common',
+  优秀: 'uncommon',
+  稀有: 'rare',
+  史诗: 'epic',
+  传说: 'legendary',
+  神话: 'mythic',
 };
+
+export const SLOT_KEY_MAP: Record<string, string> = {
+  武器: 'weapon',
+  头盔: 'helmet',
+  护甲: 'armor',
+  戒指: 'ring',
+  项链: 'necklace',
+  鞋子: 'boots',
+};
+
+// maps legacy Chinese stat keys to english; english values map to themselves for idempotence
+export const STAT_KEY_MAP: Record<string, string> = {
+  attack: 'attack',
+  hp: 'hp',
+  defense: 'defense',
+  crit: 'crit',
+  critDamage: 'critDamage',
+  attackSpeed: 'attackSpeed',
+  lifesteal: 'lifesteal',
+  elemental: 'elemental',
+};
+
+export const QUALITY_CONFIG: Record<string, { stats: number; price: number; color: string; iconName: string }> =
+  gameConstants.qualityConfig as any;
 
 export const getQualityColor = (quality: string): string => {
   return QUALITY_CONFIG[quality]?.color || 'text-gray-400';
 };
 
+// helper to get translated label
+export const getQualityLabel = (qualityKey: string): string => t(`quality.${qualityKey}`);
+export const getSlotLabel = (slotKey: string): string => t(`slot.${slotKey}`);
+export const getStatLabel = (statKey: string): string => t(`stat.${statKey}`);
 export const STORAGE_KEY = 'ai_rpg_save_local';
 export const PROFILE_INDEX_KEY = 'ai_rpg_profiles';
 export const ACTIVE_PROFILE_KEY = 'ai_rpg_active_profile';
@@ -94,14 +128,11 @@ export const getRandomMonster = ({ isBoss, region, risk, spawnMultiplier }: Mons
   return attachMonsterLore(monster);
 };
 
-export const createAutoSellQualityMap = (): Record<string, boolean> => ({
-  普通: false,
-  优秀: false,
-  稀有: false,
-  史诗: false,
-  传说: false,
-  神话: false,
-});
+export const createAutoSellQualityMap = (): Record<string, boolean> => {
+  const map: Record<string, boolean> = {};
+  QUALITIES.forEach((q) => {map[q] = false;});
+  return map;
+};
 
 export const INITIAL_STATE: GameState = {
   玩家状态: {
@@ -123,12 +154,13 @@ export const INITIAL_STATE: GameState = {
   背包: [],
   系统消息: '准备好开始你的冒险了吗？',
   当前装备: {
-    武器: null,
-    头盔: null,
-    护甲: null,
-    戒指: null,
-    项链: null,
-    鞋子: null,
+    // use english slot keys internally; labels are translated with getSlotLabel
+    weapon: null,
+    helmet: null,
+    armor: null,
+    ring: null,
+    necklace: null,
+    boots: null,
   },
   保底计数: {
     传说: 0,

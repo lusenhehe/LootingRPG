@@ -1,5 +1,5 @@
-import type { ChangeEvent, RefObject } from 'react';
 import type { ActiveTab, BattleRegion, BattleRisk, BattleState, GameState } from '../../types/game';
+import type { MapNode, MapProgressState } from '../../types/map';
 import { AppHeader } from './AppHeader';
 import { GamePanel } from './GamePanel';
 import { PlayerPanel } from './PlayerPanel';
@@ -15,9 +15,9 @@ interface GameScreenProps {
   battleRisk: BattleRisk;
   spawnMultiplier: number;
   autoSellQualities: Record<string, boolean>;
+  mapProgress: MapProgressState;
+  currentMapNode: MapNode | null;
   forgeSelectedId: string | null;
-  importInputRef: RefObject<HTMLInputElement | null>;
-  onImportFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onExportSave: () => void;
   onImportSave: () => void;
   onLogout: () => void;
@@ -26,6 +26,7 @@ interface GameScreenProps {
   onChallengeMonster: () => void;
   onChallengeBoss: () => void;
   onChallengeWave: () => void;
+  onChallengeCurrentMapNode: () => void;
   onToggleAutoBattle: () => void;
   onSetBattleRegion: (region: BattleRegion) => void;
   onSetBattleRisk: (risk: BattleRisk) => void;
@@ -51,9 +52,9 @@ export function GameScreen({
   battleRisk,
   spawnMultiplier,
   autoSellQualities,
+  mapProgress,
+  currentMapNode,
   forgeSelectedId,
-  importInputRef,
-  onImportFileChange,
   onExportSave,
   onImportSave,
   onLogout,
@@ -62,6 +63,7 @@ export function GameScreen({
   onChallengeMonster,
   onChallengeBoss,
   onChallengeWave,
+  onChallengeCurrentMapNode,
   onToggleAutoBattle,
   onSetBattleRegion,
   onSetBattleRisk,
@@ -81,13 +83,6 @@ export function GameScreen({
       <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 bg-rose-500/15 blur-3xl rounded-full" />
 
       <div className="relative flex flex-col max-w-6xl mx-auto p-4 md:p-6 gap-6">
-        <input
-          ref={importInputRef}
-          type="file"
-          accept="application/json,.json"
-          className="hidden"
-          onChange={onImportFileChange}
-        />
 
         <AppHeader
           gold={gameState.玩家状态.金币}
@@ -122,10 +117,13 @@ export function GameScreen({
             onSell={onSell}
             onForge={onForge}
             autoSellQualities={autoSellQualities}
+            mapProgress={mapProgress}
+            currentMapNode={currentMapNode}
             onToggleAutoSellQuality={onToggleAutoSellQuality}
             onReroll={onReroll}
             forgeSelectedId={forgeSelectedId}
             onSelectForgeItem={onSelectForgeItem}
+            onChallengeCurrentMapNode={onChallengeCurrentMapNode}
           />
         </main>
       </div>

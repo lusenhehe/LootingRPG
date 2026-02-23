@@ -2,7 +2,7 @@ import { ArrowUpCircle, Heart, Shield, Sword, User, Zap, Gem, Crown, Star, Hexag
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
 import type { Equipment, GameState } from '../../types/game';
-import { getQualityColor, QUALITY_CONFIG } from '../../constants/game';
+import { getQualityColor, QUALITY_CONFIG, getSlotLabel } from '../../constants/game';
 
 const slotIconMap: Record<string, ReactNode> = {
   shield: <Shield size={14} className="text-gray-400" />,
@@ -267,7 +267,7 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
                     )}
                   </div>
                 ) : (
-                  <span className="text-[10px] text-gray-600 uppercase font-mono">{slot}</span>
+                  <span className="text-[10px] text-gray-600 uppercase font-mono">{getSlotLabel(slot)}</span>
                 )}
               </motion.div>
               {item && (

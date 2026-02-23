@@ -1,4 +1,4 @@
-import { QUALITY_CONFIG, STAT_POOL } from '../constants/game';
+import { QUALITY_CONFIG, SLOT_KEY_MAP, STAT_POOL } from '../constants/game';
 import type { Equipment, GameState } from '../types/game';
 
 export const applyPlayerCommand = (
@@ -18,9 +18,11 @@ export const applyPlayerCommand = (
   if (action === '装备') {
     const item = nextState.背包.find((i) => i.名称 === target || i.id === target);
     if (item) {
-      const oldItem = nextState.当前装备[item.部位];
+      // make sure we look up the correct slot key (normalize english vs legacy chinese)
+      const slotKey = SLOT_KEY_MAP[item.部位] ?? item.部位;
+      const oldItem = nextState.当前装备[slotKey];
       item.已装备 = true;
-      nextState.当前装备[item.部位] = item;
+      nextState.当前装备[slotKey] = item;
       nextState.背包 = nextState.背包.filter((i) => i.id !== item.id && !i.已装备);
       if (oldItem) {
         oldItem.已装备 = false;
@@ -29,10 +31,12 @@ export const applyPlayerCommand = (
       logSystemMessage(`已装备 ${item.名称}`);
     }
   } else if (action === '卸下槽位') {
-    const item = nextState.当前装备[target];
+    // target here is slot name; make sure it's normalized too
+    const slotKey = SLOT_KEY_MAP[target] ?? target;
+    const item = nextState.当前装备[slotKey];
     if (item) {
       item.已装备 = false;
-      nextState.当前装备[target] = null;
+      nextState.当前装备[slotKey] = null;
       nextState.背包 = [...nextState.背包.filter((i) => i.id !== item.id), item];
       logSystemMessage(`已卸下 ${item.名称}`);
     }
@@ -51,7 +55,7 @@ export const applyPlayerCommand = (
     const itemIndex = nextState.背包.findIndex((i) => i.名称 === target || i.id === target);
     if (itemIndex > -1) {
       const item = nextState.背包[itemIndex];
-      const price = QUALITY_CONFIG[item.品质].price;
+      const price = QUALITY_CONFIG[item.品质]?.price ?? 0;
       nextState.玩家状态.金币 += price;
       nextState.背包.splice(itemIndex, 1);
       logSystemMessage(`出售了 ${item.名称}，获得金币 ${price}`);

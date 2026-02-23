@@ -1,5 +1,7 @@
-import { QUALITIES, QUALITY_CONFIG } from '../constants/game';
+import { QUALITIES, QUALITY_CONFIG, getQualityLabel } from '../constants/game';
 import type { Equipment, GameState } from '../types/game';
+// i18n is initialized once in `main.tsx`; business modules should not import it for side effects
+import { t } from 'i18next';
 
 export const quickSellByQualityRange = (
   state: GameState,
@@ -12,7 +14,7 @@ export const quickSellByQualityRange = (
   if (minIndex < 0 || maxIndex < 0) {
     return {
       nextState: state,
-      message: '一键售卖失败：品质范围无效。',
+      message: t('message.invalid_quality_range'),
     };
   }
 
@@ -37,14 +39,22 @@ export const quickSellByQualityRange = (
   });
 
   if (soldCount === 0) {
-    const message = `所选范围（${QUALITIES[lower]}-${QUALITIES[upper]}）没有可售卖装备。`;
+    const message = t('message.no_items_in_range', {
+      min: getQualityLabel(QUALITIES[lower]),
+      max: getQualityLabel(QUALITIES[upper]),
+    });
     nextState.系统消息 = message;
     return { nextState, message };
   }
 
   nextState.背包 = keep;
   nextState.玩家状态.金币 += earnedGold;
-  const message = `一键售卖完成：${QUALITIES[lower]}-${QUALITIES[upper]}，共出售 ${soldCount} 件，获得 ${earnedGold} 金币。`;
+  const message = t('message.quick_sell_result', {
+    min: getQualityLabel(QUALITIES[lower]),
+    max: getQualityLabel(QUALITIES[upper]),
+    count: soldCount,
+    gold: earnedGold,
+  });
   nextState.系统消息 = message;
   return { nextState, message };
 };

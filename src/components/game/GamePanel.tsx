@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { Trophy } from 'lucide-react';
 import type { ActiveTab, BattleRegion, BattleRisk, BattleState, GameState } from '../../types/game';
+import type { MapNode, MapProgressState } from '../../types/map';
 import { TabButton } from '../ui/TabButton';
 import { InventoryTab } from './tabs/InventoryTab';
 import { ForgeTab } from './tabs/ForgeTab';
@@ -16,6 +17,7 @@ interface GamePanelProps {
   onChallengeMonster: () => void;
   onChallengeBoss: () => void;
   onChallengeWave: () => void;
+  onChallengeCurrentMapNode: () => void;
   autoBattleEnabled: boolean;
   onToggleAutoBattle: () => void;
   battleRegion: BattleRegion;
@@ -28,6 +30,8 @@ interface GamePanelProps {
   onSell: (id: string) => void;
   onForge: (id: string) => void;
   onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
+  mapProgress: MapProgressState;
+  currentMapNode: MapNode | null;
   autoSellQualities: Record<string, boolean>;
   onToggleAutoSellQuality: (quality: string) => void;
   onReroll: (id: string) => void;
@@ -44,6 +48,7 @@ export function GamePanel({
   onChallengeMonster,
   onChallengeBoss,
   onChallengeWave,
+  onChallengeCurrentMapNode,
   autoBattleEnabled,
   onToggleAutoBattle,
   battleRegion,
@@ -56,6 +61,8 @@ export function GamePanel({
   onSell,
   onForge,
   onQuickSellByQualityRange,
+  mapProgress,
+  currentMapNode,
   autoSellQualities,
   onToggleAutoSellQuality,
   onReroll,
@@ -96,8 +103,11 @@ export function GamePanel({
                   onChallengeMonster={onChallengeMonster}
                   onChallengeBoss={onChallengeBoss}
                   onChallengeWave={onChallengeWave}
+                  onChallengeCurrentMapNode={onChallengeCurrentMapNode}
                   autoBattleEnabled={autoBattleEnabled}
                   onToggleAutoBattle={onToggleAutoBattle}
+                  mapProgress={mapProgress}
+                  currentMapNode={currentMapNode}
                   battleRegion={battleRegion}
                   battleRisk={battleRisk}
                   spawnMultiplier={spawnMultiplier}

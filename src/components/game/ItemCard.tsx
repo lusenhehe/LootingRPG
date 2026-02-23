@@ -1,7 +1,8 @@
 import { Coins, Trash2, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { QUALITY_CONFIG } from '../../constants/game';
+import { QUALITY_CONFIG, getStatLabel } from '../../constants/game';
 import type { Equipment } from '../../types/game';
+import { useTranslation } from 'react-i18next';
 
 const iconMap: Record<string, ReactNode> = {
   shield: <Shield size={18} className="text-gray-400" />,
@@ -27,12 +28,13 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
   const qualityColor = QUALITY_CONFIG[item.品质]?.color || 'text-gray-400';
   const qualityIcon = iconMap[QUALITY_CONFIG[item.品质]?.iconName || 'shield'];
   const forgeCost = (item.强化等级 + 1) * 500;
+  const { t } = useTranslation();
   const affixLabelMap: Record<string, string> = {
-    crit_chance: '暴击率',
-    lifesteal: '吸血',
-    damage_bonus: '伤害加成',
-    thorns: '反伤',
-    hp_bonus: '生命加成',
+    crit_chance: t('stat.crit'),
+    lifesteal: t('stat.lifesteal'),
+    damage_bonus: t('stat.damage'),
+    thorns: t('trait.thorns'),
+    hp_bonus: t('stat.hp'),
   };
 
   return (
@@ -66,7 +68,7 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 py-2 border-y border-game-border/50">
         {Object.entries(item.属性).map(([k, v]) => (
           <div key={k} className="flex justify-between text-[10px]">
-            <span className="text-gray-500">{k}</span>
+            <span className="text-gray-500">{getStatLabel(k)}</span>
             <span className="text-gray-300 font-mono">+{v}</span>
           </div>
         ))}

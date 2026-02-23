@@ -1,3 +1,5 @@
+import type { MapProgressState } from './map';
+
 export interface PlayerStats {
   等级: number;
   经验: number;
@@ -154,4 +156,5 @@ export interface SavePayload {
   gameState: GameState;
   logs: string[];
   autoSellQualities?: Record<string, boolean>;
+  mapProgress?: MapProgressState;
 }

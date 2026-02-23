@@ -1,6 +1,8 @@
-import { QUALITY_CONFIG } from '../constants/game';
+import { QUALITY_CONFIG, getQualityLabel } from '../constants/game';
 import { generateEquipment } from './equipment';
 import type { GameState } from '../types/game';
+// initialization happens at app entry (main.tsx)
+import { t } from 'i18next';
 
 export const applySingleBattleReward = (
   state: GameState,
@@ -17,11 +19,18 @@ export const applySingleBattleReward = (
   if (autoSellQualities[item.品质]) {
     const price = QUALITY_CONFIG[item.品质].price;
     nextState.玩家状态.金币 += price;
-    nextState.系统消息 = `自动售卖：[${item.品质}] ${item.名称}，获得金币 ${price}`;
+    nextState.系统消息 = t('message.auto_sold_drop', {
+      quality: getQualityLabel(item.品质),
+      name: item.名称,
+      gold: price,
+    });
     logs.push(nextState.系统消息);
   } else {
     nextState.背包 = [...nextState.背包, item];
-    nextState.系统消息 = `掉落了装备：[${item.品质}] ${item.名称}`;
+    nextState.系统消息 = t('message.dropped_item', {
+      quality: getQualityLabel(item.品质),
+      name: item.名称,
+    });
     logs.push(nextState.系统消息);
   }
 
@@ -39,7 +48,11 @@ export const applySingleBattleReward = (
     levelUpMsg = ` 等级提升至 ${nextState.玩家状态.等级}！`;
   }
 
-  nextState.战斗结果 = `成功击败${isBoss ? 'BOSS' : '怪物'}！获得经验 ${xpGain}。${levelUpMsg}`;
+  nextState.战斗结果 = t('message.defeat_result', {
+      target: isBoss ? t('label.boss') : t('label.monster'),
+      xp: xpGain,
+      levelUp: levelUpMsg,
+    });
   logs.push(nextState.战斗结果);
 
   return { nextState, droppedName: item.名称, logs };
@@ -89,10 +102,17 @@ export const applyWaveBattleReward = (
   }
 
   const levelTip = levelUpCount > 0 ? `，升级 ${levelUpCount} 次` : '';
-  const summary = `怪群清剿完成（${waveSize}只）：经验 +${totalXp}${levelTip}，入包 ${bagCount} 件，自动售卖 ${soldCount} 件（+${soldGold} 金币）。`;
+  const summary = t('message.wave_summary', {
+      wave: waveSize,
+      xp: totalXp,
+      levelTip,
+      bag: bagCount,
+      soldCount,
+      soldGold,
+    });
 
   nextState.系统消息 = summary;
-  nextState.战斗结果 = `你一口气击败了 ${waveSize} 只怪物！`;
+  nextState.战斗结果 = t('message.wave_result', { wave: waveSize });
 
   return { nextState, summary };
 };

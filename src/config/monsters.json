@@ -1,0 +1,50 @@
+{
+  "normal": [
+    { "id": "skeleton", "icon": "💀", "tier": "normal", "maxHp": 130, "attack": 16, "defense": 7, "threatTypes": ["tank_breaker"] },
+    { "id": "zombie", "icon": "🧟", "tier": "normal", "maxHp": 152, "attack": 14, "defense": 10, "threatTypes": ["attrition"] },
+    { "id": "goblin", "icon": "👺", "tier": "normal", "maxHp": 118, "attack": 19, "defense": 6, "threatTypes": ["sustain_pressure"] },
+    { "id": "wraith", "icon": "👻", "tier": "normal", "maxHp": 140, "attack": 17, "defense": 8, "threatTypes": ["attrition"] },
+    { "id": "slime", "icon": "🟢", "tier": "normal", "maxHp": 104, "attack": 12, "defense": 4, "threatTypes": ["tank_breaker"] },
+    { "id": "bandit", "icon": "🦹", "tier": "normal", "maxHp": 124, "attack": 20, "defense": 7, "threatTypes": ["sustain_pressure"] },
+    { "id": "cultist", "icon": "🔮", "tier": "normal", "maxHp": 136, "attack": 15, "defense": 8, "threatTypes": ["attrition"] },
+    { "id": "giant_rat", "icon": "🐀", "tier": "normal", "maxHp": 92, "attack": 13, "defense": 3, "threatTypes": ["tank_breaker"] },
+    { "id": "stone_golem", "icon": "🗿", "tier": "normal", "maxHp": 188, "attack": 16, "defense": 17, "threatTypes": ["burst_punish", "tank_breaker"] },
+    { "id": "lava_hound", "icon": "🐺", "tier": "normal", "maxHp": 150, "attack": 23, "defense": 7, "threatTypes": ["sustain_pressure"] },
+    { "id": "poison_spider", "icon": "🕷️", "tier": "normal", "maxHp": 118, "attack": 22, "defense": 5, "traits": ["double_attack"], "threatTypes": ["sustain_pressure"] },
+    { "id": "frost_mage", "icon": "🧊", "tier": "normal", "maxHp": 126, "attack": 23, "defense": 4, "threatTypes": ["sustain_pressure"] },
+    { "id": "harpy", "icon": "🦅", "tier": "normal", "maxHp": 130, "attack": 19, "defense": 7, "threatTypes": ["tank_breaker"] },
+    { "id": "mimic", "icon": "📦", "tier": "normal", "maxHp": 164, "attack": 17, "defense": 11, "threatTypes": ["burst_punish"] },
+    { "id": "void_eye", "icon": "👁️", "tier": "normal", "maxHp": 142, "attack": 19, "defense": 8, "threatTypes": ["attrition"] },
+    { "id": "forest_satyr", "icon": "🌿", "tier": "normal", "maxHp": 124, "attack": 17, "defense": 7, "threatTypes": ["tank_breaker"] },
+    { "id": "shadow_assassin", "icon": "🗡️", "tier": "normal", "maxHp": 120, "attack": 25, "defense": 5, "threatTypes": ["sustain_pressure"] },
+    { "id": "bone_shaman", "icon": "🦴", "tier": "normal", "maxHp": 140, "attack": 20, "defense": 8, "threatTypes": ["attrition"] },
+    { "id": "iron_knight", "icon": "🛡️", "tier": "normal", "maxHp": 196, "attack": 18, "defense": 19, "traits": ["shield_on_start"], "threatTypes": ["burst_punish", "tank_breaker"] },
+    { "id": "plague_doctor", "icon": "🕯️", "tier": "normal", "maxHp": 132, "attack": 22, "defense": 7, "threatTypes": ["attrition"] },
+    { "id": "storm_elemental", "icon": "🌪️", "tier": "normal", "maxHp": 154, "attack": 26, "defense": 5, "traits": ["double_attack"], "threatTypes": ["sustain_pressure"] },
+    { "id": "blood_bat", "icon": "🦇", "tier": "normal", "maxHp": 112, "attack": 23, "defense": 4, "traits": ["lifesteal"], "threatTypes": ["attrition", "sustain_pressure"] },
+    { "id": "sand_wraith", "icon": "🏜️", "tier": "normal", "maxHp": 146, "attack": 21, "defense": 10, "threatTypes": ["attrition"] },
+    { "id": "abyss_guard", "icon": "⚔️", "tier": "normal", "maxHp": 208, "attack": 23, "defense": 15, "threatTypes": ["tank_breaker"] },
+    { "id": "thorn_beast", "icon": "🌵", "tier": "normal", "maxHp": 176, "attack": 19, "defense": 12, "traits": ["thorns"], "threatTypes": ["burst_punish", "attrition"] },
+    { "id": "arcane_construct", "icon": "🔷", "tier": "normal", "maxHp": 170, "attack": 24, "defense": 11, "threatTypes": ["tank_breaker"] },
+    { "id": "grave_keeper", "icon": "⚰️", "tier": "normal", "maxHp": 156, "attack": 21, "defense": 10, "threatTypes": ["attrition"] },
+    { "id": "ashen_warlock", "icon": "🔥", "tier": "normal", "maxHp": 130, "attack": 27, "defense": 5, "threatTypes": ["sustain_pressure"] },
+    { "id": "crystal_lurker", "icon": "💎", "tier": "normal", "maxHp": 182, "attack": 20, "defense": 13, "threatTypes": ["burst_punish"] },
+    { "id": "moon_huntress", "icon": "🌙", "tier": "normal", "maxHp": 126, "attack": 25, "defense": 7, "threatTypes": ["sustain_pressure"] },
+    { "id": "rot_brute", "icon": "🪓", "tier": "normal", "maxHp": 220, "attack": 28, "defense": 8, "threatTypes": ["tank_breaker", "sustain_pressure"] }
+  ],
+  "boss": [
+    { "id": "abyss_demon", "icon": "👹", "tier": "boss", "isBoss": true, "maxHp": 430, "attack": 39, "defense": 20, "traits": ["rage_on_low_hp"], "uniqueTraits": ["rage_on_low_hp"], "phases": [{ "id": "abyss-annihilation", "labelKey": "bossPhase.abyss_annihilation", "interval": 3, "action": "annihilation" }], "threatTypes": ["sustain_pressure", "attrition"], "counterGoal": { "titleKey": "counter.abyss_demon", "stat": "defense", "threshold": 110, "successText": "counterSuccess.abyss_demon", "failText": "counterFail.abyss_demon" } },
+    { "id": "ancient_dragon", "icon": "🐉", "tier": "boss", "isBoss": true, "maxHp": 500, "attack": 44, "defense": 23, "traits": ["double_attack"], "uniqueTraits": ["double_attack"], "phases": [{ "id": "dragon-annihilation", "labelKey": "bossPhase.dragon_annihilation", "interval": 3, "action": "annihilation" }], "threatTypes": ["sustain_pressure", "tank_breaker"], "counterGoal": { "titleKey": "counter.ancient_dragon", "stat": "attackSpeed", "threshold": 40, "successText": "counterSuccess.ancient_dragon", "failText": "counterFail.ancient_dragon" } },
+    { "id": "dark_knight", "icon": "🛡️", "tier": "boss", "isBoss": true, "maxHp": 470, "attack": 37, "defense": 26, "traits": ["shield_on_start"], "uniqueTraits": ["shield_on_start"], "phases": [{ "id": "knight-reconstruct", "labelKey": "bossPhase.knight_reconstruct", "interval": 3, "action": "reconstruct" }], "threatTypes": ["burst_punish", "tank_breaker"], "counterGoal": { "titleKey": "counter.dark_knight", "stat": "attack", "threshold": 300, "successText": "counterSuccess.dark_knight", "failText": "counterFail.dark_knight" } },
+    { "id": "necromancer", "icon": "🧙", "tier": "boss", "isBoss": true, "maxHp": 390, "attack": 35, "defense": 17, "traits": ["lifesteal"], "uniqueTraits": ["lifesteal"], "phases": [{ "id": "necro-drain", "labelKey": "bossPhase.necro_drain", "interval": 3, "action": "drain_soul" }], "threatTypes": ["attrition", "sustain_pressure"], "counterGoal": { "titleKey": "counter.necromancer", "stat": "lifesteal", "threshold": 16, "successText": "counterSuccess.necromancer", "failText": "counterFail.necromancer" } },
+    { "id": "storm_titan", "icon": "⚡", "tier": "boss", "isBoss": true, "maxHp": 530, "attack": 48, "defense": 22, "traits": ["double_attack", "rage_on_low_hp"], "uniqueTraits": ["double_attack", "rage_on_low_hp"], "phases": [{ "id": "storm-annihilation", "labelKey": "bossPhase.storm_annihilation", "interval": 2, "action": "annihilation" }], "threatTypes": ["sustain_pressure", "tank_breaker"], "counterGoal": { "titleKey": "counter.storm_titan", "stat": "elemental", "threshold": 90, "successText": "counterSuccess.storm_titan", "failText": "counterFail.storm_titan" } },
+    { "id": "scarlet_queen", "icon": "🩸", "tier": "boss", "isBoss": true, "maxHp": 480, "attack": 41, "defense": 24, "traits": ["lifesteal", "double_attack"], "uniqueTraits": ["lifesteal", "double_attack"], "phases": [{ "id": "queen-drain", "labelKey": "bossPhase.queen_drain", "interval": 3, "action": "drain_soul" }], "threatTypes": ["attrition", "sustain_pressure"], "counterGoal": { "titleKey": "counter.scarlet_queen", "stat": "hp", "threshold": 2200, "successText": "counterSuccess.scarlet_queen", "failText": "counterFail.scarlet_queen" } },
+    { "id": "void_reaper", "icon": "☠️", "tier": "boss", "isBoss": true, "maxHp": 510, "attack": 45, "defense": 23, "traits": ["thorns"], "uniqueTraits": ["thorns"], "phases": [{ "id": "void-annihilation", "labelKey": "bossPhase.void_annihilation", "interval": 3, "action": "annihilation" }], "threatTypes": ["burst_punish", "attrition"], "counterGoal": { "titleKey": "counter.void_reaper", "stat": "thorns", "threshold": 14, "successText": "counterSuccess.void_reaper", "failText": "counterFail.void_reaper" } },
+    { "id": "clockwork_core", "icon": "⚙️", "tier": "boss", "isBoss": true, "maxHp": 470, "attack": 38, "defense": 28, "traits": ["shield_on_start", "thorns"], "uniqueTraits": ["shield_on_start", "thorns"], "phases": [{ "id": "core-reconstruct", "labelKey": "bossPhase.core_reconstruct", "interval": 3, "action": "reconstruct" }], "threatTypes": ["burst_punish", "tank_breaker"], "counterGoal": { "titleKey": "counter.clockwork_core", "stat": "attack", "threshold": 340, "successText": "counterSuccess.clockwork_core", "failText": "counterFail.clockwork_core" } }
+  ],
+  "regionIds": {
+    "forest": ["giant_rat", "harpy", "forest_satyr", "blood_bat", "poison_spider", "moon_huntress", "thorn_beast"],
+    "dungeon": ["skeleton", "zombie", "stone_golem", "iron_knight", "grave_keeper", "mimic", "abyss_guard"],
+    "volcano": ["lava_hound", "ashen_warlock", "storm_elemental", "rot_brute", "arcane_construct", "frost_mage", "void_eye"]
+  }
+}

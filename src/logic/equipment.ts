@@ -1,25 +1,26 @@
-import { QUALITIES, QUALITY_CONFIG, SLOTS, STAT_POOL } from '../constants/game';
+import { QUALITIES, QUALITY_CONFIG, SLOTS, STAT_POOL, getQualityLabel, getSlotLabel } from '../constants/game';
 import type { Equipment, EquipmentAffix, EquipmentAffixValue } from '../types/game';
 
 const NAME_PREFIX = ['裂空', '霜烬', '黯影', '炽焰', '星辉', '雷鸣', '荒骨', '苍穹', '逐日', '深渊', '银月', '余烬'];
 const NAME_SUFFIX = ['之誓', '遗物', '战歌', '祷言', '守望', '审判', '回响', '魂印', '锋芒', '刻痕', '秘契', '冠冕'];
 
+// slot-based Chinese base names for flavour; keyed by english slot keys
 const SLOT_BASE_NAME: Record<string, string[]> = {
-  武器: ['战刃', '长枪', '巨剑', '法杖', '短匕', '猎弓'],
-  头盔: ['王冠', '战盔', '兜帽', '羽冠', '铁盔', '秘帽'],
-  护甲: ['胸甲', '战袍', '鳞甲', '重铠', '皮衣', '法衣'],
-  戒指: ['魂戒', '秘戒', '誓戒', '曜环', '辉戒', '指环'],
-  项链: ['护符', '坠饰', '链坠', '圣印', '符链', '灵坠'],
-  鞋子: ['战靴', '疾靴', '秘履', '重靴', '影足', '踏风靴'],
+  weapon: ['战刃', '长枪', '巨剑', '法杖', '短匕', '猎弓'],
+  helmet: ['王冠', '战盔', '兜帽', '羽冠', '铁盔', '秘帽'],
+  armor: ['胸甲', '战袍', '鳞甲', '重甲', '皮衣', '法衣'],
+  ring: ['魂戒', '秘戒', '誓戒', '曜环', '辉戒', '指环'],
+  necklace: ['护符', '坠饰', '链坠', '圣印', '符链', '灵坠'],
+  boots: ['战靴', '疾靴', '秘履', '重靴', '影足', '踏风靴'],
 };
 
 const SLOT_ICON_POOL: Record<string, string[]> = {
-  武器: ['⚔️', '🗡️', '🏹', '🪓', '🔨', '🪄'],
-  头盔: ['⛑️', '🪖', '👑', '🧢', '🎭', '🧠'],
-  护甲: ['🛡️', '🥋', '🦺', '🧥', '🦾', '🦴'],
-  戒指: ['💍', '💠', '🔷', '🌀', '✨', '🧿'],
-  项链: ['📿', '🔮', '🪬', '💎', '🌙', '☀️'],
-  鞋子: ['👢', '🥾', '🩰', '🛼', '💨', '🪽'],
+  weapon: ['⚔️', '🗡️', '🏹', '🪓', '🔨', '🪄'],
+  helmet: ['⛑️', '🪖', '👑', '🧢', '🎭', '🧠'],
+  armor: ['🛡️', '🥋', '🦺', '🧥', '🦾', '🦴'],
+  ring: ['💍', '💠', '🔷', '🌀', '✨', '🧿'],
+  necklace: ['📿', '🔮', '🪬', '💎', '🌙', '☀️'],
+  boots: ['👢', '🥾', '🩰', '🛼', '💨', '🪽'],
 };
 
 const pick = <T,>(list: T[]): T => list[Math.floor(Math.random() * list.length)];
@@ -56,7 +57,9 @@ const buildEquipmentName = (quality: string, slot: string): string => {
   const prefix = pick(NAME_PREFIX);
   const base = pick(SLOT_BASE_NAME[slot] ?? ['装备']);
   const suffix = pick(NAME_SUFFIX);
-  return `${quality}·${prefix}${base}${suffix}`;
+  // quality may be english key; display label
+  const qLabel = getQualityLabel(quality);
+  return `${qLabel}·${prefix}${base}${suffix}`;
 };
 
 export const getDefaultEquipmentIcon = (slot: string): string => {
@@ -68,40 +71,42 @@ export const generateEquipment = (
   pity: { 传说: number; 神话: number },
   level: number,
 ): { item: Equipment; newPity: { 传说: number; 神话: number } } => {
-  let quality = '普通';
+  // english keys used internally
+  let quality = 'common';
   const rand = Math.random() * 100;
   const newPity = { ...pity };
 
   newPity.传说++;
   newPity.神话++;
 
+  // pity counters still stored with Chinese keys for legacy persistence
   if (newPity.神话 >= 201) {
-    quality = '神话';
+    quality = 'mythic';
     newPity.神话 = 0;
     newPity.传说 = 0;
   } else if (newPity.传说 >= 51) {
-    quality = Math.random() > 0.1 ? '传说' : '神话';
-    if (quality === '神话') newPity.神话 = 0;
+    quality = Math.random() > 0.1 ? 'legendary' : 'mythic';
+    if (quality === 'mythic') newPity.神话 = 0;
     newPity.传说 = 0;
   } else {
     if (isBoss) {
-      if (rand < 3) quality = '神话';
-      else if (rand < 10) quality = '传说';
-      else if (rand < 25) quality = '史诗';
-      else if (rand < 50) quality = '稀有';
-      else if (rand < 80) quality = '优秀';
-      else quality = '普通';
+      if (rand < 3) quality = 'mythic';
+      else if (rand < 10) quality = 'legendary';
+      else if (rand < 25) quality = 'epic';
+      else if (rand < 50) quality = 'rare';
+      else if (rand < 80) quality = 'uncommon';
+      else quality = 'common';
     } else {
-      if (rand < 0) quality = '神话';
-      else if (rand < 1) quality = '传说';
-      else if (rand < 5) quality = '史诗';
-      else if (rand < 15) quality = '稀有';
-      else if (rand < 40) quality = '优秀';
-      else quality = '普通';
+      if (rand < 0) quality = 'mythic';
+      else if (rand < 1) quality = 'legendary';
+      else if (rand < 5) quality = 'epic';
+      else if (rand < 15) quality = 'rare';
+      else if (rand < 40) quality = 'uncommon';
+      else quality = 'common';
     }
 
-    if (quality === '传说') newPity.传说 = 0;
-    if (quality === '神话') {
+    if (quality === 'legendary') newPity.传说 = 0;
+    if (quality === 'mythic') {
       newPity.神话 = 0;
       newPity.传说 = 0;
     }
@@ -111,10 +116,12 @@ export const generateEquipment = (
   const config = QUALITY_CONFIG[quality];
   const stats: Record<string, number> = {};
 
-  const mainStat = slot === '武器' ? '攻击力' : slot === '护甲' || slot === '头盔' ? '生命值' : '防御力';
+  // use english keys internally; keep STAT_POOL in sync
+  const mainStat = slot === 'weapon' ? 'attack' : slot === 'armor' || slot === 'helmet' ? 'hp' : 'defense';
   const baseValue = (QUALITIES.indexOf(quality) + 1) * 5 * level;
   stats[mainStat] = baseValue;
 
+  // when rerolling or adding secondary stats we rely on english STAT_POOL values
   const availableStats = STAT_POOL.filter((s) => s !== mainStat);
   for (let i = 0; i < config.stats - 1; i++) {
     const statName = availableStats[Math.floor(Math.random() * availableStats.length)];
@@ -122,17 +129,17 @@ export const generateEquipment = (
   }
 
   const item: Equipment = {
-    id: Math.random().toString(36).substr(2, 9),
+    id: Math.random().toString(36).slice(2, 11),
     icon: getDefaultEquipmentIcon(slot),
     名称: buildEquipmentName(quality, slot),
     品质: quality,
     部位: slot,
-    属性: stats,
+    属性: stats, // english keys
     affixes: createAffixes(quality, isBoss),
     强化等级: 0,
-    主属性: mainStat,
+    主属性: mainStat, // now an english key like 'attack'|'hp'|'defense'
     已装备: false,
-    特殊效果: quality === '神话' ? '全属性提升 10%' : undefined,
+    特殊效果: quality === 'mythic' ? '全属性提升 10%' : undefined,
   };
 
   return { item, newPity };

@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Flame, Skull, Swords, Bot, MapPin, AlertTriangle, RefreshCw } from 'lucide-react';
 import type { BattleRegion, BattleRisk, BattleState, BossTheme } from '../../types/game';
+import type { MapNode, MapProgressState } from '../../types/map';
 import { DropAnimation } from './DropAnimation';
 import { MonsterCard } from './MonsterCard';
 import { PlayerAvatar } from './PlayerAvatar';
@@ -12,8 +13,11 @@ interface BattleArenaProps {
   onChallengeMonster: () => void;
   onChallengeBoss: () => void;
   onChallengeWave: () => void;
+  onChallengeCurrentMapNode: () => void;
   autoBattleEnabled: boolean;
   onToggleAutoBattle: () => void;
+  mapProgress: MapProgressState;
+  currentMapNode: MapNode | null;
   battleRegion: BattleRegion;
   battleRisk: BattleRisk;
   spawnMultiplier: number;
@@ -92,8 +96,11 @@ export function BattleArena({
   onChallengeMonster,
   onChallengeBoss,
   onChallengeWave,
+  onChallengeCurrentMapNode,
   autoBattleEnabled,
   onToggleAutoBattle,
+  mapProgress,
+  currentMapNode,
   battleRegion,
   battleRisk,
   spawnMultiplier,
@@ -127,6 +134,12 @@ export function BattleArena({
 
   const currentRegion = regionInfo[battleRegion];
   const currentRisk = riskInfo[battleRisk];
+  const nodeActionLabel =
+    currentMapNode?.encounterType === 'boss'
+      ? '节点首领'
+      : currentMapNode?.encounterType === 'wave'
+        ? `节点怪群${currentMapNode.waveSize ? ` (${currentMapNode.waveSize})` : ''}`
+        : '节点战斗';
 
   return (
     <div className={`relative h-full min-h-[420px] rounded-xl overflow-hidden border border-game-border/60 ${bossThemeStyle?.arena ?? 'bg-gradient-to-br from-[#1b1029] via-[#2a1020] to-[#140f1f]'}`}>
@@ -296,6 +309,18 @@ export function BattleArena({
 
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <motion.button
+            onClick={onChallengeCurrentMapNode}
+            disabled={loading || battleState.phase !== 'idle' || !currentMapNode}
+            whileHover={{ scale: 1.02, boxShadow: '0_0_20px rgba(34, 211, 238, 0.35)' }}
+            whileTap={{ scale: 0.98 }}
+            className="cursor-pointer rounded-xl px-4 py-3 border border-cyan-500/40 bg-cyan-950/35 hover:bg-cyan-900/45 disabled:opacity-45 disabled:cursor-not-allowed text-left relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/10 to-cyan-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><MapPin size={16} className="text-cyan-300" /> 挑战当前节点</span>
+            <span className="text-xs text-cyan-200/80 block relative z-10 truncate">{currentMapNode ? `${currentMapNode.order}. ${currentMapNode.name} · ${nodeActionLabel}` : '未选择节点'}</span>
+          </motion.button>
+
+          <motion.button
             onClick={onChallengeMonster}
             disabled={loading || battleState.phase !== 'idle'}
             whileHover={{ scale: 1.02, boxShadow: '0_0_20px rgba(139, 92, 246, 0.4)' }}
@@ -339,6 +364,28 @@ export function BattleArena({
             <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Bot size={16} className={autoBattleEnabled ? 'text-emerald-400' : 'text-slate-300'} /> 自动出怪</span>
             <span className={`text-xs block relative z-10 ${autoBattleEnabled ? 'text-emerald-200/70' : 'text-slate-300/70'}`}>{autoBattleEnabled ? '状态：运行中（自动连战）' : '状态：已关闭'}</span>
           </motion.button>
+        </div>
+
+        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div className="border border-cyan-500/20 rounded-lg bg-cyan-950/15 px-3 py-2 text-xs text-cyan-100/90">
+            <div className="font-semibold">地图进度</div>
+            <div className="mt-1 text-cyan-200/80">
+              当前节点：{currentMapNode ? `${currentMapNode.order}. ${currentMapNode.name}` : '无'}
+            </div>
+            <div className="text-cyan-200/70">已通关：{mapProgress.clearedNodeIds.length} / 9</div>
+          </div>
+          <div className="border border-emerald-500/20 rounded-lg bg-emerald-950/15 px-3 py-2 text-xs text-emerald-100/90">
+            <div className="font-semibold">节点建议</div>
+            <div className="mt-1 text-emerald-200/80">推荐等级：{currentMapNode?.recommendedLevel ?? '-'}</div>
+            <div className="text-emerald-200/70">首通奖励：{currentMapNode?.firstClearRewardGold ?? 0} 金币</div>
+          </div>
+          <div className="border border-amber-500/20 rounded-lg bg-amber-950/15 px-3 py-2 text-xs text-amber-100/90">
+            <div className="font-semibold">失败记录</div>
+            <div className="mt-1 text-amber-200/80">
+              当前节点失败：{currentMapNode ? (mapProgress.failedNodeIds[currentMapNode.id] ?? 0) : 0} 次
+            </div>
+            <div className="text-amber-200/70">解锁节点：{mapProgress.unlockedNodeIds.length}</div>
+          </div>
         </div>
 
         <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">

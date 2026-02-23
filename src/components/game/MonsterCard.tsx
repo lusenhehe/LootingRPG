@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import type { BattlePhase, BossTheme, Monster } from '../../types/game';
 
 interface MonsterCardProps {
@@ -64,16 +65,10 @@ const bossThemeCardStyles: Record<BossTheme, {
 };
 
 export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
+  const { t } = useTranslation();
   const isBoss = monster.tier === 'boss';
   const bossThemeStyle = isBoss && monster.bossIdentity ? bossThemeCardStyles[monster.bossIdentity.theme] : null;
-  const traitTags: string[] = (monster.traits ?? []).map((trait) => {
-    if (trait === 'thorns') return '反伤';
-    if (trait === 'lifesteal') return '吸血';
-    if (trait === 'double_attack') return '二连击';
-    if (trait === 'shield_on_start') return '开局护盾';
-    if (trait === 'rage_on_low_hp') return '残血狂怒';
-    return trait;
-  });
+  const traitTags: string[] = (monster.traits ?? []).map((trait) => t(`trait.${trait}`));
   const x = phase === 'entering' ? 180 : 0;
   const scale = phase === 'dying' ? 0.75 : isBoss ? 1.25 : 1;
   const opacity = phase === 'dying' ? 0 : 1;
@@ -90,7 +85,7 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
     >
       {isBoss && <div className={`absolute -inset-0.5 rounded-2xl bg-gradient-to-r ${bossThemeStyle?.glow ?? 'from-red-600/20 to-orange-500/20'} blur opacity-50`} />}
       <div className="absolute -top-2 -right-2 text-[9px] px-2 py-0.5 rounded-full bg-black/70 border border-white/20 uppercase tracking-widest">
-        {isBoss ? 'BOSS' : '怪物'}
+        {isBoss ? t('label.boss') : t('label.monster')}
       </div>
       <div className="text-center space-y-2 relative">
         <motion.div

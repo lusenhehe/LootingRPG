@@ -1,7 +1,9 @@
 import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
-import { QUALITY_CONFIG } from '../../../constants/game';
+import { QUALITY_CONFIG, getQualityLabel, getSlotLabel, getStatLabel } from '../../../constants/game';
 import type { Equipment, GameState } from '../../../types/game';
+import { useTranslation } from 'react-i18next';
+
 
 interface ForgeTabProps {
   gameState: GameState;
@@ -18,11 +20,13 @@ type ForgeCandidate = {
 };
 
 export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, onReroll }: ForgeTabProps) {
+  const { t } = useTranslation();
+
   const equipped = (Object.entries(gameState.当前装备) as [string, Equipment | null][])
     .filter(([, item]) => Boolean(item))
-    .map(([slot, item]) => ({ item: { ...(item as Equipment), 已装备: true }, source: `已装备/${slot}` }));
+    .map(([slot, item]) => ({ item: { ...(item as Equipment), 已装备: true }, source: t('label.equipped') + '/' + getSlotLabel(slot) }));
 
-  const backpack = gameState.背包.map((item) => ({ item: { ...item, 已装备: false }, source: '背包' }));
+  const backpack = gameState.背包.map((item) => ({ item: { ...item, 已装备: false }, source: t('label.backpack') }));
   const deduped = new Map<string, ForgeCandidate>();
   [...equipped, ...backpack].forEach((entry) => {
     deduped.set(entry.item.id, entry);
@@ -36,8 +40,8 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
       <motion.div key="forge" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full flex flex-col items-center justify-center space-y-6">
         <div className="text-center space-y-2">
           <Sparkles className="mx-auto text-violet-400" size={48} />
-          <h2 className="text-xl font-display">锻造中心</h2>
-          <p className="text-sm text-gray-500">暂无可锻造装备</p>
+          <h2 className="text-xl font-display">{t('ui.forgeCenter')}</h2>
+          <p className="text-sm text-gray-500">{t('ui.no_forge_items')}</p>
         </div>
       </motion.div>
     );
@@ -62,7 +66,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
                   <span className="text-base leading-none">{item.icon || '🧰'}</span>
                   {item.名称} {item.强化等级 > 0 ? `+${item.强化等级}` : ''}
                 </p>
-                <p className="text-[10px] text-gray-500 mt-1">{item.部位} · {source}</p>
+                <p className="text-[10px] text-gray-500 mt-1">{getSlotLabel(item.部位)} · {source}</p>
               </div>
               {item.已装备 && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/30 font-bold">
@@ -86,7 +90,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
         <div className="space-y-1">
           {Object.entries(selected.属性).map(([key, value]) => (
             <div key={key} className="flex justify-between text-sm">
-              <span className="text-gray-400">{key}</span>
+              <span className="text-gray-400">{getStatLabel(key)}</span>
               <span className="font-mono text-gray-200">+{value}</span>
             </div>
           ))}
@@ -100,14 +104,14 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
             disabled={loading || gameState.玩家状态.金币 < forgeCost}
             className="py-2 rounded-lg border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold transition-all cursor-pointer hover:scale-105"
           >
-            强化（{forgeCost}）
+            {t('button.enchant')}（{forgeCost}）
           </button>
           <button
             onClick={() => onReroll(selected.id)}
             disabled={loading || gameState.玩家状态.金币 < rerollCost}
             className="py-2 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold transition-all cursor-pointer hover:scale-105"
           >
-            洗练（{rerollCost}）
+            {t('button.reroll')}（{rerollCost}）
           </button>
         </div>
       </div>
