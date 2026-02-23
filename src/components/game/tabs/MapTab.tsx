@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { MapPin, Star } from 'lucide-react';
-import { MAP_CHAPTERS, type MapChapterDef } from '../../../config/mapChapters';
+import { MAP_CHAPTERS, type MapChapterDef } from '../../../logic/adapters/mapChapterAdapter';
 import type { MapProgressState } from '../../../types/game';
 import {
   normalizeMapProgress,
@@ -56,12 +56,12 @@ export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnte
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <MapPin size={14} className="text-amber-700" />
-          <label className="text-xs text-stone-400">{t('map.selectChapter')}</label>
+          <MapPin size={14} className="text-violet-400" />
+          <label className="text-xs text-gray-300">{t('map.selectChapter')}</label>
           <select
             value={selectedChapter.id}
             onChange={(e) => onSelectChapter(e.target.value)}
-            className="bg-stone-900/60 border border-stone-700/50 rounded-lg px-3 py-1.5 text-sm text-stone-200 cursor-pointer hover:bg-stone-800/80 transition-colors"
+            className="bg-game-card/60 border border-game-border/50 rounded-lg px-3 py-1.5 text-sm text-white cursor-pointer hover:bg-game-card/80 transition-colors"
           >
             {MAP_CHAPTERS.map((chapter) => {
               const unlocked = normalizedProgress.unlockedChapters.includes(chapter.id);
@@ -75,14 +75,14 @@ export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnte
         </div>
 
         <div className="flex items-center gap-3 text-[10px]">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-900/40 rounded-lg border border-stone-700/30">
-            <Star size={10} className="text-amber-600" fill="currentColor" />
-            <span className="text-stone-500">{t('map.totalStars')}:</span>
-            <span className="text-amber-600 font-semibold">{totalStars}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-game-card/40 rounded-lg border border-game-border/30">
+            <Star size={10} className="text-yellow-400" fill="currentColor" />
+            <span className="text-gray-400">{t('map.totalStars')}:</span>
+            <span className="text-yellow-400 font-semibold">{totalStars}</span>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-900/40 rounded-lg border border-stone-700/30">
-            <span className="text-stone-500">{t('map.progress')}:</span>
-            <span className="text-amber-600/80 font-semibold">{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-game-card/40 rounded-lg border border-game-border/30">
+            <span className="text-gray-400">{t('map.progress')}:</span>
+            <span className="text-violet-300 font-semibold">{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
           </div>
         </div>
       </div>

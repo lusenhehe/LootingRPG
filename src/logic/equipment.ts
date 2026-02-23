@@ -1,4 +1,5 @@
-import { QUALITIES, QUALITY_CONFIG, SLOTS, STAT_POOL, getQualityLabel, getSlotLabel } from '../constants/game';
+import { QUALITIES, QUALITY_CONFIG, SLOTS, STAT_POOL } from '../config/game/equipment';
+import { getQualityLabel, getSlotLabel } from './i18n/labels';
 import type { Equipment, EquipmentAffix, EquipmentAffixValue } from '../types/game';
 
 const NAME_PREFIX = ['裂空', '霜烬', '黯影', '炽焰', '星辉', '雷鸣', '荒骨', '苍穹', '逐日', '深渊', '银月', '余烬'];

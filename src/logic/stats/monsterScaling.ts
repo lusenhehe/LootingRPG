@@ -1,4 +1,4 @@
-import type { Monster, MonsterBaseStats, MonsterScalingProfile } from '../types/game';
+import type { Monster, MonsterBaseStats, MonsterScalingProfile } from '../../types/game';
 
 export interface MapMonsterBaseline {
   hp: number;

@@ -1,6 +1,7 @@
 import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
-import { QUALITY_CONFIG, getQualityLabel, getSlotLabel, getStatLabel } from '../../../constants/game';
+import { QUALITY_CONFIG } from '../../../config/game/equipment';
+import { getQualityLabel, getSlotLabel, getStatLabel } from '../../../logic/i18n/labels';
 import type { Equipment, GameState } from '../../../types/game';
 import { useTranslation } from 'react-i18next';
 

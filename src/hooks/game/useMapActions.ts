@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react';
 import type { GameState, MapProgressState, ActiveTab } from '../../types/game';
-import type { MapChapterDef, MapNodeDef } from '../../config/mapChapters';
+import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
 import { applyMapNodeResult, getChapterProgress, isNodeUnlocked, normalizeMapProgress } from '../../logic/mapProgress';
-import { MAP_CHAPTERS } from '../../config/mapChapters';
-import { getMonsterById } from '../../constants/monsterData';
+import { MAP_CHAPTERS } from '../../logic/adapters/mapChapterAdapter';
+import { getMonsterById } from '../../logic/adapters/monsterConfigAdapter';
 import { getRandomMonster } from '../../logic/monsterGeneration';
 import { applySingleBattleReward } from '../../logic/battleRewards';
 

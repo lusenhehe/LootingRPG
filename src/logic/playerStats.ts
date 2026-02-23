@@ -1,6 +1,5 @@
 import { INITIAL_STATE } from '../config/gameConfig';
-import { PLAYER_GROWTH } from '../constants/settings';
-import { STAT_KEY_MAP } from '../constants/game';
+import { PLAYER_GROWTH } from '../config/game/progression';
 import type { GameState } from '../types/game';
 
 const toNumber = (value: unknown): number => {
@@ -36,14 +35,14 @@ export const recalculatePlayerStats = (state: GameState): GameState => {
     if (!item) return;
     Object.entries(item.属性).forEach(([statName, value]) => {
       const statValue = toNumber(value);
-      const normalized = STAT_KEY_MAP[statName] ?? statName;
-      if (normalized === 'attack') attackBonus += statValue;
-      if (normalized === 'hp') hpBonus += statValue;
-      if (normalized === 'defense') defenseBonus += statValue;
-      if (normalized === 'crit') critBonus += statValue;
-      if (normalized === 'elemental') elementalBonus += statValue;
+      const normalized = statName;
+      if (normalized === 'attack')      attackBonus += statValue;
+      if (normalized === 'hp')          hpBonus += statValue;
+      if (normalized === 'defense')     defenseBonus += statValue;
+      if (normalized === 'crit')        critBonus += statValue;
+      if (normalized === 'elemental')   elementalBonus += statValue;
       if (normalized === 'attackSpeed') attackSpeedBonus += statValue;
-      if (normalized === 'lifesteal') lifestealPercent += statValue;
+      if (normalized === 'lifesteal')   lifestealPercent += statValue;
     });
 
     item.affixes.forEach((affix) => {

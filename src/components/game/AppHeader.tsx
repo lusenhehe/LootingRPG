@@ -46,6 +46,20 @@ export function AppHeader({
             <span className="text-xs font-bold text-amber-500">Lv.{playerStats.等级}</span>
           </div>
 
+          <div className="flex items-center gap-2 w-24">
+            <div className="flex-1 h-1.5 rounded-full bg-stone-800 border border-stone-700/50 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-amber-800 to-amber-600 relative"
+                initial={{ width: 0 }}
+                animate={{ width: `${expPercent}%` }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
+                <div className="absolute inset-0 bg-amber-400/20" />
+              </motion.div>
+            </div>
+            <span className="text-[10px] text-stone-500 font-mono w-10">{playerStats.经验}/{expNeeded}</span>
+          </div>
+
           <div className="flex items-center gap-2.5 text-xs">
             <span className="text-rose-400 font-semibold">{playerStats.攻击力} <span className="text-stone-500 font-normal">ATK</span></span>
             <span className="text-emerald-400 font-semibold">{playerStats.生命值} <span className="text-stone-500 font-normal">HP</span></span>

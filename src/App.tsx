@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import {
-  ACTIVE_PROFILE_KEY,
-  createAutoSellQualityMap,
-} from './constants/game';
+import { createAutoSellQualityMap } from './logic/inventory/autoSell';
+import { ACTIVE_PROFILE_KEY } from './config/runtime/storage';
 import type { ActiveTab, GameState, MapProgressState } from './types/game';
 import { useBattleFlow } from './hooks/battle/useBattleFlow';
 import { useProfileSave } from './hooks/profile/useProfileSave';
@@ -12,11 +10,10 @@ import { useAutoBattle } from './hooks/game/useAutoBattle';
 import { useInventoryActions } from './hooks/game/useInventoryActions';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { GameScreen } from './components/game/GameScreen';
-import { BackgroundEffects } from './components/game/BackgroundEffects';
 import { createFreshInitialState, createInitialBattleState } from './logic/gameState';
 import { applySingleBattleReward } from './logic/battleRewards';
 import { createInitialMapProgress } from './logic/mapProgress';
-import { MAP_CHAPTERS } from './config/mapChapters';
+import { MAP_CHAPTERS } from './logic/adapters/mapChapterAdapter';
 
 export default function App() {
   // Core state
@@ -162,9 +159,7 @@ export default function App() {
   const currentProfile = profiles.find((profile) => profile.id === activeProfileId);
 
   return (
-    <>
-      <BackgroundEffects />
-      <GameScreen
+    <GameScreen
       gameState={gameState}
       battleState={battleState}
       activeTab={activeTab}
@@ -218,6 +213,5 @@ export default function App() {
       onSelectForgeItem={setForgeSelectedId}
       onUnequip={(slot) => processAction(`卸下槽位 ${slot}`)}
     />
-    </>
   );
 }

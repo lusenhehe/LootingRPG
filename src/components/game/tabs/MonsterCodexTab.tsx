@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
-import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../constants/game';
-import { UI_DIMENSIONS } from '../../../constants/settings';
+import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../logic/adapters/monsterCatalogAdapter';
+import { UI_DIMENSIONS } from '../../../config/ui/tokens';
 import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/monsterStrategyConfig';
 import type { Monster, MonsterTrait, ThreatType } from '../../../types/game';
 const traitLabelMap: Record<MonsterTrait, string> = {
@@ -191,7 +191,7 @@ function MonsterListItem({
           {monster.name}
         </div>
         <div className="text-[9px] text-gray-500 flex items-center gap-1.5">
-          <span className="text-violet-300/80">Lv.{monster.等级}</span>
+          <span className="text-violet-300/80">Lv.{monster.level}</span>
           <span className="text-red-400/70">{monster.maxHp}</span>
           <span className="text-orange-400/70">{monster.attack}</span>
           <span className="text-blue-400/70">{monster.defense}</span>
@@ -231,7 +231,7 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
               <h3 className={`text-sm font-display font-bold truncate ${isBoss ? 'text-rose-200 drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]' : 'text-gray-100'}`}>
                 {monster.name}
               </h3>
-              <div className="text-[10px] text-violet-300/80 font-mono mt-0.5">Lv.{monster.等级}</div>
+              <div className="text-[10px] text-violet-300/80 font-mono mt-0.5">Lv.{monster.level}</div>
               {isBoss && (
                 <div className="flex items-center gap-1 mt-0.5">
                   <Crown size={10} className="text-yellow-400" />

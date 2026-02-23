@@ -1,7 +1,7 @@
 import type { Monster, MonsterTrait } from '../types/game';
-import { NORMAL_MONSTERS_DATA, BOSS_MONSTERS_DATA } from '../constants/monsterData';
-import { attachMonsterLore } from '../constants/monsterLore';
-import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../constants/monsterScaling';
+import { NORMAL_MONSTERS_DATA, BOSS_MONSTERS_DATA } from './adapters/monsterConfigAdapter';
+import { attachMonsterLore } from './adapters/monsterLoreAdapter';
+import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './stats/monsterScaling';
 
 const TRAIT_POOL: MonsterTrait[] = ['thorns', 'lifesteal', 'double_attack', 'shield_on_start', 'rage_on_low_hp'];
 
@@ -49,7 +49,7 @@ export const getRandomMonster = ({ isBoss, playerLevel, encounterCount }: Monste
   let monster: Monster = {
     ...picked,
     icons: [displayIcon],
-    等级: monsterLevel,
+    level: monsterLevel,
     elite: isElite,
     maxHp: Math.max(1, Math.floor(templateStats.maxHp * levelScale)),
     attack: Math.max(1, Math.floor(templateStats.attack * levelScale)),

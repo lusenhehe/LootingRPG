@@ -41,55 +41,15 @@ export const MAP_CHAPTERS: MapChapterDef[] = [
           { id: '1-1-b', label: '第二波', monsters: [ { monsterId: 'wolf' } ] },
         ],
       },
-      { id: '1-2', name: '苔石峡谷', recommendedLevel: 4, encounterType: 'elite', firstClearRewardGold: 160, position: { x: 50, y: 45 },
-        waves: [
-          { id: '1-2-a', label: '先驱', monsters: [{ monsterId: 'bandit' }, { monsterId: 'wolf' }] },
-          { id: '1-2-b', label: '飞羽', monsters: [{ monsterId: 'harpy' }] },
-        ],
-      },
-      { id: '1-3', name: '林地小径', recommendedLevel: 6, encounterType: 'normal', firstClearRewardGold: 180, position: { x: 80, y: 45 },
-        waves: [
-          { id: '1-3-a', label: '追踪', monsters: [{ monsterId: 'goblin' }, { monsterId: 'giant_rat' }] },
-          { id: '1-3-b', label: '伏击', monsters: [{ monsterId: 'goblin' }, { monsterId: 'goblin' }] },
-        ],
-      },
-      { id: '1-4', name: '荒树基地', recommendedLevel: 8, encounterType: 'elite', firstClearRewardGold: 200, position: { x: 20, y: 50 },
-        waves: [
-          { id: '1-4-a', monsters: [{ monsterId: 'poison_spider' }, { monsterId: 'thorn_beast' }] }
-        ],
-      },
-      { id: '1-5', name: '古井之石', recommendedLevel: 9, encounterType: 'wave', waveSize: 4, firstClearRewardGold: 220, position: { x: 50, y: 50 },
-        waves: [
-          { id: '1-5-a', monsters: [{ monsterId: 'wolf' }, { monsterId: 'goblin' }] },
-          { id: '1-5-b', monsters: [{ monsterId: 'wolf' }, { monsterId: 'giant_rat' }] },
-        ],
-      },
-      { id: '1-6', name: '倒塌断桥', recommendedLevel: 10, encounterType: 'normal', firstClearRewardGold: 240, position: { x: 80, y: 50 },
-        waves: [
-          { id: '1-6-a', monsters: [{ monsterId: 'wolf' }, { monsterId: 'bandit' }] },
-          { id: '1-6-b', monsters: [{ monsterId: 'giant_rat' }] },
-        ],
-      },
-      { id: '1-7', name: '密林祭坛', recommendedLevel: 11, encounterType: 'elite', firstClearRewardGold: 260, position: { x: 20, y: 55 },
-        waves: [
-          { id: '1-7-a', monsters: [{ monsterId: 'thorn_beast' }, { monsterId: 'blood_bat' }] }
-        ],
-      },
-      { id: '1-8', name: '蛮兽洞穴', recommendedLevel: 12, encounterType: 'normal', firstClearRewardGold: 280, position: { x: 50, y: 55 },
-        waves: [
-          { id: '1-8-a', monsters: [{ monsterId: 'wolf' }, { monsterId: 'goblin' }, { monsterId: 'giant_rat' }] }
-        ],
-      },
-      { id: '1-9', name: '风暴草场', recommendedLevel: 13, encounterType: 'elite', firstClearRewardGold: 300, position: { x: 80, y: 55 },
-        waves: [
-          { id: '1-9-a', monsters: [{ monsterId: 'moon_huntress' }, { monsterId: 'poison_spider' }] }
-        ],
-      },
-      { id: '1-10', name: '林地首领巢穴', recommendedLevel: 14, encounterType: 'boss', firstClearRewardGold: 400, position: { x: 50, y: 60 },
-        waves: [
-          { id: '1-10-a', monsters: [{ monsterId: 'forest_satyr' }] }
-        ],
-      },
+      { id: '1-2', name: '苔石峡谷', recommendedLevel: 4, encounterType: 'elite', firstClearRewardGold: 160, position: { x: 50, y: 45 } },
+      { id: '1-3', name: '林地小径', recommendedLevel: 6, encounterType: 'normal', firstClearRewardGold: 180, position: { x: 80, y: 45 } },
+      { id: '1-4', name: '荒树基地', recommendedLevel: 8, encounterType: 'elite', firstClearRewardGold: 200, position: { x: 20, y: 50 } },
+      { id: '1-5', name: '古井之石', recommendedLevel: 9, encounterType: 'wave', waveSize: 4, firstClearRewardGold: 220, position: { x: 50, y: 50 } },
+      { id: '1-6', name: '倒塌断桥', recommendedLevel: 10, encounterType: 'normal', firstClearRewardGold: 240, position: { x: 80, y: 50 } },
+      { id: '1-7', name: '密林祭坛', recommendedLevel: 11, encounterType: 'elite', firstClearRewardGold: 260, position: { x: 20, y: 55 } },
+      { id: '1-8', name: '蛮兽洞穴', recommendedLevel: 12, encounterType: 'normal', firstClearRewardGold: 280, position: { x: 50, y: 55 } },
+      { id: '1-9', name: '风暴草场', recommendedLevel: 13, encounterType: 'elite', firstClearRewardGold: 300, position: { x: 80, y: 55 } },
+      { id: '1-10', name: '林地首领巢穴', recommendedLevel: 14, encounterType: 'boss', firstClearRewardGold: 400, position: { x: 50, y: 60 } },
     ],
   },
   {

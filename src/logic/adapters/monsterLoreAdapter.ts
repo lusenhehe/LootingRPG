@@ -1,4 +1,4 @@
-import type { BossIdentity, Monster } from '../types/game';
+import type { BossIdentity, Monster } from '../../types/game';
 
 export const MONSTER_BACKGROUNDS: Record<string, string> = {
   skeleton: '灰烬原野上埋骨无数，这些骷髅曾是守城的民兵，王国覆灭后仍握着断刃徘徊在夜风里。',

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { MAP_CHAPTERS } from '../../config/mapChapters';
+import { MAP_CHAPTERS } from '../../logic/adapters/mapChapterAdapter';
 import { recalculatePlayerStats } from '../../logic/playerStats';
 import { createInitialBattleState } from '../../logic/gameState';
 import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
 import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
 import type { GameState, MapProgressState, SavePayload, SaveProfile, BattleState } from '../../types/game';
-import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, createAutoSellQualityMap, QUALITY_KEY_MAP, STORAGE_KEY } from '../../constants/game';
+import { createAutoSellQualityMap } from '../../logic/inventory/autoSell';
+import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, STORAGE_KEY } from '../../config/runtime/storage';
 
 interface UseProfileSaveParams {
   gameState: GameState; logs: string[]; autoSellQualities: Record<string, boolean>; mapProgress: MapProgressState;
@@ -106,9 +107,8 @@ export function useProfileSave({
   const convertAutoSell = (orig: Record<string, boolean> = {}) => {
     const base = createAutoSellQualityMap();
     Object.entries(orig).forEach(([k, v]) => {
-      const eng = QUALITY_KEY_MAP[k] ?? k;
-      if (eng in base) {
-        base[eng] = v;
+      if (k in base) {
+        base[k] = v;
       }
     });
     return base;

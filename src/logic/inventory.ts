@@ -1,4 +1,5 @@
-import { QUALITIES, QUALITY_CONFIG, getQualityLabel } from '../constants/game';
+import { QUALITIES, QUALITY_CONFIG } from '../config/game/equipment';
+import { getQualityLabel } from './i18n/labels';
 import type { Equipment, GameState } from '../types/game';
 // i18n is initialized once in `main.tsx`; business modules should not import it for side effects
 import { t } from 'i18next';

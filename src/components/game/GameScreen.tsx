@@ -1,6 +1,6 @@
 import type { ActiveTab, BattleState, GameState } from '../../types/game';
 import type { MapProgressState } from '../../types/game';
-import type { MapChapterDef, MapNodeDef } from '../../config/mapChapters';
+import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
 import { AppHeader } from './AppHeader';
 import { GamePanel } from './GamePanel';
 import { PlayerPanel } from './PlayerPanel';

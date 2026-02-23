@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import type { GameState, Monster } from '../../types/game';
-import type { MapChapterDef, MapNodeDef } from '../../config/mapChapters';
+import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
 import { applySingleBattleReward } from '../../logic/battleRewards';
-import { getMonsterById } from '../../constants/monsterData';
+import { getMonsterById } from '../../logic/adapters/monsterConfigAdapter';
 import { getRandomMonster } from '../../logic/monsterGeneration';
 import { recalculatePlayerStats } from '../../logic/playerStats';
 

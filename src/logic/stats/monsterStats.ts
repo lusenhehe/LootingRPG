@@ -1,8 +1,8 @@
 import type { CounterStatKey, Monster } from '../../types/game';
 import type { FinalPlayerCombatStats } from './playerStats';
 import { getCombatProfile } from './playerStats';
-import { getMapNodeById } from '../../config/mapChapters';
-import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../../constants/monsterScaling';
+import { getMapNodeById } from '../adapters/mapChapterAdapter';
+import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
 export interface FinalMonsterCombatStats {
   maxHp: number;
@@ -48,7 +48,7 @@ export const getFinalMonsterStats = (
   finalPlayer: FinalPlayerCombatStats,
   mapNodeId?: string,
 ): FinalMonsterCombatStats => {
-  const monsterLevel = Math.max(1, Number(monster.等级) || 1);
+  const monsterLevel = Math.max(1, Number(monster.level) || 1);
   const monsterLevelFactor = 1 + (monsterLevel - 1) * 0.08;
   const levelFactor = 1 + Math.max(0, playerLevel - 1) * 0.08;
   const encounterFactor = 1 + Math.min(0.65, encounterCount * 0.003);

@@ -1,0 +1,94 @@
+name: Config Migration Task
+description: 配置治理/迁移任务单（按批次执行）
+title: "[Config] "
+labels:
+  - config
+  - tech-debt
+body:
+  - type: dropdown
+    id: batch
+    attributes:
+      label: 所属批次
+      description: 对应 docs/config-migration-taskboard.md
+      options:
+        - A 冻结与对齐
+        - B content 归位
+        - C game/ui 拆分
+        - D 适配层收口
+        - E 工程治理固化
+    validations:
+      required: true
+
+  - type: input
+    id: scope
+    attributes:
+      label: 影响范围
+      description: 填写文件/模块（例如 src/config/monsters.json）
+      placeholder: src/config/..., src/constants/..., docs/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: 任务目标
+      description: 这张任务单想解决什么问题
+      placeholder: 明确写出目标与预期结果
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: 约束与边界
+      description: 例如不改业务逻辑、保持向后兼容等
+      placeholder: 约束 1\n约束 2
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: dependency-rules
+    attributes:
+      label: 依赖方向检查
+      description: 必须满足 docs/config-architecture.md 的单向依赖规则
+      options:
+        - label: 未引入 runtime -> game/content 的逆向依赖
+          required: true
+        - label: 未引入 game-balance 与 content 的双向循环依赖
+          required: true
+        - label: 配置层未引入 UI 组件逻辑或复杂业务函数
+          required: true
+
+  - type: checkboxes
+    id: compatibility
+    attributes:
+      label: 兼容性检查
+      options:
+        - label: 已评估存档兼容影响
+        - label: 已评估 i18n 文案键兼容影响
+        - label: 已评估构建/运行脚本影响
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 用可验证的清单描述“完成”
+      placeholder: "- [ ] 验收项 1\n- [ ] 验收项 2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: 验证记录
+      description: 填写 typecheck、运行结果、截图或日志摘要
+      placeholder: npm run lint 结果 / 页面验证结果
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: 回滚方案
+      description: 一旦失败，如何快速恢复
+      placeholder: 回滚 commit / 恢复路径 / 兼容开关
+    validations:
+      required: true

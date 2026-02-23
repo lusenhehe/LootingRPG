@@ -1,4 +1,4 @@
-import { QUALITY_CONFIG, SLOT_KEY_MAP, STAT_POOL } from '../constants/game';
+import { QUALITY_CONFIG, STAT_POOL } from '../config/game/equipment';
 import type { Equipment, GameState } from '../types/game';
 
 export const applyPlayerCommand = (
@@ -18,8 +18,7 @@ export const applyPlayerCommand = (
   if (action === '装备') {
     const item = nextState.背包.find((i) => i.名称 === target || i.id === target);
     if (item) {
-      // make sure we look up the correct slot key (normalize english vs legacy chinese)
-      const slotKey = SLOT_KEY_MAP[item.部位] ?? item.部位;
+      const slotKey = item.部位;
       const oldItem = nextState.当前装备[slotKey];
       item.已装备 = true;
       nextState.当前装备[slotKey] = item;
@@ -31,8 +30,7 @@ export const applyPlayerCommand = (
       logSystemMessage(`已装备 ${item.名称}`);
     }
   } else if (action === '卸下槽位') {
-    // target here is slot name; make sure it's normalized too
-    const slotKey = SLOT_KEY_MAP[target] ?? target;
+    const slotKey = target;
     const item = nextState.当前装备[slotKey];
     if (item) {
       item.已装备 = false;

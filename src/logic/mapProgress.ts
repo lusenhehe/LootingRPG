@@ -1,4 +1,4 @@
-import type { MapChapterDef } from '../config/mapChapters';
+import type { MapChapterDef } from './adapters/mapChapterAdapter';
 import type { MapProgressState } from '../types/game';
 
 export const createInitialMapProgress = (chapters: MapChapterDef[]): MapProgressState => {

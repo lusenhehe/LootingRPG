@@ -24,43 +24,11 @@
   body {
     @apply bg-game-bg text-stone-200 font-sans antialiased;
     background-image: 
-      radial-gradient(ellipse at 30% 20%, rgba(180, 83, 9, 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 70% 80%, rgba(153, 27, 27, 0.05) 0%, transparent 40%),
-      radial-gradient(ellipse at 50% 50%, rgba(30, 30, 30, 0.5) 0%, transparent 70%),
-      linear-gradient(180deg, #0A0908 0%, #1C1917 50%, #0A0908 100%);
+      radial-gradient(ellipse at 50% 0%, rgba(180, 83, 9, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(34, 197, 94, 0.05) 0%, transparent 40%),
+      linear-gradient(180deg, #0A0908 0%, #1C1917 100%);
     background-attachment: fixed;
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
   }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: 
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='24' viewBox='0 0 28 24'%3E%3Cpath fill='%231a1a1a' fill-opacity='0.4' d='M0 0h28v24H0V0zm1 1h26v22H1V1z'/%3E%3C/svg%3E");
-    opacity: 0.3;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: 
-      radial-gradient(ellipse 80% 50% at 20% 40%, rgba(180, 83, 9, 0.04) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 40% at 80% 60%, rgba(153, 27, 27, 0.03) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-    animation: atmosphere-pulse 8s ease-in-out infinite;
-  }
-}
-
-@keyframes atmosphere-pulse {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
 }
 
 @keyframes candle-flicker {
@@ -103,49 +71,6 @@
   50% { transform: translateX(10px) translateY(-5px); opacity: 0.06; }
 }
 
-@keyframes fog-slow {
-  0% { transform: translateX(-5%); }
-  50% { transform: translateX(5%); }
-  100% { transform: translateX(-5%); }
-}
-
-@keyframes particle-float {
-  0%, 100% { 
-    transform: translateY(0) translateX(0);
-    opacity: 0;
-  }
-  10% { opacity: 0.3; }
-  90% { opacity: 0.3; }
-  100% { 
-    transform: translateY(-100px) translateX(20px);
-    opacity: 0;
-  }
-}
-
-@keyframes ember-float {
-  0% { 
-    transform: translateY(0) scale(1);
-    opacity: 0;
-  }
-  20% { opacity: 0.6; }
-  80% { opacity: 0.4; }
-  100% { 
-    transform: translateY(-150px) scale(0.5);
-    opacity: 0;
-  }
-}
-
-@keyframes rune-glow {
-  0%, 100% { 
-    opacity: 0.1;
-    filter: blur(1px);
-  }
-  50% { 
-    opacity: 0.25;
-    filter: blur(2px);
-  }
-}
-
 @keyframes heartbeat {
   0%, 100% { transform: scale(1); }
   14% { transform: scale(1.05); }
@@ -168,6 +93,40 @@
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes mythic-flow {
+  0%, 100% { 
+    box-shadow: 0 0 8px rgba(220, 38, 38, 0.6), 0 0 20px rgba(220, 38, 38, 0.4), 0 0 40px rgba(220, 38, 38, 0.2), inset 0 0 8px rgba(220, 38, 38, 0.15);
+    border-color: rgba(220, 38, 38, 0.8);
+  }
+  20% { 
+    box-shadow: 0 0 12px rgba(234, 88, 12, 0.7), 0 0 25px rgba(234, 88, 12, 0.5), 0 0 45px rgba(234, 88, 12, 0.3), inset 0 0 10px rgba(234, 88, 12, 0.2);
+    border-color: rgba(234, 88, 12, 0.9);
+  }
+  40% { 
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.7), 0 0 22px rgba(168, 85, 247, 0.5), 0 0 42px rgba(168, 85, 247, 0.3), inset 0 0 9px rgba(168, 85, 247, 0.18);
+    border-color: rgba(168, 85, 247, 0.85);
+  }
+  60% { 
+    box-shadow: 0 0 12px rgba(234, 88, 12, 0.7), 0 0 25px rgba(234, 88, 12, 0.5), 0 0 45px rgba(234, 88, 12, 0.3), inset 0 0 10px rgba(234, 88, 12, 0.2);
+    border-color: rgba(234, 88, 12, 0.9);
+  }
+  80% { 
+    box-shadow: 0 0 8px rgba(220, 38, 38, 0.6), 0 0 20px rgba(220, 38, 38, 0.4), 0 0 40px rgba(220, 38, 38, 0.2), inset 0 0 8px rgba(220, 38, 38, 0.15);
+    border-color: rgba(220, 38, 38, 0.8);
+  }
+}
+
+@keyframes legendary-shine {
+  0%, 100% { 
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.3);
+    border-color: rgba(245, 158, 11, 0.7);
+  }
+  50% { 
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.7), 0 0 28px rgba(251, 191, 36, 0.4);
+    border-color: rgba(251, 191, 36, 0.95);
+  }
 }
 
 .fantasy-text {
@@ -210,6 +169,136 @@
 
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.mythic-border {
+  animation: mythic-flow 2s ease-in-out infinite;
+  border: 2px solid rgba(220, 38, 38, 0.8);
+  position: relative;
+}
+
+.mythic-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(220, 38, 38, 0.1) 0%,
+    rgba(234, 88, 12, 0.15) 25%,
+    rgba(168, 85, 247, 0.1) 50%,
+    rgba(234, 88, 12, 0.15) 75%,
+    rgba(220, 38, 38, 0.1) 100%
+  );
+  background-size: 400% 400%;
+  animation: mythic-gradient-shift 3s ease infinite;
+  z-index: -1;
+  filter: blur(8px);
+}
+
+@keyframes mythic-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.mythic-glow {
+  animation: mythic-flow 2s ease-in-out infinite;
+  position: relative;
+}
+
+.mythic-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(220, 38, 38, 0.12) 0%,
+    rgba(234, 88, 12, 0.06) 40%,
+    transparent 70%
+  );
+  animation: mythic-radial-pulse 2s ease-in-out infinite;
+  z-index: -1;
+}
+
+.mythic-card-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(220, 38, 38, 0.08) 0%,
+    rgba(28, 25, 23, 0.95) 30%,
+    rgba(28, 25, 23, 0.95) 70%,
+    rgba(234, 88, 12, 0.05) 100%
+  );
+  background-size: 400% 400%;
+  animation: mythic-bg-flow 4s ease infinite;
+}
+
+@keyframes mythic-bg-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.legendary-card-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.08) 0%,
+    rgba(28, 25, 23, 0.95) 30%,
+    rgba(28, 25, 23, 0.95) 70%,
+    rgba(251, 191, 36, 0.05) 100%
+  );
+  background-size: 400% 400%;
+  animation: legendary-bg-flow 4s ease infinite;
+}
+
+@keyframes legendary-bg-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes mythic-radial-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.legendary-border {
+  animation: legendary-shine 2.5s ease-in-out infinite;
+  border: 2px solid rgba(245, 158, 11, 0.7);
+  position: relative;
+}
+
+.legendary-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.1) 0%,
+    rgba(251, 191, 36, 0.15) 50%,
+    rgba(245, 158, 11, 0.1) 100%
+  );
+  background-size: 200% 200%;
+  animation: legendary-gradient 3s ease infinite;
+  z-index: -1;
+  filter: blur(6px);
+}
+
+@keyframes legendary-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.mythic-glow {
+  animation: mythic-flow 2s ease-in-out infinite;
+}
+
+.legendary-shine {
+  animation: legendary-shine 3s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.1), transparent);
+  background-size: 200% 100%;
 }
 
 *::-webkit-scrollbar {

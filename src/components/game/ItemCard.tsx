@@ -1,6 +1,7 @@
 import { Coins, Trash2, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { QUALITY_CONFIG, getQualityLabel, getStatLabel } from '../../constants/game';
+import { QUALITY_CONFIG } from '../../config/game/equipment';
+import { getQualityLabel, getStatLabel } from '../../logic/i18n/labels';
 import type { Equipment } from '../../types/game';
 import { useTranslation } from 'react-i18next';
 
@@ -37,10 +38,24 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
     hp_bonus: t('stat.hp'),
   };
 
+  const borderClass = item.品质 === 'mythic' 
+    ? 'mythic-border shadow-lg shadow-red-900/30' 
+    : item.品质 === 'legendary' 
+      ? 'legendary-border shadow-lg shadow-amber-900/20' 
+      : highlighted 
+        ? 'border-violet-500 shadow-lg shadow-violet-500/20' 
+        : 'border-game-border/50 hover:border-violet-500/50';
+
+  const bgClass = item.品质 === 'mythic' 
+    ? 'mythic-card-bg' 
+    : item.品质 === 'legendary' 
+      ? 'legendary-card-bg' 
+      : 'bg-game-bg/80';
+
   return (
     <div
       onClick={onClick}
-      className={`bg-game-bg/80 border rounded-xl p-4 space-y-3 transition-all duration-200 relative group hover:shadow-lg hover:shadow-purple-500/10 ${highlighted ? 'border-violet-500 shadow-lg shadow-violet-500/20' : 'border-game-border/50 hover:border-violet-500/50'} ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
+      className={`${bgClass} border rounded-xl p-4 space-y-3 transition-all duration-200 relative group hover:shadow-lg ${borderClass} ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
     >
       {item.已装备 && (
         <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/30 font-bold">

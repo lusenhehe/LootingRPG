@@ -99,7 +99,7 @@ export interface Monster {
   id: string;
   name: string;
   icons: string[]; // 支持多个图标
-  等级: number;
+  level: number;
   tier: MonsterTier;
   isBoss?: boolean;
   elite?: boolean;

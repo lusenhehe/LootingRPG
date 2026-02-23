@@ -2,7 +2,8 @@ import { Package, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { QUALITIES, QUALITY_CONFIG, getQualityLabel, QUALITY_KEY_MAP } from '../../../constants/game';
+import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
+import { getQualityLabel } from '../../../logic/i18n/labels';
 import type { Equipment } from '../../../types/game';
 import { ItemCard } from '../ItemCard';
 import { useTranslation } from 'react-i18next';
@@ -52,12 +53,6 @@ export function InventoryTab({
     const map: Record<string, number> = {};
     QUALITIES.forEach((quality, index) => {
       map[quality] = index;
-    });
-    // include legacy chinese keys linking to same index
-    Object.entries(QUALITY_KEY_MAP).forEach(([chi, eng]) => {
-      if (map[eng] !== undefined) {
-        map[chi] = map[eng];
-      }
     });
     return map;
   }, []);

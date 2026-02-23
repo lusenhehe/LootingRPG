@@ -1,25 +1,19 @@
-import { QUALITY_KEY_MAP, SLOT_KEY_MAP, STAT_KEY_MAP } from '../../constants/game';
 import { getDefaultEquipmentIcon } from '../equipment';
 import type { Equipment } from '../../types/game';
 
 /**
- * Normalizes equipment data, converting legacy Chinese keys to English and ensuring consistency
+ * Normalizes equipment data and ensures structural consistency
  */
 const normalizeEquipment = (item: Equipment): Equipment => {
-  // translate quality/slot from legacy Chinese if necessary
-  const quality = QUALITY_KEY_MAP[item.品质] ?? item.品质;
-  const slot = SLOT_KEY_MAP[item.部位] ?? item.部位;
+  const quality = item.品质;
+  const slot = item.部位;
 
-  // convert attribute keys if they are Chinese
   const attrs: Record<string, number> = {};
   Object.entries(item.属性).forEach(([k, v]) => {
-    const key = STAT_KEY_MAP[k] ?? k;
-    attrs[key] = v;
+    attrs[k] = v;
   });
 
-  // also ensure 主属性 key normalized
-  let main = item.主属性;
-  if (main && STAT_KEY_MAP[main]) main = STAT_KEY_MAP[main];
+  const main = item.主属性;
 
   return {
     ...item,
@@ -40,8 +34,7 @@ export const normalizeInventory = (backpack: Equipment[], currentEquipment: Reco
   const normalizedBackpack = backpack.map((item) => ({ ...normalizeEquipment(item), 已装备: false }));
   const normalizedCurrent = Object.fromEntries(
     Object.entries(currentEquipment).map(([slot, item]) => {
-      // convert any legacy Chinese slot keys to english so runtime state stays consistent
-      const key = SLOT_KEY_MAP[slot] ?? slot;
+      const key = slot;
       return [key, item ? { ...normalizeEquipment(item), 已装备: true } : null];
     }),
   ) as Record<string, Equipment | null>;

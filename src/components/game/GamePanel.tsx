@@ -8,7 +8,7 @@ import { ForgeTab } from './tabs/ForgeTab';
 import { MonsterCodexTab } from './tabs/MonsterCodexTab';
 import { MapTab } from './tabs/MapTab';
 import { BattleArena } from './BattleArena';
-import type { MapChapterDef, MapNodeDef } from '../../config/mapChapters';
+import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
 
 interface GamePanelProps {
   gameState: GameState;

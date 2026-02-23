@@ -97,7 +97,7 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
           {monster.icons[0]}
         </motion.div>
         <div className={`font-display text-sm tracking-wide ${isBoss ? `${bossThemeStyle?.name ?? 'text-red-200'} drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]` : 'text-gray-200'}`}>{monster.name}</div>
-        <div className="text-[10px] text-gray-300/80 font-mono">Lv.{monster.等级}</div>
+        <div className="text-[10px] text-gray-300/80 font-mono">Lv.{monster.level}</div>
 
         {isBoss && monster.counterGoalLabel && (
           <div

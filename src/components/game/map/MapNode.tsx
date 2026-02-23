@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import {getNodeAttempts,isNodeCleared,isNodeUnlocked} from '../../../logic/mapProgress';
 import { Lock, Sparkles, Star, Zap, Skull, Crown, Trophy, Swords, Ghost } from 'lucide-react';
 import { chapterThemeStyles, encounterBadge, getNodeState, stateOverlayStyles, getZigzagNodePosition } from './mapConfig';
-import { UI_DIMENSIONS, UI_STYLES } from '../../../constants/settings';
+import { UI_STYLES } from '../../../config/ui/tokens';
 import type { MapProgressState } from '../../../types/game';
-import type { MapNodeDef, MapChapterDef, MapEncounterType } from '../../../config/mapChapters';
+import type { MapNodeDef, MapChapterDef, MapEncounterType } from '../../../logic/adapters/mapChapterAdapter';
 
 interface MapNodeProps {
   node: MapNodeDef;
@@ -23,20 +23,20 @@ const encounterStyles: Record<MapEncounterType, {
   shape: string;  size: string;  iconColor: string; 
   ringColor: string;  glowColor: string;  particleColor: string;
 }> = {
-  normal: { shape: 'rounded-full', size: 'w-14 h-14', iconColor: 'text-stone-400', 
-    ringColor: 'ring-stone-600/40', glowColor: 'rgba(120, 113, 108, 0.35)', particleColor: 'bg-stone-500',
+  normal: { shape: 'rounded-full', size: 'w-14 h-14', iconColor: 'text-slate-200', 
+    ringColor: 'ring-slate-400/30', glowColor: 'rgba(148, 163, 184, 0.3)', particleColor: 'bg-slate-300',
   },
   elite: {
-    shape: 'rounded-lg rotate-45', size: 'w-14 h-14', iconColor: 'text-amber-600',
-    ringColor: 'ring-amber-700/50', glowColor: 'rgba(180, 83, 9, 0.4)', particleColor: 'bg-amber-700',
+    shape: 'rounded-lg rotate-45', size: 'w-14 h-14', iconColor: 'text-amber-300',
+    ringColor: 'ring-amber-400/50', glowColor: 'rgba(251, 191, 36, 0.4)', particleColor: 'bg-amber-400',
   },
   boss: {
-    shape: 'rounded-xl', size: 'w-18 h-18', iconColor: 'text-red-500',
-    ringColor: 'ring-red-800/60', glowColor: 'rgba(153, 27, 27, 0.5)', particleColor: 'bg-red-700',
+    shape: 'rounded-xl', size: 'w-18 h-18', iconColor: 'text-rose-300',
+    ringColor: 'ring-rose-500/60', glowColor: 'rgba(244, 63, 94, 0.5)', particleColor: 'bg-rose-400',
   },
   wave: {
-    shape: 'rounded-2xl', size: 'w-16 h-14', iconColor: 'text-emerald-600',
-    ringColor: 'ring-emerald-800/50', glowColor: 'rgba(6, 78, 59, 0.4)', particleColor: 'bg-emerald-700',
+    shape: 'rounded-2xl', size: 'w-16 h-14', iconColor: 'text-emerald-300',
+    ringColor: 'ring-emerald-400/50', glowColor: 'rgba(16, 185, 129, 0.4)', particleColor: 'bg-emerald-400',
   },
 };
 
@@ -116,10 +116,10 @@ export default function MapNode({
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex gap-1">
               {Array.from({ length: starCount }).map((_, i) => (
                 <motion.div
-                  key={i} animate={disabled ? {} : { scale: [1, 1.2, 1], opacity: [0.7, 1, 0.7] }}
+                  key={i} animate={disabled ? {} : { scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
                 >
-                  <Star size={10} className="text-amber-700" fill="currentColor" strokeWidth={1.5} />
+                  <Star size={10} className="text-yellow-400" fill="currentColor" strokeWidth={1.5} />
                 </motion.div>
               ))}
             </div>
@@ -128,7 +128,7 @@ export default function MapNode({
               <motion.div
                 className="absolute -inset-4 rounded-full"
                 style={{ background: `radial-gradient(circle, ${encounterStyle.glowColor} 0%, transparent 70%)` }}
-                animate={{ scale: [1, 1.3, 1], opacity: [0.25, 0.5, 0.25] }}
+                animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
             )}
@@ -142,7 +142,7 @@ export default function MapNode({
                 flex items-center justify-center
                 overflow-hidden
               `}
-              animate={isBoss && !disabled ? { boxShadow: ['0 0 15px rgba(153,27,27,0.3)', '0 0 25px rgba(153,27,27,0.5)', '0 0 15px rgba(153,27,27,0.3)'] } : {}}
+              animate={isBoss && !disabled ? { boxShadow: ['0 0 20px rgba(244,63,94,0.3)', '0 0 35px rgba(244,63,94,0.6)', '0 0 20px rgba(244,63,94,0.3)'] } : {}}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
               <div
@@ -185,13 +185,13 @@ export default function MapNode({
             <motion.div
               className={`
                 mt-2 px-2 py-0.5 rounded 
-                ${isBoss ? 'bg-red-950/80 border-red-900/30' : 'bg-black/75 border-stone-700/30'} 
+                ${isBoss ? 'bg-rose-950/80 border-rose-500/30' : 'bg-black/75 border-white/10'} 
                 backdrop-blur-sm border
               `}
               animate={disabled ? {} : { y: [0, -1, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, delay: floatDelay }}
             >
-              <span className={`text-[9px] font-semibold ${isBoss ? 'text-red-300' : 'text-stone-300'} whitespace-nowrap`}>
+              <span className={`text-[9px] font-semibold ${isBoss ? 'text-rose-200' : 'text-white/90'} whitespace-nowrap`}>
                 {node.name}
               </span>
             </motion.div>
@@ -200,34 +200,34 @@ export default function MapNode({
               <span className={`text-[7px] px-1.5 py-0.5 rounded border ${encounterBadge[node.encounterType]}`}>
                 {t(`map.encounter.${node.encounterType}`)}
               </span>
-              <span className="text-[7px] text-stone-500 font-mono">{t('map.level', { level: node.recommendedLevel })}</span>
+              <span className="text-[7px] text-gray-400 font-mono">{t('map.level', { level: node.recommendedLevel })}</span>
             </div>
 
             <div className="mt-0.5 flex items-center gap-2">
-              <span className="text-[7px] text-amber-700/80 flex items-center gap-0.5">
-                <span className="text-amber-800">+</span>
+              <span className="text-[7px] text-amber-400/80 flex items-center gap-0.5">
+                <span className="text-amber-500">+</span>
                 {node.firstClearRewardGold}G
               </span>
               {state === 'cleared' && (
-                <span className="text-[7px] text-amber-600/80 flex items-center gap-0.5">
+                <span className="text-[7px] text-cyan-400 flex items-center gap-0.5">
                   <Star size={8} fill="currentColor" />
                   {t('map.state.cleared')}
                 </span>
               )}
               {state === 'warning' && (
-                <span className="text-[7px] text-amber-600 flex items-center gap-0.5">
+                <span className="text-[7px] text-amber-400 flex items-center gap-0.5">
                   <Zap size={8} />
                   {t('map.state.warning')}
                 </span>
               )}
               {state === 'ready' && (
-                <span className="text-[7px] text-emerald-700 flex items-center gap-0.5">
+                <span className="text-[7px] text-emerald-400 flex items-center gap-0.5">
                   <Sparkles size={8} />
                   {t('map.state.ready')}
                 </span>
               )}
               {state === 'locked' && (
-                <span className="text-[7px] text-stone-600 flex items-center gap-0.5">
+                <span className="text-[7px] text-slate-500 flex items-center gap-0.5">
                   <Lock size={8} />
                   {t('map.state.locked')}
                 </span>
@@ -235,7 +235,7 @@ export default function MapNode({
             </div>
 
             {attempts > 0 && (
-              <div className="text-[6px] text-red-500/70 flex items-center gap-0.5 mt-0.5">
+              <div className="text-[6px] text-rose-400/70 flex items-center gap-0.5 mt-0.5">
                 <Skull size={7} />
                 {t('map.failures', { count: attempts })}
               </div>

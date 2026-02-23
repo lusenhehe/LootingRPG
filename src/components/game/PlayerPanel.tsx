@@ -2,7 +2,8 @@ import { ArrowUpCircle, Heart, Shield, Sword, User, Zap, Gem, Crown, Star, Hexag
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
 import type { Equipment, GameState } from '../../types/game';
-import { getQualityColor, getQualityLabel, QUALITY_CONFIG, getSlotLabel } from '../../constants/game';
+import { getQualityColor, QUALITY_CONFIG } from '../../config/game/equipment';
+import { getQualityLabel, getSlotLabel } from '../../logic/i18n/labels';
 
 const slotIconMap: Record<string, ReactNode> = {
   shield: <Shield size={14} className="text-gray-400" />,
@@ -142,10 +143,10 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
                       </motion.span>
                     )}
                     {item.品质 === 'legendary' && (
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-yellow-500/10 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 rounded-xl legendary-shine pointer-events-none" />
                     )}
                     {item.品质 === 'mythic' && (
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-red-500/10 to-transparent animate-pulse pointer-events-none" />
+                      <div className="absolute inset-0 rounded-xl mythic-glow pointer-events-none" />
                     )}
                   </div>
                 ) : (

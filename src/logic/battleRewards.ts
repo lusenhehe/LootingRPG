@@ -1,5 +1,6 @@
-import { QUALITY_CONFIG, getQualityLabel } from '../constants/game';
-import { PLAYER_GROWTH, BATTLE_REWARD } from '../constants/settings';
+import { QUALITY_CONFIG } from '../config/game/equipment';
+import { getQualityLabel } from './i18n/labels';
+import { PLAYER_GROWTH, BATTLE_REWARD } from '../config/game/progression';
 import { generateEquipment } from './equipment';
 import type { GameState } from '../types/game';
 // initialization happens at app entry (main.tsx)

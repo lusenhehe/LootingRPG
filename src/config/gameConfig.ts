@@ -1,5 +1,5 @@
 import type { GameState, PlayerStats, Equipment } from '../types/game';
-import { PLAYER_GROWTH } from '../constants/settings';
+import { PLAYER_GROWTH } from './game/progression';
 
 /**
  * 游戏全局配置对象
