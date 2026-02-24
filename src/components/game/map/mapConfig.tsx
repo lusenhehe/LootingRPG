@@ -104,9 +104,7 @@ export const stateOverlayStyles = {
   ready: { overlay: '', glowFilter: 'drop-shadow(0 0 12px rgba(180, 40, 40, 0.7))'},
   cleared: { overlay: 'opacity-70', glowFilter: 'drop-shadow(0 0 6px rgba(180, 50, 50, 0.5))'},
 };
-
 export const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-
 const ZIGZAG_START_X = 14;
 const ZIGZAG_STEP_X = 22;
 const ZIGZAG_Y_POINTS = [46, 54] as const;
@@ -117,9 +115,8 @@ export const getZigzagNodePosition = (nodeIndex: number) => ({
 });
 
 const getPanLimits = (nodeCount: number, viewport: DOMRect) => {
-  const safeCount = Math.max(1, nodeCount);
   const firstX = getZigzagNodePosition(0).x;
-  const lastX = getZigzagNodePosition(safeCount - 1).x;
+  const lastX = getZigzagNodePosition(nodeCount - 1).x;
   const sidePadding = 12;
 
   const minX = ((50 - (lastX + sidePadding)) / 100) * viewport.width;

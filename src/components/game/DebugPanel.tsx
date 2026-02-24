@@ -26,10 +26,10 @@ export function DebugPanel({ onAddItems }: DebugPanelProps) {
   }, []);
 
   const handleAdd = () => {
-    const n = Math.max(1, Math.min(100, Math.floor(count)));
+    const n = Math.floor(count);
     const items: Equipment[] = [];
     for (let i = 0; i < n; i++) {
-      items.push(createCustomEquipment(quality, slot, Math.max(1, Math.floor(level)), false));
+      items.push(createCustomEquipment(quality, slot, Math.floor(level), false));
     }
     onAddItems(items);
     setOpen(false);

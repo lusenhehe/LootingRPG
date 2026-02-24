@@ -128,7 +128,7 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
         <div className="w-full h-2 rounded-full overflow-hidden bg-white/10 border border-white/10">
           <motion.div
             className={`h-full ${isBoss ? `bg-gradient-to-r ${bossThemeStyle?.hpBar ?? 'from-red-600 to-orange-400'}` : 'bg-gradient-to-r from-emerald-500 to-lime-400'} relative`}
-            animate={{ width: `${Math.max(0, Math.min(100, hpPercent))}%` }}
+            animate={{ width: `${hpPercent}%` }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
           >
             <div className="absolute inset-0 bg-white/30 animate-pulse" />

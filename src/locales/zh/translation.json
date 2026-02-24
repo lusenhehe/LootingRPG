@@ -17,6 +17,7 @@
   "map.state.locked": "未解锁",
   "map.encounter.normal": "普通",
   "map.encounter.elite": "精英",
+  "monster.elitePrefix": "精英·",
   "map.encounter.boss": "BOSS",
   "map.encounter.wave": "群怪",
   "map.failures": "失败 {{count}} 次",

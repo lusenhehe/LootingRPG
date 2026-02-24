@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { MAP_CHAPTERS } from '../../config/map/chapters';
+import type { GameState, MapProgressState, SavePayload, SaveProfile, BattleState } from '../../types/game';
+import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
+import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, STORAGE_KEY } from '../../config/runtime/storage';
+import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
+import { createAutoSellQualityMap } from '../../logic/inventory/autoSell';
 import { recalculatePlayerStats } from '../../logic/playerStats';
 import { createInitialBattleState } from '../../logic/gameState';
-import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
-import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
-import type { GameState, MapProgressState, SavePayload, SaveProfile, BattleState } from '../../types/game';
-import { createAutoSellQualityMap } from '../../logic/inventory/autoSell';
-import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, STORAGE_KEY } from '../../config/runtime/storage';
-
+import { MAP_CHAPTERS } from '../../config/map/chapters';
+import { useState, useEffect } from 'react';
+/// 个人存档管理逻辑，包含创建/加载/保存/删除存档，以及导入导出功能
 interface UseProfileSaveParams {
   gameState: GameState; logs: string[]; autoSellQualities: Record<string, boolean>; mapProgress: MapProgressState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
-  setLogs: React.Dispatch<React.SetStateAction<string[]>>;
+  setLogs:      React.Dispatch<React.SetStateAction<string[]>>;
   setAutoSellQualities: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-  setMapProgress: React.Dispatch<React.SetStateAction<MapProgressState>>;
+  setMapProgress:  React.Dispatch<React.SetStateAction<MapProgressState>>;
   setBattleState?: React.Dispatch<React.SetStateAction<BattleState>>;
   addLog: (msg: string) => void;
 }
-
+/// 存档键名生成函数，基于 profileId 生成对应的 localStorage 键名
 const getProfileSaveKey = (profileId: string) => `${STORAGE_KEY}_${profileId}`;
-
+/// 个人存档管理 Hook，提供存档列表、当前活跃存档 ID、认证状态，以及登录/创建/删除/导入/导出存档的处理函数
 export function useProfileSave({
   gameState, logs, autoSellQualities, mapProgress,
   setGameState, setLogs, setAutoSellQualities, setMapProgress, setBattleState, addLog,
@@ -32,7 +32,7 @@ export function useProfileSave({
     setIsAuthenticated(false);
     setActiveProfileId(null);
   };
-
+  /// 初始加载：从 localStorage 读取存档列表和最后活跃的存档 ID，尝试加载对应存档
   useEffect(() => {
     const profileText = localStorage.getItem(PROFILE_INDEX_KEY);
     const lastProfileId = localStorage.getItem(ACTIVE_PROFILE_KEY);

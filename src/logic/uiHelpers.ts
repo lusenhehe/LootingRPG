@@ -7,7 +7,6 @@ export interface DerivedStatItem {
   icon: React.ReactNode;
   accent: string;
 }
-
 export function getDerivedStats(gameState: GameState): Omit<DerivedStatItem, 'icon'>[] {
   const ps = gameState.playerStats;
   const statSpecs: Array<{
@@ -25,12 +24,6 @@ export function getDerivedStats(gameState: GameState): Omit<DerivedStatItem, 'ic
 
   return statSpecs.map(({ en, key, accent, fmt }) => {
     const raw = (ps as any)[en] as number;
-    return {
-      key,
-      label: en,
-      value: fmt(raw),
-      rawValue: raw,
-      accent,
-    };
+    return { key, label: en, value: fmt(raw), rawValue: raw, accent};
   });
 }

@@ -16,6 +16,7 @@
   "map.state.locked": "Locked",
   "map.encounter.normal": "Normal",
   "map.encounter.elite": "Elite",
+  "monster.elitePrefix": "Elite·",
   "map.encounter.boss": "BOSS",
   "map.encounter.wave": "Wave",
   "map.failures": "Failed {{count}} times",

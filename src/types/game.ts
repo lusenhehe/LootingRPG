@@ -50,11 +50,7 @@ export type MonsterTier = 'normal' | 'boss';
 
 export type MonsterScalingProfile = 'normal' | 'tank' | 'glass' | 'bruiser' | 'striker' | 'boss';
 
-export interface MonsterBaseStats {
-  hp: number;
-  attack: number;
-  defense: number;
-}
+export interface MonsterBaseStats { hp: number; attack: number; defense: number;}
 
 export type MonsterTrait =
   | 'thorns'
@@ -62,6 +58,13 @@ export type MonsterTrait =
   | 'double_attack'
   | 'shield_on_start'
   | 'rage_on_low_hp';
+export const ALL_MONSTER_TRAITS: MonsterTrait[] = [
+  'thorns',
+  'lifesteal',
+  'double_attack',
+  'shield_on_start',
+  'rage_on_low_hp',
+];
 
 export type ThreatType = 'burst_punish' | 'sustain_pressure' | 'tank_breaker' | 'attrition';
 

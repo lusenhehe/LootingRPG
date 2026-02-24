@@ -116,7 +116,7 @@ export const getEquipmentTemplates = (): EquipmentTemplate[] => {
     });
 
     const id = row.id?.trim() || `csv_item_${rowIndex + 1}`;
-    const chance = Math.max(0, Math.min(1, toNumber(row.chance, 1)));
+    const chance = toNumber(row.chance, 1);
 
     return {
       id,

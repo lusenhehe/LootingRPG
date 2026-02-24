@@ -1,13 +1,11 @@
-import { useCallback } from 'react';
-import type { BattleState, GameState, Monster } from '../../types/game';
-import type { MapChapterDef, MapNodeDef } from '../../config/map/mapTypes';
-import { simulateBattle } from '../../logic/battle/battleEngine';
 import { FRAME_STEP, FRAME_START_DELAY } from '../../config/game/battleConfig';
-
+import type { MapChapterDef, MapNodeDef } from '../../config/map/mapTypes';
+import type { BattleState, GameState, Monster } from '../../types/game';
 import { applySingleBattleReward } from '../../logic/battleRewards';
-import { getMonsterById } from '../../logic/monsters/config';
+import { simulateBattle } from '../../logic/battle/battleEngine';
 import { getRandomMonster } from '../../logic/monsterGeneration';
 import { recalculatePlayerStats } from '../../logic/playerStats';
+import { useCallback } from 'react';
 
 const createIdleBattleState = (extraFields: Partial<BattleState> = {}): BattleState => ({
   phase: 'idle',
@@ -177,48 +175,36 @@ export const useBattleActions = ({
           const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
 
           if (simulation.playerWon) {
-            scheduleBattleStep(() => {
-              setBattleState((prev: any) => ({
-                ...prev,
-                phase: 'dying',
-                monsterHpPercent: 0,
-                monsterHpPercents: prev.currentMonsters.map(() => 0),
-                showAttackFlash: false,
-              }));
-            }, battleEndDelay + 180);
-
-            scheduleBattleStep(() => {
-              let dropLabel = '未知战利品';
-              setGameState((prev) => {
-                const batch = applyBatchBattleRewards(prev, simulation.monsters);
-                dropLabel = batch.droppedName;
-                batch.logs.forEach(addLog);
-                return recalculatePlayerStats(batch.nextState);
-              });
-
-              if (mapChallenge && index === total - 1) {
-                resolveMapChallengeResult(true, mapChallenge);
-              }
-
-              setBattleState((prev: any) => ({
-                ...prev,
-                phase: 'dropping',
-                showDropAnimation: true,
-                dropLabel,
-                playerDamageLabel: null,
-                monsterDamageLabel: null,
-                monsterDamageLabels: prev.currentMonsters.map(() => ''),
-              }));
-            }, battleEndDelay + 420);
-
-            scheduleBattleStep(() => {
-              if (index < total - 1) {
-                runWave(index + 1);
-              } else {
-                setBattleState(() => createIdleBattleState({ waveContext: undefined }));
-                setLoading(false);
-              }
-            }, battleEndDelay + 1100);
+            /// 更新当前怪物状态为死亡，播放死亡动画
+            setBattleState((prev: any) => ({
+              ...prev, phase: 'dying',
+              monsterHpPercent: 0, monsterHpPercents: prev.currentMonsters.map(() => 0),
+              showAttackFlash: false,
+            }));
+            /// 结算奖励，更新状态，播放掉落动画
+            let dropLabel = '未知战利品';
+            setGameState((prev) => {
+              const batch = applyBatchBattleRewards(prev, simulation.monsters);
+              dropLabel = batch.droppedName;
+              batch.logs.forEach(addLog);
+              return recalculatePlayerStats(batch.nextState);
+            });
+            /// 如果这是最后一波，且来自地图挑战，则结算地图挑战结果
+            if (mapChallenge && index === total - 1) {
+              resolveMapChallengeResult(true, mapChallenge);
+            }
+            /// 播放掉落动画
+            setBattleState((prev: any) => ({
+              ...prev,
+              phase: 'dropping',
+              showDropAnimation: true,
+              dropLabel,
+              playerDamageLabel: null,
+              monsterDamageLabel: null,
+              monsterDamageLabels: prev.currentMonsters.map(() => ''),
+            }));
+            /// 如果还有下一波，继续下一波的战斗；否则结束战斗并结算奖励。
+            handleNextWave();
           } else {
             scheduleBattleStep(() => {
               const failMessage = '战斗失败：你被怪群压制了，继续强化装备再来挑战！';
@@ -239,6 +225,15 @@ export const useBattleActions = ({
           }
         } catch (err) {
           reportError(err, { action: 'wave-battle' });
+        }
+
+        function handleNextWave() {
+          if (index < total - 1) {
+            runWave(index + 1);
+          } else {
+            setBattleState(() => createIdleBattleState({ waveContext: undefined }));
+            setLoading(false);
+          }
         }
       }, group);
     };

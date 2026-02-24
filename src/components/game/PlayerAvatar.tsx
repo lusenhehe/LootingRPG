@@ -24,7 +24,7 @@ export function PlayerAvatar({ phase, hpPercent, showAttackFlash }: PlayerAvatar
           <div className="w-full h-2 rounded-full overflow-hidden bg-white/10 border border-white/10 relative">
             <motion.div
               className="h-full bg-gradient-to-r from-red-700 to-red-900 relative"
-              animate={{ width: `${Math.max(0, Math.min(100, hpPercent))}%` }}
+              animate={{ width: `${hpPercent}%` }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
             >
               <div className="absolute inset-0 bg-white/30 animate-pulse" />

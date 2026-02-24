@@ -311,7 +311,7 @@ export function BattleArena({
 
           <motion.button
             onClick={onToggleAutoBattle}
-            disabled={loading || battleState.phase !== 'idle'}
+            disabled={loading}
             whileHover={{ scale: 1.02, boxShadow: autoBattleEnabled ? '0_0_15px rgba(21, 128, 61, 0.35)' : '0_0_15px rgba(87, 83, 78, 0.2)' }}
             whileTap={{ scale: 0.98 }}
             className={`cursor-pointer rounded-xl px-4 py-3 border disabled:opacity-45 disabled:cursor-not-allowed text-left relative overflow-hidden group ${autoBattleEnabled ? 'border-emerald-800/50 bg-stone-900/60 hover:bg-stone-800/70' : 'border-stone-700/40 bg-stone-900/60 hover:bg-stone-800/70'}`}

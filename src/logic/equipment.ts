@@ -27,26 +27,23 @@ const pickWeighted = <T,>(list: T[], weightGetter: (item: T) => number): T => {
   const total = list.reduce((sum, item) => sum + Math.max(0.01, weightGetter(item)), 0);
   let threshold = Math.random() * total;
   for (const item of list) {
-    threshold -= Math.max(0.01, weightGetter(item));
-    if (threshold <= 0) {
-      return item;
-    }
+    threshold -= weightGetter(item);
+    if (threshold <= 0) { return item; }
   }
   return list[list.length - 1];
 };
-
 const buildFromTemplate = (template: EquipmentTemplate, playerLevel: number): Equipment => {
   const localeKey = getLocaleKey();
-  const level = Math.max(1, playerLevel + template.levelOffset);
-  const scale = 1 + Math.max(0, level - 1) * Math.max(0, template.scalePerLevel);
+  const level = playerLevel + template.levelOffset;
+  const scale = level  * template.scalePerLevel;
 
   const attributes = Object.fromEntries(
-    Object.entries(template.attributes).map(([key, value]) => [key, Math.max(0, Math.round(value * scale))]),
+    Object.entries(template.attributes).map(([key, value]) => [key,Math.round(value * scale)]),
   );
 
   const affixes = template.affixes.map((entry) => ({
     type: entry.type as EquipmentAffix,
-    value: Math.max(0, Math.round(entry.value * scale)),
+    value: Math.round(entry.value * scale),
   }));
 
   const name = localeKey === 'zh' ? template.nameZh : template.nameEn;

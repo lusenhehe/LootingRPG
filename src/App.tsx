@@ -228,7 +228,7 @@ export default function App() {
       onUnequip={handleUnequip}
       onDebugAddItems={(quality, slot, count, level) => {
         const items: Equipment[] = [];
-        const lv = Math.max(1, Math.floor(level ?? gameState.playerStats.level));
+        const lv  = Math.floor(level ?? gameState.playerStats.level);
         for (let i = 0; i < count; i++) {
           items.push(createCustomEquipment(quality, slot, lv, false));
         }

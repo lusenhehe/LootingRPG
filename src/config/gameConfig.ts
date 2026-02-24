@@ -7,18 +7,12 @@ import { PLAYER_GROWTH } from './game/progression';
  *   其他模块例如 "playerStats.ts" 会引用此对象获取基础数值。
  */
 const basePlayerStats: PlayerStats = {
-  level: 1,
-  xp: 0,
-  attack: PLAYER_GROWTH.baseAttack,
+  level: 1, xp: 0, attack: PLAYER_GROWTH.baseAttack,
   hp: PLAYER_GROWTH.baseHp,
   defense: PLAYER_GROWTH.baseDefense,
   critRate: `${PLAYER_GROWTH.baseCritRate}`, // 百分数字符串形式
-  damageBonus: 0,
-  lifesteal: 0,
-  thorns: 0,
-  elemental: 0,
-  attackSpeed: 0,
-  gold: 0,
+  damageBonus: 0, lifesteal: 0,
+  thorns: 0, elemental: 0, attackSpeed: 0, gold: 0,
 };
 
 import { SLOTS } from './game/equipment';
@@ -29,7 +23,6 @@ export const INITIAL_STATE: GameState = {
   droppedEquipment: null,
   backpack: [] as Equipment[],
   systemMessage: '',
-  // ensure every slot exists even if empty to drive UI layout
   currentEquipment: Object.fromEntries(SLOTS.map((s) => [s, null])) as Record<string, Equipment | null>,
   pityCounts: {
     legendary: 0,

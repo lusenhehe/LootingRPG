@@ -31,13 +31,9 @@ const toNumber = (value: unknown): number => {
   return 0;
 };
 
-const toSoftCappedPercent = (
-  rawPercent: number,
-  softCapPercent: number,
-  hardCapPercent: number,
-  growthRate: number,
+const toSoftCappedPercent = ( rawPercent: number, softCapPercent: number, hardCapPercent: number, growthRate: number,
 ): number => {
-  const normalized = Math.max(0, rawPercent);
+  const normalized = clamp(rawPercent, 0, 100);
   if (normalized <= softCapPercent) return normalized;
 
   const overflow = normalized - softCapPercent;
@@ -46,12 +42,9 @@ const toSoftCappedPercent = (
   return clamp(softened, 0, hardCapPercent);
 };
 
-const defenseToReductionRate = (
-  defenseValue: number,
-  hardCapRate: number,
-  growthRate: number,
+const defenseToReductionRate = ( defenseValue: number, hardCapRate: number, growthRate: number,
 ): number => {
-  const normalized = Math.max(0, defenseValue);
+  const normalized = clamp(defenseValue, 0, 100);
   const rate = 1 - Math.exp(-growthRate * normalized);
   return clamp(rate, 0, hardCapRate);
 };
@@ -74,8 +67,8 @@ export const getFinalPlayerStats = (
   const rawCritPercent = toNumber(source.critRate);
   const rawLifestealPercent = toNumber(source.lifesteal);
   const rawThornsPercent = toNumber(source.thorns);
-  const rawDefense = Math.max(0, Math.floor(source.defense));
-  const levelFactor = 1 + Math.max(0, source.level - 1) * 0.08;
+  const rawDefense = Math.floor(source.defense);
+  const levelFactor = 1 + (source.level - 1) * 0.08;
   const encounterFactor = 1 + Math.min(0.65, encounterCount * 0.003);
 
   const critPercent = toSoftCappedPercent(rawCritPercent, 50, 75, 0.08);
@@ -84,17 +77,15 @@ export const getFinalPlayerStats = (
   const damageReduction = defenseToReductionRate(rawDefense, 0.68, 0.01);
 
   return {
-    maxHp: Math.max(1, Math.floor(source.hp * levelFactor * encounterFactor)),
-    attack: Math.max( 1,
-      Math.floor(source.attack * levelFactor * encounterFactor * combatProfile.playerDamageMultiplier),
-    ),
-    defense: Math.max(0, Math.floor(rawDefense * levelFactor * encounterFactor)),
+    maxHp: Math.floor(source.hp * levelFactor * encounterFactor),
+    attack:   Math.floor(source.attack * levelFactor * encounterFactor * combatProfile.playerDamageMultiplier),
+    defense: Math.floor(rawDefense * levelFactor * encounterFactor),
     damageReduction,
     critRate: clamp(critPercent / 100, 0, 0.8),
-    elementalBonus: Math.max(0, toNumber(source.elemental)),
+    elementalBonus: toNumber(source.elemental),
     lifestealRate: clamp(lifestealPercent / 100, 0, 0.45),
     thornsRate: clamp(thornsPercent / 100, 0, 0.35),
-    attackSpeed: Math.max(0, toNumber(source.attackSpeed)),
+    attackSpeed: toNumber(source.attackSpeed),
   };
 };
 

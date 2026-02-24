@@ -1,8 +1,7 @@
 import { QUALITY_CONFIG } from '../config/game/equipment';
-import i18n from '../i18n';
-import { attemptEnhancement } from './enhancement.ts';
 import type { Equipment, GameState } from '../types/game';    
-
+import { attemptEnhancement } from './enhancement.ts';
+import i18n from '../i18n';
 export const applyPlayerCommand = (state: GameState,command: string):
  { nextState: GameState; logs: string[] } => {
   const nextState = structuredClone(state);
@@ -15,7 +14,6 @@ export const applyPlayerCommand = (state: GameState,command: string):
   else if (action === '出售')  sellItem();
   else if (action === '强化')  logs.push(...attemptEnhancement(nextState, target));
   return { nextState, logs };
-
   function sellItem() {
     const itemIndex = nextState.backpack.findIndex((i) => i.name === target || i.id === target);
     if (itemIndex > -1) {
@@ -26,7 +24,6 @@ export const applyPlayerCommand = (state: GameState,command: string):
       logSystemMessage(i18n.t('message.sold_item', { name: item.name, price }));
     }
   }
-
   function unequipItemFromSlot() {
     const slot : Equipment['slot'] = Object.keys(nextState.currentEquipment).find((s) => nextState.currentEquipment[s]?.name === target) as Equipment['slot'] ;
     const item : Equipment = nextState.currentEquipment[slot] as Equipment;
@@ -35,7 +32,6 @@ export const applyPlayerCommand = (state: GameState,command: string):
     nextState.backpack = [...nextState.backpack, item];
     logSystemMessage(i18n.t('message.unequipped', { name: item.name }));
   }
-
   function unequipItem() {
     const slotKey = target;
     const item = nextState.currentEquipment[slotKey] as Equipment;
@@ -44,7 +40,6 @@ export const applyPlayerCommand = (state: GameState,command: string):
     nextState.backpack = [...nextState.backpack.filter((i) => i.id !== item.id), item];
     logSystemMessage(i18n.t('message.unequipped', { name: item.name }));
   }
-
   function equipItem() {
     const item = nextState.backpack.find((i) => i.name === target || i.id === target);
     if (item) {
@@ -60,6 +55,4 @@ export const applyPlayerCommand = (state: GameState,command: string):
       logSystemMessage(i18n.t('message.equipped', { name: item.name }));
     }
   }
-
-
 };

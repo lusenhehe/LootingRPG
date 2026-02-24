@@ -8,7 +8,6 @@ export const PLAYER_GROWTH = {
   baseCritRate: 5,
   xpPerLevel: 100,
 };
-
 export const BATTLE_REWARD = {
   xpPerMonster: 20,
   xpPerBoss: 50,
