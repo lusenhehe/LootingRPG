@@ -1,6 +1,7 @@
 import type { CounterStatKey, Monster } from '../../types/game';
 import type { FinalPlayerCombatStats } from './playerStats';
 import { getCombatProfile } from './playerStats';
+import i18n from '../../i18n';
 import { getMapNodeById } from '../adapters/mapChapterAdapter';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
@@ -72,8 +73,8 @@ export const getFinalMonsterStats = (
     const currentValue = readPlayerCounterStat(finalPlayer, monster.counterGoal.stat);
     objectivePassed = currentValue >= monster.counterGoal.threshold;
     objectiveLabel = objectivePassed
-      ? `对抗目标达成：${monster.counterGoal.title}（${monster.counterGoal.successText}）`
-      : `对抗目标未达成：${monster.counterGoal.title}（${monster.counterGoal.failText}）`;
+      ? i18n.t('codex.counterGoal.passed', { title: monster.counterGoal.title, detail: monster.counterGoal.successText })
+      : i18n.t('codex.counterGoal.failed', { title: monster.counterGoal.title, detail: monster.counterGoal.failText });
 
     if (objectivePassed) {
       attack = Math.floor(attack * 0.95);

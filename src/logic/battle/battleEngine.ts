@@ -2,6 +2,7 @@ import type { BattleFrame, Monster, PlayerStats } from '../../types/game';
 import { calculateDamage } from './damageCalculator';
 import { getFinalPlayerStats, getCombatProfile } from '../stats/playerStats';
 import { getFinalMonsterStats, getTurnCombatSnapshot, type FinalMonsterCombatStats } from '../stats/monsterStats';
+import i18n from '../../i18n';
 
 export interface SimulatedBattle {
   monster: Monster;
@@ -10,7 +11,7 @@ export interface SimulatedBattle {
   playerWon: boolean;
 }
 
-const ELEMENT_POOL = ['火', '冰', '雷', '毒', '暗'];
+const ELEMENT_POOL = ['fire', 'ice', 'thunder', 'poison', 'void'];
 
 const pickElement = (): string => ELEMENT_POOL[Math.floor(Math.random() * ELEMENT_POOL.length)];
 
@@ -139,15 +140,15 @@ export const simulateBattle = (
     }
 
     const monsterHpPercents = buildPercents();
-    const monsterDamageLabels = monsters.map((_, idx) => (idx === targetIndex ? `${isCrit ? '暴击 ' : ''}-${playerDamage}` : ''));
+    const monsterDamageLabels = monsters.map((_, idx) => (idx === targetIndex ? `${isCrit ? i18n.t('label.crit_prefix') : ''}-${playerDamage}` : ''));
     const monsterStatusLabels = monsters.map(() => '');
 
     const playerDamageLabel = `-${totalMonsterDamage}`;
-    const playerStatusLabel = playerLifestealValue > 0 ? `吸血 +${playerLifestealValue}` : undefined;
+    const playerStatusLabel = playerLifestealValue > 0 ? i18n.t('label.lifesteal_plus', { value: playerLifestealValue }) : undefined;
 
     const combatLogs = [
-      `你攻击了 ${targetMonster.name}，造成 ${playerDamage} 点伤害。`,
-      `敌方合计造成 ${totalMonsterDamage} 点伤害。`,
+      i18n.t('battle.log.player_hit', { name: targetMonster.name, damage: playerDamage }),
+      i18n.t('battle.log.monsters_total_damage', { damage: totalMonsterDamage }),
     ];
 
     frames.push({
@@ -161,7 +162,7 @@ export const simulateBattle = (
       playerStatusLabel,
       monsterStatusLabel: undefined,
       monsterStatusLabels,
-      elementLabel: `${element}元素`,
+      elementLabel: i18n.t(`element.${element}`),
       combatLogs,
     });
 
@@ -193,11 +194,11 @@ export const simulateBattle = (
     monsterHpPercent: playerWon ? 0 : Math.max(...buildPercents(), 0),
     monsterHpPercents: playerWon ? monsters.map(() => 0) : buildPercents(),
     showAttackFlash: true,
-    playerDamageLabel: playerWon ? undefined : '-致命一击',
-    monsterDamageLabel: playerWon ? '-终结' : undefined,
-    monsterDamageLabels: monsters.map((_, idx) => (idx === 0 && playerWon ? '-终结' : '')),
+    playerDamageLabel: playerWon ? undefined : `-${i18n.t('label.lethal')}`,
+    monsterDamageLabel: playerWon ? `-${i18n.t('label.terminated')}` : undefined,
+    monsterDamageLabels: monsters.map((_, idx) => (idx === 0 && playerWon ? `-${i18n.t('label.terminated')}` : '')),
     monsterStatusLabels: monsters.map(() => ''),
-    combatLogs: [playerWon ? '你抓住破绽完成终结。' : '敌人抓住破绽完成致命一击。'],
+    combatLogs: [playerWon ? i18n.t('battle.log.player_finish') : i18n.t('battle.log.enemy_finish')],
   });
 
   return {

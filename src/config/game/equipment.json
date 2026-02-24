@@ -1,0 +1,74 @@
+{
+  "statPool": [
+    "attack",
+    "hp",
+    "defense",
+    "crit",
+    "critDamage",
+    "attackSpeed",
+    "lifesteal",
+    "elemental"
+  ],
+  "slots": [
+    { "id": "weapon", "name": "Weapon", "icon": "sword" },
+    { "id": "helmet", "name": "Helmet", "icon": "user" },
+    { "id": "armor", "name": "Armor", "icon": "shield" },
+    { "id": "ring", "name": "Ring", "icon": "star" },
+    { "id": "necklace", "name": "Necklace", "icon": "gem" },
+    { "id": "boots", "name": "Boots", "icon": "package" }
+  ],
+  "qualities": [
+    "common",
+    "uncommon",
+    "rare",
+    "epic",
+    "legendary",
+    "mythic"
+  ],
+  "qualityConfig": {
+    "common": { "stats": 1, "price": 50, "color": "quality-common", "iconName": "shield" },
+    "uncommon": { "stats": 2, "price": 100, "color": "quality-uncommon", "iconName": "zap" },
+    "rare": { "stats": 3, "price": 300, "color": "quality-rare", "iconName": "gem" },
+    "epic": { "stats": 4, "price": 1000, "color": "quality-epic", "iconName": "hexagon" },
+    "legendary": { "stats": 5, "price": 5000, "color": "quality-legendary", "iconName": "crown" },
+    "mythic": { "stats": 6, "price": 20000, "color": "quality-mythic", "iconName": "star" }
+  }
+  ,
+  "affixScaling": {
+    "crit_chance": [1, 2, 3, 4, 6, 8],
+    "lifesteal": [1, 2, 3, 4, 5, 7],
+    "damage_bonus": [2, 4, 6, 8, 12, 18],
+    "thorns": [2, 4, 6, 8, 12, 18],
+    "hp_bonus": [8, 20, 32, 48, 80, 120]
+  },
+  "affixCountByQuality": [0, 1, 1, 2, 3, 4],
+  "baseMultiplierByQuality": [1.0, 1.15, 1.35, 1.6, 2.0, 2.6]
+  ,
+  "slotBaseNames": {
+    "weapon": ["战刃", "长枪", "巨剑", "法杖", "短匕", "猎弓"],
+    "helmet": ["王冠", "战盔", "兜帽", "羽冠", "铁盔", "秘帽"],
+    "armor": ["胸甲", "战袍", "鳞甲", "重甲", "皮衣", "法衣"],
+    "ring": ["魂戒", "秘戒", "誓戒", "曜环", "辉戒", "指环"],
+    "necklace": ["护符", "坠饰", "链坠", "圣印", "符链", "灵坠"],
+    "boots": ["战靴", "疾靴", "秘履", "重靴", "影足", "踏风靴"]
+  },
+  "slotIconPool": {
+    "weapon": ["⚔️", "🗡️", "🏹", "🪓", "🔨", "🪄"],
+    "helmet": ["⛑️", "🪖", "👑", "🧢", "🎭", "🧠"],
+    "armor": ["🛡️", "🥋", "🦺", "🧥", "🦾", "🦴"],
+    "ring": ["💍", "💠", "🔷", "🌀", "✨", "🧿"],
+    "necklace": ["📿", "🔮", "🪬", "💎", "🌙", "☀️"],
+    "boots": ["👢", "🥾", "🩰", "🛼", "💨", "🪽"]
+  }
+  ,
+  "namePrefixes": ["裂空", "霜烬", "黯影", "炽焰", "星辉", "雷鸣", "荒骨", "苍穹", "逐日", "深渊", "银月", "余烬"],
+  "nameSuffixes": ["之誓", "遗物", "战歌", "祷言", "守望", "审判", "回响", "魂印", "锋芒", "刻痕", "秘契", "冠冕"],
+  "enchantConfig": {
+    "enchantBaseCost": 500,
+    "rerollBaseCost": 300,
+    "lockCost": 200,
+    "enchantScaleByQuality": [0.05, 0.06, 0.07, 0.08, 0.10, 0.12],
+    "enchantCostMultiplierByQuality": [1.0, 1.0, 1.05, 1.1, 1.25, 1.5]
+  }
+}
+

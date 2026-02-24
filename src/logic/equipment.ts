@@ -1,47 +1,21 @@
-import { QUALITIES, QUALITY_CONFIG, SLOTS, STAT_POOL } from '../config/game/equipment';
+import { QUALITIES, QUALITY_CONFIG, SLOTS, STAT_POOL, AFFIX_SCALING, AFFIX_COUNT_BY_QUALITY, BASE_MULTIPLIER_BY_QUALITY, SLOT_BASE_NAMES, SLOT_ICON_POOL, NAME_PREFIXES, NAME_SUFFIXES, ENCHANT_BASE_COST, ENCHANT_SCALE_BY_QUALITY, ENCHANT_COST_MULTIPLIER_BY_QUALITY, REROLL_BASE_COST, LOCK_COST } from '../config/game/equipment';
 import { getQualityLabel, getSlotLabel } from './i18n/labels';
 import type { Equipment, EquipmentAffix, EquipmentAffixValue } from '../types/game';
-
-const NAME_PREFIX = ['裂空', '霜烬', '黯影', '炽焰', '星辉', '雷鸣', '荒骨', '苍穹', '逐日', '深渊', '银月', '余烬'];
-const NAME_SUFFIX = ['之誓', '遗物', '战歌', '祷言', '守望', '审判', '回响', '魂印', '锋芒', '刻痕', '秘契', '冠冕'];
-
-// slot-based Chinese base names for flavour; keyed by english slot keys
-const SLOT_BASE_NAME: Record<string, string[]> = {
-  weapon: ['战刃', '长枪', '巨剑', '法杖', '短匕', '猎弓'],
-  helmet: ['王冠', '战盔', '兜帽', '羽冠', '铁盔', '秘帽'],
-  armor: ['胸甲', '战袍', '鳞甲', '重甲', '皮衣', '法衣'],
-  ring: ['魂戒', '秘戒', '誓戒', '曜环', '辉戒', '指环'],
-  necklace: ['护符', '坠饰', '链坠', '圣印', '符链', '灵坠'],
-  boots: ['战靴', '疾靴', '秘履', '重靴', '影足', '踏风靴'],
-};
-
-const SLOT_ICON_POOL: Record<string, string[]> = {
-  weapon: ['⚔️', '🗡️', '🏹', '🪓', '🔨', '🪄'],
-  helmet: ['⛑️', '🪖', '👑', '🧢', '🎭', '🧠'],
-  armor: ['🛡️', '🥋', '🦺', '🧥', '🦾', '🦴'],
-  ring: ['💍', '💠', '🔷', '🌀', '✨', '🧿'],
-  necklace: ['📿', '🔮', '🪬', '💎', '🌙', '☀️'],
-  boots: ['👢', '🥾', '🩰', '🛼', '💨', '🪽'],
-};
-
 const pick = <T,>(list: T[]): T => list[Math.floor(Math.random() * list.length)];
 
 const AFFIX_POOL: EquipmentAffix[] = ['crit_chance', 'lifesteal', 'damage_bonus', 'thorns', 'hp_bonus'];
 
 const createAffix = (type: EquipmentAffix, qualityIndex: number): EquipmentAffixValue => {
-  const tier = qualityIndex + 1;
-
-  if (type === 'crit_chance') return { type, value: 1 + tier };
-  if (type === 'lifesteal') return { type, value: 1 + Math.floor(tier * 0.8) };
-  if (type === 'damage_bonus') return { type, value: 2 + tier * 2 };
-  if (type === 'thorns') return { type, value: 2 + tier * 2 };
-  return { type, value: 8 + tier * 12 };
+  const idx = Math.min(Math.max(0, qualityIndex), QUALITIES.length - 1);
+  const scaling = (AFFIX_SCALING as Record<string, number[]>)[type] ?? [];
+  const value = scaling[idx] ?? 0;
+  return { type, value };
 };
 
 const createAffixes = (quality: string, isBoss: boolean): EquipmentAffixValue[] => {
   const qualityIndex = Math.max(0, QUALITIES.indexOf(quality));
-  const countByQuality = [0, 1, 1, 2, 3, 4];
-  const count = Math.max(0, countByQuality[qualityIndex] + (isBoss && qualityIndex >= 2 ? 1 : 0));
+  const countBase = (AFFIX_COUNT_BY_QUALITY && AFFIX_COUNT_BY_QUALITY[qualityIndex]) ?? 0;
+  const count = Math.max(0, countBase + (isBoss && qualityIndex >= 2 ? 1 : 0));
 
   const pool = [...AFFIX_POOL];
   const affixes: EquipmentAffixValue[] = [];
@@ -55,16 +29,64 @@ const createAffixes = (quality: string, isBoss: boolean): EquipmentAffixValue[] 
 };
 
 const buildEquipmentName = (quality: string, slot: string): string => {
-  const prefix = pick(NAME_PREFIX);
-  const base = pick(SLOT_BASE_NAME[slot] ?? ['装备']);
-  const suffix = pick(NAME_SUFFIX);
-  // quality may be english key; display label
+  const prefix = pick(NAME_PREFIXES);
+  const base = pick(SLOT_BASE_NAMES[slot] ?? ['装备']);
+  const suffix = pick(NAME_SUFFIXES);
   const qLabel = getQualityLabel(quality);
   return `${qLabel}·${prefix}${base}${suffix}`;
 };
 
 export const getDefaultEquipmentIcon = (slot: string): string => {
   return pick(SLOT_ICON_POOL[slot] ?? ['🧰']);
+};
+
+// ----- Enchant / Reroll helpers -----
+
+export const calculateEnchantCost = (item: Equipment): number => {
+  const qIdx = Math.max(0, QUALITIES.indexOf(item.品质));
+  const base = ENCHANT_BASE_COST;
+  const mult = ENCHANT_COST_MULTIPLIER_BY_QUALITY[qIdx] ?? 1;
+  return Math.max(0, Math.floor(base * (item.强化等级 + 1) * mult));
+};
+
+export const previewEnchant = (item: Equipment, times = 1): Equipment => {
+  const copy: Equipment = JSON.parse(JSON.stringify(item));
+  const qIdx = Math.max(0, QUALITIES.indexOf(copy.品质));
+  const scale = ENCHANT_SCALE_BY_QUALITY[qIdx] ?? 0.05;
+  for (let i = 0; i < times; i++) {
+    copy.强化等级 = (copy.强化等级 || 0) + 1;
+    Object.entries(copy.属性).forEach(([k, v]) => {
+      copy.属性[k] = Math.max(0, Math.round((v as number) * (1 + scale)));
+    });
+  }
+  return copy;
+};
+
+export const applyEnchant = (item: Equipment): Equipment => {
+  const qIdx = Math.max(0, QUALITIES.indexOf(item.品质));
+  const scale = ENCHANT_SCALE_BY_QUALITY[qIdx] ?? 0.05;
+  item.强化等级 = (item.强化等级 || 0) + 1;
+  Object.entries(item.属性).forEach(([k, v]) => {
+    item.属性[k] = Math.max(0, Math.round((v as number) * (1 + scale)));
+  });
+  return item;
+};
+
+export const rerollAffixes = (item: Equipment, options?: { lockTypes?: string[] }): Equipment => {
+  const qIdx = Math.max(0, QUALITIES.indexOf(item.品质));
+  const lockTypes = options?.lockTypes ?? [];
+  const existing = Array.isArray(item.affixes) ? item.affixes.slice() : [];
+  const kept = existing.filter(a => lockTypes.includes(a.type));
+  const needed = Math.max(0, (AFFIX_COUNT_BY_QUALITY[qIdx] ?? 0) - kept.length);
+  const pool = AFFIX_POOL.filter(p => !lockTypes.includes(p));
+  const newAffixes: EquipmentAffixValue[] = [];
+  for (let i = 0; i < needed && pool.length > 0; i++) {
+    const idx = Math.floor(Math.random() * pool.length);
+    const type = pool.splice(idx, 1)[0];
+    newAffixes.push(createAffix(type as EquipmentAffix, qIdx));
+  }
+  item.affixes = [...kept, ...newAffixes];
+  return item;
 };
 
 export const generateEquipment = (
@@ -123,7 +145,8 @@ export const generateEquipment = (
 
   // use english keys internally; keep STAT_POOL in sync
   const mainStat = slot === 'weapon' ? 'attack' : slot === 'armor' || slot === 'helmet' ? 'hp' : 'defense';
-  const baseValue = Math.floor((qualityIndex + 1) * 5 * equipmentLevel);
+  const multiplier = (BASE_MULTIPLIER_BY_QUALITY && BASE_MULTIPLIER_BY_QUALITY[qualityIndex]) ?? (qualityIndex + 1);
+  const baseValue = Math.floor(multiplier * 5 * equipmentLevel);
   stats[mainStat] = baseValue;
 
   // when rerolling or adding secondary stats we rely on english STAT_POOL values

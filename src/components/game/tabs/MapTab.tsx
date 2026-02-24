@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
-import { MapPin, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Star, ChevronDown, Mountain, Lock } from 'lucide-react';
 import { MAP_CHAPTERS, type MapChapterDef } from '../../../logic/adapters/mapChapterAdapter';
 import type { MapProgressState } from '../../../types/game';
 import {
@@ -9,6 +9,22 @@ import {
   getChapterProgress,
 } from '../../../logic/mapProgress';
 import MapViewport from '../map/MapViewport';
+
+const getThemeColors = (theme: string) => {
+  const colorMap: Record<string, { primary: string; primaryLight: string; primaryDark: string }> = {
+    '林地': { primary: '#10b981', primaryLight: '#6ee7b7', primaryDark: '#047857' },
+    '地牢': { primary: '#78716c', primaryLight: '#d6d3d1', primaryDark: '#44403c' },
+    '火山': { primary: '#f97316', primaryLight: '#fdba74', primaryDark: '#c2410c' },
+    '亡灵': { primary: '#a855f7', primaryLight: '#d8b4fe', primaryDark: '#7e22ce' },
+    '风暴': { primary: '#06b6d4', primaryLight: '#67e8f9', primaryDark: '#0891b2' },
+    '机械': { primary: '#f59e0b', primaryLight: '#fcd34d', primaryDark: '#d97706' },
+    '晶体': { primary: '#8b5cf6', primaryLight: '#c4b5fd', primaryDark: '#7c3aed' },
+    '虚空': { primary: '#6366f1', primaryLight: '#a5b4fc', primaryDark: '#4f46e5' },
+    '星空': { primary: '#3b82f6', primaryLight: '#93c5fd', primaryDark: '#2563eb' },
+    '终焉': { primary: '#f43f5e', primaryLight: '#fda4af', primaryDark: '#e11d48' },
+  };
+  return colorMap[theme] || colorMap['终焉'];
+};
 
 interface MapTabProps {
   playerLevel: number;
@@ -20,6 +36,7 @@ interface MapTabProps {
 
 export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnterNode }: MapTabProps) {
   const { t } = useTranslation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const normalizedProgress = useMemo(() => normalizeMapProgress(progress, MAP_CHAPTERS), [progress]);
 
   const selectedChapter = useMemo(
@@ -43,7 +60,7 @@ export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnte
     return stars;
   }, [normalizedProgress]);
 
-  if (!selectedChapter) return null;
+  const themeColors = getThemeColors(selectedChapter.theme);
 
   return (
     <motion.div
@@ -52,38 +69,70 @@ export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnte
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className="h-[620px] flex flex-col gap-3"
+      className="h-[500px] flex flex-col"
     >
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <MapPin size={14} className="text-violet-400" />
-          <label className="text-xs text-gray-300">{t('map.selectChapter')}</label>
-          <select
-            value={selectedChapter.id}
-            onChange={(e) => onSelectChapter(e.target.value)}
-            className="bg-game-card/60 border border-game-border/50 rounded-lg px-3 py-1.5 text-sm text-white cursor-pointer hover:bg-game-card/80 transition-colors"
+      <div className="flex items-center justify-between gap-3">
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-stone-900/60 backdrop-blur-sm rounded-lg border transition-all cursor-pointer hover:bg-stone-800/60"
+            style={{ borderColor: `${themeColors.primary}33` }}
           >
-            {MAP_CHAPTERS.map((chapter) => {
-              const unlocked = normalizedProgress.unlockedChapters.includes(chapter.id);
-              return (
-                <option key={chapter.id} value={chapter.id} disabled={!unlocked}>
-                  {t(chapter.name)} {!unlocked ? '🔒' : ''}
-                </option>
-              );
-            })}
-          </select>
+            <Mountain size={16} style={{ color: themeColors.primaryLight }} />
+            <span className="text-sm font-medium" style={{ color: themeColors.primaryLight }}>{t(selectedChapter.name)}</span>
+            <ChevronDown size={14} className={`text-stone-500 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AnimatePresence>
+            {dropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  className="absolute top-full mt-1 left-0 z-50 bg-stone-900/95 backdrop-blur-xl rounded-lg border border-white/10 shadow-xl py-1 min-w-[220px]"
+                >
+                  {MAP_CHAPTERS.map((chapter) => {
+                    const unlocked = normalizedProgress.unlockedChapters.includes(chapter.id);
+                    const chapterProgress = getChapterProgress(normalizedProgress, chapter);
+                    const chapterColors = getThemeColors(chapter.theme);
+                    
+                    return (
+                      <button
+                        key={chapter.id}
+                        disabled={!unlocked}
+                        onClick={() => { onSelectChapter(chapter.id); setDropdownOpen(false); }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors cursor-pointer ${selectedChapter.id === chapter.id ? 'bg-white/5' : 'hover:bg-white/5'}`}
+                        style={{ opacity: unlocked ? 1 : 0.4 }}
+                      >
+                        <Mountain size={14} style={{ color: chapterColors.primaryLight }} />
+                        <span className="flex-1 text-sm text-stone-200">{t(chapter.name)}</span>
+                        {chapterProgress.completed && <Star size={12} className="text-amber-400" fill="currentColor" />}
+                        {!unlocked && <Lock size={12} className="text-stone-500" />}
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
 
-        <div className="flex items-center gap-3 text-[10px]">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-game-card/40 rounded-lg border border-game-border/30">
-            <Star size={10} className="text-yellow-400" fill="currentColor" />
-            <span className="text-gray-400">{t('map.totalStars')}:</span>
-            <span className="text-yellow-400 font-semibold">{totalStars}</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-game-card/40 rounded-lg border border-game-border/30">
-            <span className="text-gray-400">{t('map.progress')}:</span>
-            <span className="text-violet-300 font-semibold">{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
-          </div>
+        <div className="flex items-center gap-2 text-xs">
+          <Star size={12} className="text-amber-400" fill="currentColor" />
+          <span className="text-stone-400">{totalStars}</span>
+          <span className="text-stone-600">|</span>
+          <span className="text-stone-500">{selectedChapter.levelRange}</span>
+          <span className="text-stone-600">|</span>
+          <span style={{ color: themeColors.primaryLight }}>{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
+          <span className="text-stone-600">|</span>
+          <span className="px-1.5 py-0.5 rounded font-medium" style={{ 
+            backgroundColor: `${themeColors.primary}22`, 
+            color: themeColors.primaryLight 
+          }}>
+            {Math.round((selectedChapterProgress.cleared / selectedChapterProgress.total) * 100)}%
+          </span>
         </div>
       </div>
 

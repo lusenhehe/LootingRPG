@@ -1,9 +1,9 @@
-import { ArrowUpCircle, Heart, Shield, Sword, User, Zap, Gem, Crown, Star, Hexagon, Flame, Droplets, ShieldAlert, Sparkles, Gauge } from 'lucide-react';
+import { ArrowUpCircle, Heart, Shield, Sword, User, Zap, Gem, Crown, Star, Hexagon, Flame, Droplets, ShieldAlert, Sparkles, Gauge, Package } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { Equipment, GameState } from '../../types/game';
-import { getQualityColor, QUALITY_CONFIG } from '../../config/game/equipment';
+import { getQualityColor, QUALITY_CONFIG, SLOT_CONFIG } from '../../config/game/equipment';
 import { getQualityLabel, getSlotLabel } from '../../logic/i18n/labels';
 
 const slotIconMap: Record<string, ReactNode> = {
@@ -13,6 +13,15 @@ const slotIconMap: Record<string, ReactNode> = {
   hexagon: <Hexagon size={14} className="text-purple-400" />,
   crown: <Crown size={14} className="text-yellow-400" />,
   star: <Star size={14} className="text-red-400" />,
+};
+
+const slotTypeIconMap: Record<string, ReactNode> = {
+  sword: <Sword size={14} className="text-amber-400" />,
+  user: <User size={14} className="text-gray-300" />,
+  package: <Package size={14} className="text-gray-300" />,
+  star: <Star size={14} className="text-red-400" />,
+  gem: <Gem size={14} className="text-blue-400" />,
+  shield: <Shield size={14} className="text-gray-400" />,
 };
 
 interface PlayerPanelProps {
@@ -152,7 +161,10 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
                     )}
                   </div>
                 ) : (
-                  <span className="text-[10px] text-gray-600 uppercase font-mono">{getSlotLabel(slot)}</span>
+                  <span className="text-[10px] text-gray-600 uppercase font-mono flex items-center gap-2">
+                    {slotTypeIconMap[SLOT_CONFIG[slot]?.icon || 'package']}
+                    {getSlotLabel(slot)}
+                  </span>
                 )}
               </motion.div>
               {item && (

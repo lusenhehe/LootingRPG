@@ -97,6 +97,28 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
           ))}
         </div>
 
+        {selected.affixes && selected.affixes.length > 0 && (
+          <div className="mt-2">
+            <h4 className="text-xs text-gray-400 mb-1">{t('label.affixes') || 'Affixes'}</h4>
+            <div className="flex flex-wrap gap-2">
+              {selected.affixes.map((affix) => {
+                const labelMap: Record<string, string> = {
+                  crit_chance: t('stat.crit'),
+                  lifesteal: t('stat.lifesteal'),
+                  damage_bonus: t('stat.damage'),
+                  thorns: t('trait.thorns'),
+                  hp_bonus: t('stat.hp'),
+                };
+                return (
+                  <span key={`${affix.type}-${affix.value}`} className="text-[12px] px-2 py-1 rounded border border-white/10 bg-game-card/20 text-gray-200">
+                    {labelMap[affix.type] || affix.type} +{affix.value}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {selected.特殊效果 && <p className="text-xs text-violet-400 italic">★ {selected.特殊效果}</p>}
 
         <div className="grid grid-cols-2 gap-3 pt-2">
