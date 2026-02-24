@@ -1,6 +1,7 @@
 import { RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { RefObject } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface BattleLogTabProps {
   logs: string[];
@@ -10,6 +11,7 @@ interface BattleLogTabProps {
 }
 
 export function BattleLogTab({ logs, loading, scrollRef, onScroll }: BattleLogTabProps) {
+  const { t } = useTranslation();
   return (
     <motion.div key="logs" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full">
       <div ref={scrollRef} onScroll={onScroll} className="h-[420px] overflow-y-auto space-y-2 font-mono text-sm pr-1">
@@ -20,7 +22,7 @@ export function BattleLogTab({ logs, loading, scrollRef, onScroll }: BattleLogTa
         ))}
         {loading && (
           <div className="flex items-center gap-2 text-game-accent animate-pulse p-2">
-            <RefreshCw size={14} className="animate-spin" /> 计算中...
+            <RefreshCw size={14} className="animate-spin" /> {t('message.calculating')}
           </div>
         )}
       </div>

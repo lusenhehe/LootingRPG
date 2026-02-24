@@ -1,6 +1,7 @@
 import { Heart, Shield, Sword, Zap, User } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { PlayerStats } from '../../types/game';
+import { useTranslation } from 'react-i18next';
 
 interface PlayerInfoBadgeProps {
   playerName: string;
@@ -8,6 +9,7 @@ interface PlayerInfoBadgeProps {
 }
 
 export function PlayerInfoBadge({ playerName, stats }: PlayerInfoBadgeProps) {
+  const { t } = useTranslation();
   const expNeeded = stats.等级 * 100;
   const expPercent = Math.min(100, (stats.经验 / expNeeded) * 100);
 
@@ -40,7 +42,7 @@ export function PlayerInfoBadge({ playerName, stats }: PlayerInfoBadgeProps) {
 
         <div className="flex flex-col gap-1 min-w-[100px]">
           <div className="flex items-center justify-between text-[9px] text-stone-500">
-            <span>经验</span>
+            <span>{t('label.experience')}</span>
             <span className="font-mono text-stone-400">{stats.经验}/{expNeeded}</span>
           </div>
           <div className="h-1 rounded-full bg-stone-800 border border-stone-700/50 overflow-hidden">

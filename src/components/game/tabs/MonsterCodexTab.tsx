@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../logic/adapters/monsterCatalogAdapter';
 import { UI_DIMENSIONS } from '../../../config/ui/tokens';
 import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/monsterStrategyConfig';
@@ -19,25 +20,12 @@ const traitColorMap: Record<MonsterTrait, string> = {
   shield_on_start: 'border-blue-400/30 bg-blue-500/10 text-blue-200',
   rage_on_low_hp: 'border-red-400/30 bg-red-500/10 text-red-200',
 };
-const traitHintMap: Record<MonsterTrait, string[]> = {
-  thorns: ['此敌人对爆发输出有反制能力，节奏过快容易被反噬。', '更稳妥的做法是提高生存与续航，拉长有效作战时间。'],
-  lifesteal: ['此敌人擅长在缠斗中回稳，久拖会放大其优势。', '建议准备持续压制手段，减少其恢复窗口。'],
-  double_attack: ['此敌人有连续打击倾向，容易形成瞬时压力。', '建议优先强化容错与减伤，避免被连段带走。'],
-  shield_on_start: ['此敌人开局防线稳固，前段硬冲收益较低。', '先建立稳定节奏，再寻找破口更容易滚起优势。'],
-  rage_on_low_hp: ['此敌人在残局阶段威胁更高，收尾处理很关键。', '建议保留后段资源，避免在终局被反推。'],
-};
+
 const strategyTagStyleMap: Record<StrategyTag, string> = {
   偏进攻: 'border-rose-400/35    bg-rose-500/10    text-rose-200',
   偏防守: 'border-blue-400/35    bg-blue-500/10    text-blue-200',
   偏续航: 'border-emerald-400/35 bg-emerald-500/10 text-emerald-200',
 };
-const threatLabelMap: Record<ThreatType, string> = {
-  burst_punish: '爆发反制型',
-  sustain_pressure: '持续压制型',
-  tank_breaker: '破防压坦型',
-  attrition: '消耗蚕食型',
-};
-
 const threatStyleMap: Record<ThreatType, string> = {
   burst_punish: 'border-fuchsia-400/35 bg-fuchsia-500/10 text-fuchsia-200',
   sustain_pressure: 'border-rose-400/35 bg-rose-500/10 text-rose-200',
@@ -108,36 +96,37 @@ const getStrategyTags = (monster: Monster): StrategyTag[] => {
     .map(([tag]) => tag);
 };
 
-const getStrategyHints = (monster: Monster): string[] => {
+const getStrategyHints = (monster: Monster, t: (k: string, opts?: any) => any): string[] => {
   const hints: string[] = [];
 
   if (monster.tier === 'boss') {
-    hints.push('这是首领战，建议围绕单一战术核心构筑，不要平均分配资源。');
+    hints.push(t('codex.hints.bossIntro'));
   } else {
-    hints.push('这是常规遭遇战，建议用稳定泛用构筑保持连续推进。');
+    hints.push(t('codex.hints.normalIntro'));
   }
 
   (monster.traits ?? []).forEach((trait) => {
-    const traitHints = traitHintMap[trait] ?? [];
+    // try to read an array from i18n first, fallback to traitHintMap if missing
+    const traitHints = (t(`trait.hints.${trait}`, { returnObjects: true }) as string[]);
     traitHints.forEach((text) => {
       if (!hints.includes(text)) hints.push(text);
     });
   });
 
   if (monster.counterGoal) {
-    hints.push('该敌人存在明确对抗方向，建议围绕一种优势维度集中强化。');
+    hints.push(t('codex.hints.counterGoal'));
   }
 
   if (!monster.traits?.length && !monster.counterGoal) {
-    hints.push('该敌人机制简单，保持攻防平衡通常就能稳定处理。');
+    hints.push(t('codex.hints.simple'));
   }
 
   return hints.slice(0, 4);
 };
 
-function TraitTags({ traits }: { traits?: MonsterTrait[] }) {
+function TraitTags({ traits, t }: { traits?: MonsterTrait[]; t: (k: string) => string }) {
   if (!traits?.length) {
-    return <span className="text-[10px] text-gray-500">无特殊词条</span>;
+    return <span className="text-[10px] text-gray-500">{t('trait.none')}</span>;
   }
 
   return (
@@ -147,7 +136,7 @@ function TraitTags({ traits }: { traits?: MonsterTrait[] }) {
           key={trait}
           className={`text-[10px] px-2 py-0.5 rounded border ${traitColorMap[trait] || 'border-violet-400/30 bg-violet-500/10 text-violet-200'}`}
         >
-          {traitLabelMap[trait]}
+          {t(`trait.${trait}`)}
         </span>
       ))}
     </div>
@@ -202,9 +191,9 @@ function MonsterListItem({
   );
 }
 
-function MonsterDetailPanel({ monster }: { monster: Monster }) {
+function MonsterDetailPanel({ monster, t }: { monster: Monster; t: (k: string, opts?: any) => any }) {
   const isBoss = monster.tier === 'boss';
-  const strategyHints = getStrategyHints(monster);
+  const strategyHints = getStrategyHints(monster, t);
   const strategyTags = getStrategyTags(monster);
   const threatTypes = inferThreatTypes(monster);
 
@@ -234,9 +223,9 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
               <div className="text-[10px] text-violet-300/80 font-mono mt-0.5">Lv.{monster.level}</div>
               {isBoss && (
                 <div className="flex items-center gap-1 mt-0.5">
-                  <Crown size={10} className="text-yellow-400" />
-                  <span className="text-[9px] text-yellow-400/70">首领级敌人</span>
-                </div>
+                    <Crown size={10} className="text-yellow-400" />
+                    <span className="text-[9px] text-yellow-400/70">{t('codex.bossLevelLabel')}</span>
+                  </div>
               )}
             </div>
           </div>
@@ -248,7 +237,7 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
             >
               <div className="flex items-center gap-1 mb-1">
                 <Heart size={10} className="text-red-400" />
-                <span className="text-[8px] text-gray-400 uppercase">生命</span>
+                <span className="text-[8px] text-gray-400 uppercase">{t('codex.stat.hp')}</span>
               </div>
               <div className="text-lg font-bold text-red-300">{monster.maxHp}</div>
               <div className="w-full h-1 bg-red-500/20 rounded-full mt-1 overflow-hidden">
@@ -259,9 +248,9 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
               whileHover={{ scale: 1.03 }}
               className="bg-black/25 rounded-lg p-2 border border-white/5"
             >
-              <div className="flex items-center gap-1 mb-1">
+                <div className="flex items-center gap-1 mb-1">
                 <Swords size={10} className="text-orange-400" />
-                <span className="text-[8px] text-gray-400 uppercase">攻击</span>
+                <span className="text-[8px] text-gray-400 uppercase">{t('codex.stat.attack')}</span>
               </div>
               <div className="text-lg font-bold text-orange-300">{monster.attack}</div>
               <div className="w-full h-1 bg-orange-500/20 rounded-full mt-1 overflow-hidden">
@@ -272,9 +261,9 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
               whileHover={{ scale: 1.03 }}
               className="bg-black/25 rounded-lg p-2 border border-white/5"
             >
-              <div className="flex items-center gap-1 mb-1">
+                <div className="flex items-center gap-1 mb-1">
                 <Shield size={10} className="text-blue-400" />
-                <span className="text-[8px] text-gray-400 uppercase">防御</span>
+                <span className="text-[8px] text-gray-400 uppercase">{t('codex.stat.defense')}</span>
               </div>
               <div className="text-lg font-bold text-blue-300">{monster.defense}</div>
                 <div className="w-full h-1 bg-blue-500/20 rounded-full mt-1 overflow-hidden">
@@ -286,15 +275,15 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
           <div className="mb-2">
             <div className="flex items-center gap-1 mb-1.5">
               <Zap size={10} className="text-violet-400" />
-              <span className="text-[9px] text-gray-400 uppercase">词条</span>
+              <span className="text-[9px] text-gray-400 uppercase">{t('codex.traits')}</span>
             </div>
-            <TraitTags traits={monster.traits} />
+            <TraitTags traits={monster.traits} t={t} />
           </div>
 
           <div className="mb-2">
             <div className="flex items-center gap-1 mb-1.5">
               <Info size={10} className="text-fuchsia-300" />
-              <span className="text-[9px] text-gray-400 uppercase">威胁类型</span>
+              <span className="text-[9px] text-gray-400 uppercase">{t('codex.threatTypes')}</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {threatTypes.map((threat) => (
@@ -302,7 +291,7 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
                   key={threat}
                   className={`text-[9px] px-1.5 py-0.5 rounded border ${threatStyleMap[threat]}`}
                 >
-                  {threatLabelMap[threat]}
+                  {t(`codex.threat.${threat}`)}
                 </span>
               ))}
             </div>
@@ -311,10 +300,10 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
           <div className="mb-2 rounded-lg border border-indigo-400/20 bg-indigo-500/5 p-2">
             <div className="flex items-center gap-1 mb-1">
               <BookOpen size={10} className="text-indigo-300" />
-              <span className="text-[9px] text-indigo-200 uppercase">背景传记</span>
+              <span className="text-[9px] text-indigo-200 uppercase">{t('codex.background')}</span>
             </div>
             <p className="text-[9px] text-indigo-100/80 leading-relaxed">
-              {monster.background ?? '这名敌人的旧史已在风中残缺。'}
+              {monster.background ?? t('codex.backgroundFallback')}
             </p>
           </div>
 
@@ -344,15 +333,15 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
           >
             <div className="flex items-center gap-1.5 mb-1">
               <Info size={11} className="text-cyan-300" />
-              <span className="text-[10px] font-medium text-cyan-200">对策提示</span>
+              <span className="text-[10px] font-medium text-cyan-200">{t('codex.tacticsTitle')}</span>
             </div>
             <div className="flex flex-wrap gap-1 mb-1.5">
-              {strategyTags.map((tag) => (
+                {strategyTags.map((tag) => (
                 <span
                   key={tag}
                   className={`text-[9px] px-1.5 py-0.5 rounded border ${strategyTagStyleMap[tag]}`}
                 >
-                  {tag}
+                  {t(`codex.strategy.${tag}`)}
                 </span>
               ))}
             </div>
@@ -371,6 +360,7 @@ function MonsterDetailPanel({ monster }: { monster: Monster }) {
 }
 
 export function MonsterCodexTab() {
+  const { t } = useTranslation();
   const [selectedMonsterId, setSelectedMonsterId] = useState<string | null>(NORMAL_MONSTERS[0]?.id || null);
   const [activeTab, setActiveTab] = useState<'normal' | 'boss'>('normal');
 
@@ -405,7 +395,7 @@ export function MonsterCodexTab() {
               >
                 <BookOpen size={14} className="text-cyan-300" />
               </motion.div>
-              <span className="font-display text-sm text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">怪物图鉴</span>
+              <span className="font-display text-sm text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">{t('codex.title')}</span>
             </div>
             
             <div className="flex gap-1 bg-game-bg/50 p-0.5 rounded-lg border border-game-border/30">
@@ -420,7 +410,7 @@ export function MonsterCodexTab() {
                 className={`px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${activeTab === 'normal' ? 'bg-violet-500/30 text-violet-300 border border-violet-500/30' : 'text-gray-400 hover:text-gray-200'}`}
               >
                 <Skull size={10} className="inline mr-1" />
-                普通 ({NORMAL_MONSTERS.length})
+                {t('codex.tab.normal')} ({NORMAL_MONSTERS.length})
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -433,7 +423,7 @@ export function MonsterCodexTab() {
                 className={`px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${activeTab === 'boss' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/30' : 'text-gray-400 hover:text-gray-200'}`}
               >
                 <Crown size={10} className="inline mr-1" />
-                BOSS ({BOSS_MONSTERS.length})
+                {t('codex.tab.boss')} ({BOSS_MONSTERS.length})
               </motion.button>
             </div>
           </div>
@@ -449,7 +439,7 @@ export function MonsterCodexTab() {
         >
           <div className="flex items-center gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider flex-shrink-0">
             <Info size={12} />
-            <span>怪物列表</span>
+            <span>{t('codex.listTitle')}</span>
           </div>
           
           <div className="flex-1 overflow-y-auto pr-1 space-y-1.5 scrollbar-thin min-h-0">
@@ -479,19 +469,19 @@ export function MonsterCodexTab() {
         >
           <div className="flex items-center gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider flex-shrink-0">
             <Heart size={12} className="text-red-400" />
-            <span>详细信息</span>
+            <span>{t('codex.detailTitle')}</span>
           </div>
           
           <div className="flex-1 overflow-y-auto scrollbar-thin min-h-0">
             <AnimatePresence mode="wait">
               {selectedMonster ? (
-                <MonsterDetailPanel monster={selectedMonster} />
+                <MonsterDetailPanel monster={selectedMonster} t={t} />
               ) : (
                 <div className="h-full flex items-center justify-center text-gray-500">
                   <div className="text-center">
-                    <Info size={24} className="mx-auto mb-1 opacity-30" />
-                    <p className="text-[10px]">选择怪物查看详情</p>
-                  </div>
+                      <Info size={24} className="mx-auto mb-1 opacity-30" />
+                      <p className="text-[10px]">{t('codex.selectMonster')}</p>
+                    </div>
                 </div>
               )}
             </AnimatePresence>

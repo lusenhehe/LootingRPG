@@ -78,7 +78,7 @@ export function InventoryTab({
   return (
     <motion.div key="inventory" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="h-full flex flex-col gap-3">
       <section className="border border-game-border rounded-xl bg-game-bg/60 p-3">
-        <p className="text-xs text-gray-400 mb-2">自动售卖（勾选品质后，战斗掉落会自动出售）</p>
+        <p className="text-xs text-gray-400 mb-2">{t('ui.autoSellHint')}</p>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
           {QUALITIES.map((quality) => (
             <label key={quality} className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer hover:bg-game-card/30 p-1.5 rounded-lg transition-colors">
@@ -112,13 +112,13 @@ export function InventoryTab({
               ))}
             </select>
             <span className="text-xs text-gray-500">{t('label.to')}</span>
-            <select
+              <select
               value={sellMaxQuality}
               onChange={(event) => setSellMaxQuality(event.target.value)}
               className="text-xs bg-game-bg border border-game-border rounded px-2 py-1 text-gray-200"
             >
               {QUALITIES.map((quality) => (
-                <option key={`max-${quality}`} value={quality}>{getQualityLabel(quality)}</option>
+                  <option key={`max-${quality}`} value={quality}>{getQualityLabel(quality)}</option>
               ))}
             </select>
             <button
@@ -132,15 +132,15 @@ export function InventoryTab({
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-gray-400">{t('label.sort')}</span>
-            <select
+              <select
               value={sortField}
               onChange={(event) => setSortField(event.target.value as SortField)}
               className="text-xs bg-game-bg border border-game-border rounded px-2 py-1 text-gray-200"
             >
-              <option value="quality">品质</option>
-              <option value="price">售价</option>
-              <option value="强化等级">强化等级</option>
-              <option value="name">名称</option>
+              <option value="quality">{t('label.quality')}</option>
+              <option value="price">{t('label.price')}</option>
+              <option value="强化等级">{t('label.enchantLevel')}</option>
+              <option value="name">{t('label.name')}</option>
             </select>
             <select
               value={sortOrder}

@@ -59,7 +59,7 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
     >
       {item.已装备 && (
         <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/30 font-bold">
-          已装备
+          {t('label.equipped')}
         </span>
       )}
       <div className="flex justify-between items-start">
@@ -109,8 +109,8 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
 
       {!readonly && (
         <div className="flex gap-2 pt-1">
-          <button onClick={onEquip} disabled={loading} className="flex-1 py-1.5 bg-violet-600/10 hover:bg-violet-600 text-violet-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-violet-500/20 cursor-pointer hover:scale-105">装备</button>
-          <button onClick={onForge} disabled={loading} className="flex-1 py-1.5 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-yellow-500/20 cursor-pointer hover:scale-105" title={`消耗 ${forgeCost} 金币`}>强化</button>
+          <button onClick={onEquip} disabled={loading} className="flex-1 py-1.5 bg-violet-600/10 hover:bg-violet-600 text-violet-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-violet-500/20 cursor-pointer hover:scale-105">{t('button.equip')}</button>
+          <button onClick={onForge} disabled={loading} className="flex-1 py-1.5 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-yellow-500/20 cursor-pointer hover:scale-105" title={`消耗 ${forgeCost} 金币`}>{t('button.enchant')}</button>
           <button onClick={onSell} disabled={loading} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-red-500/20 cursor-pointer hover:scale-105"><Trash2 size={12} /></button>
         </div>
       )}

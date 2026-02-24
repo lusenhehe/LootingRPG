@@ -1,6 +1,7 @@
 import { ArrowUpCircle, Heart, Shield, Sword, User, Zap, Gem, Crown, Star, Hexagon, Flame, Droplets, ShieldAlert, Sparkles, Gauge } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import type { Equipment, GameState } from '../../types/game';
 import { getQualityColor, QUALITY_CONFIG } from '../../config/game/equipment';
 import { getQualityLabel, getSlotLabel } from '../../logic/i18n/labels';
@@ -20,6 +21,7 @@ interface PlayerPanelProps {
 }
 
 export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
+  const { t } = useTranslation();
   const expProgress = (gameState.玩家状态.经验 / (gameState.玩家状态.等级 * 100)) * 100;
   const critRateLabel = `${String(gameState.玩家状态.暴击率).replace('%', '')}%`;
   const derivedStats = [
@@ -75,7 +77,7 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
       >
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-fuchsia-500/5" />
         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
-          <Sparkles size={14} className="text-cyan-300" /> 战斗词条加成
+          <Sparkles size={14} className="text-cyan-300" /> {t('player.battleAffixes')}
         </h3>
 
         <div className="grid grid-cols-2 gap-2 relative z-10">
@@ -111,7 +113,7 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/3 to-transparent" />
         
         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
-          <Shield size={14} className="text-violet-400" /> 当前装备
+          <Shield size={14} className="text-violet-400" /> {t('player.currentEquipment')}
         </h3>
         <div className="grid grid-cols-2 gap-3 relative z-10">
           {(Object.entries(gameState.当前装备) as [string, Equipment | null][]).map(([slot, item]) => (

@@ -1,11 +1,11 @@
-import { motion } from 'motion/react';
-import { useTranslation } from 'react-i18next';
 import {getNodeAttempts,isNodeCleared,isNodeUnlocked} from '../../../logic/mapProgress';
 import { Lock, Sparkles, Star, Zap, Skull, Crown, Trophy, Swords, Ghost } from 'lucide-react';
 import { chapterThemeStyles, encounterBadge, getNodeState, stateOverlayStyles, getZigzagNodePosition } from './mapConfig';
-import { UI_STYLES } from '../../../config/ui/tokens';
-import type { MapProgressState } from '../../../types/game';
 import type { MapNodeDef, MapChapterDef, MapEncounterType } from '../../../logic/adapters/mapChapterAdapter';
+import type { MapProgressState } from '../../../types/game';
+import { UI_STYLES } from '../../../config/ui/tokens';
+import { useTranslation } from 'react-i18next';
+import { motion } from 'motion/react';
 
 interface MapNodeProps {
   node: MapNodeDef;
@@ -111,7 +111,7 @@ export default function MapNode({
           <div className="relative flex flex-col items-center">
             {waveCount > 1 && (
               <div className={UI_STYLES.nodeWaveLabel}>
-                {waveCount} 波
+                {waveCount} {t('map.encounter.wave')}
               </div>)}
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex gap-1">
               {Array.from({ length: starCount }).map((_, i) => (

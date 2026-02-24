@@ -41,6 +41,7 @@
   "失序前哨": "Disorder Outpost",
   "陨星阶梯": "Meteor Stairs",
   "终焉前庭": "Endtime Vestibule",
+  "map.totalStars": "Total Stars:",
   "map.theme.林地": "Woodland",
   "map.theme.地牢": "Dungeon",
   "map.theme.火山": "Volcano",
@@ -118,6 +119,72 @@
   "trait.double_attack": "Double Attack",
   "trait.shield_on_start": "Shield on start",
   "trait.rage_on_low_hp": "Rage on low HP",
+  "trait.none": "No special traits",
+  "trait": {
+    "hints": {
+      "thorns": ["This enemy punishes burst damage; high tempo can backfire.", "A safer approach is to increase survivability and sustain, extending effective combat time."],
+      "lifesteal": ["This enemy excels at sustaining through fights; prolonging combat amplifies its advantage.", "Prepare continuous pressure to reduce its healing windows."],
+      "double_attack": ["This enemy tends to attack in quick succession, creating momentary pressure.", "Prioritize survivability and damage mitigation to avoid being overwhelmed by chains."],
+      "shield_on_start": ["This enemy starts with a strong defense; early bursts are less effective.", "Establish a steady rhythm and look for openings to break through."],
+      "rage_on_low_hp": ["This enemy becomes more dangerous in the late phase; finishing moves are critical.", "Reserve late-stage resources to avoid being outpaced in the endgame."]
+    }
+  },
+  "codex.title": "Monster Codex",
+  "codex.tab.normal": "Normal",
+  "codex.tab.boss": "Boss",
+  "codex.listTitle": "Monster List",
+  "codex.detailTitle": "Details",
+  "codex.selectMonster": "Select a monster to view details",
+  "codex.stat": {
+    "hp": "HP",
+    "attack": "Attack",
+    "defense": "Defense"
+  },
+  "codex.traits": "Traits",
+  "codex.threatTypes": "Threat Types",
+  "codex.background": "Background",
+  "codex.bossLevelLabel": "Boss-level enemy",
+  "codex.counterGoal": "Counter Goal",
+  "codex.tacticsTitle": "Strategy Hints",
+  "codex.backgroundFallback": "This monster's history is fragmented and incomplete.",
+  "codex.hints": {
+    "bossIntro": "This is a boss encounter — focus your build around a single tactical core rather than spreading resources.",
+    "normalIntro": "This is a regular encounter — prefer stable, general-purpose builds for consistent progression.",
+    "counterGoal": "This enemy has a clear counter-goal; focus on one advantage dimension to strengthen.",
+    "simple": "This enemy has a simple mechanic — balanced offense and defense usually suffices."
+  },
+  "tabs.battleScene": "Battle",
+  "tabs.inventory": "Inventory",
+  "tabs.forge": "Forge",
+  "tabs.codex": "Codex",
+  "label.legendary_pity": "Legendary pity:",
+  "label.mythic_pity": "Mythic pity:",
+  "button.equip": "Equip",
+  "player.avatarTitle": "Adventurer",
+  "label.experience": "Experience",
+  "codex.threat": {
+    "burst_punish": "Burst Punish",
+    "sustain_pressure": "Sustain Pressure",
+    "tank_breaker": "Tank Breaker",
+    "attrition": "Attrition"
+  },
+  "codex.strategy": {
+    "偏进攻": "Aggressive",
+    "偏防守": "Defensive",
+    "偏续航": "Sustain"
+  },
+  "player": {
+    "battleAffixes": "Battle Affixes",
+    "currentEquipment": "Current Equipment"
+  },
+  "login.title": "Player Login",
+  "login.subtitle": "Select an existing profile to continue your adventure",
+  "login.noProfiles": "No saved profiles — create a character on the right",
+  "login.lastSaved": "Last saved:",
+  "login.createTitle": "Create Character",
+  "login.createSubtitle": "Enter a player name to create a local profile",
+  "login.placeholder": "e.g. Night Hunter",
+  "login.createEnter": "Create & Enter",
   "message.invalid_quality_range": "Quick‑sell failed: invalid quality range.",
   "message.no_items_in_range": "No items in range ({{min}}‑{{max}}).",
   "message.quick_sell_result": "Quick‑sell complete: {{min}}‑{{max}}, sold {{count}} items for {{gold}} gold.",
@@ -133,6 +200,7 @@
   "label.desc": "Desc",
   "label.asc": "Asc",
   "ui.autoSellHint": "Auto-sell (checked qualities will be sold on drop)",
+  "message.calculating": "Calculating...",
   "ui.quickSellAndSort": "Quick sell (by quality range) & sort",
   "label.sellRange": "Sell range",
   "label.to": "to",
@@ -186,4 +254,34 @@
   "counter.clockwork_core": "Burst Break",
   "counterSuccess.clockwork_core": "Stop Reconstruction",
   "counterFail.clockwork_core": "Core Stacks Shields"
+,
+  "battle": {
+    "phase": {
+      "entering": "Monsters approaching...",
+      "fighting": "Battle in progress...",
+      "dying": "Finishing blow!",
+      "dropping": "Settling loot...",
+      "idle": "Ready"
+    },
+    "wave_display": "Wave {{current}}/{{total}} ({{remaining}} remaining)",
+    "waiting_next_wave": "Waiting for next wave...",
+    "wave_note": "One sweep clears 5 monsters",
+    "auto_spawn": "Auto spawn",
+    "auto_state_on": "Status: Running (auto waves)",
+    "auto_state_off": "Status: Off"
+  },
+  "button.challenge_monster": "Challenge Monster",
+  "button.challenge_boss": "Challenge Boss",
+  "button.challenge_wave": "Wave Assault",
+  "label.drop": "Drop:"
+  ,
+  "message.equipped": "Equipped {{name}}",
+  "message.unequipped": "Unequipped {{name}}",
+  "message.sold_item": "Sold {{name}} for {{price}} gold",
+  "message.enchant_success": "Enchant success! {{name}} is now +{{level}}",
+  "message.enchant_fail": "Enchant failed... gold consumed.",
+  "message.not_enough_gold_enchant": "Not enough gold to enchant.",
+  "message.no_secondary_stats": "This item has no secondary stats to reroll.",
+  "message.not_enough_gold_reroll": "Not enough gold to reroll.",
+  "message.reroll_complete": "Reroll complete: {{name}} reset {{count}} secondary stats"
 }

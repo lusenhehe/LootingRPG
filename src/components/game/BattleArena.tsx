@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Flame, Skull, Swords, Bot } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { BattleState, BossTheme } from '../../types/game';
 import { DropAnimation } from './DropAnimation';
 import { MonsterCard } from './MonsterCard';
@@ -75,6 +76,7 @@ export function BattleArena({
   autoBattleEnabled,
   onToggleAutoBattle,
 }: BattleArenaProps) {
+  const { t } = useTranslation();
   const particles = Array.from({ length: 20 }, (_, index) => ({
     id: index,
     left: `${(index * 37) % 100}%`,
@@ -88,14 +90,14 @@ export function BattleArena({
 
   const defaultPhaseLabel =
     battleState.phase === 'entering'
-      ? '怪物逼近中...'
+      ? t('battle.phase.entering')
       : battleState.phase === 'fighting'
-        ? '激战进行中...'
+        ? t('battle.phase.fighting')
         : battleState.phase === 'dying'
-          ? '终结一击！'
+          ? t('battle.phase.dying')
           : battleState.phase === 'dropping'
-            ? '战利品结算中...'
-            : '准备迎敌';
+            ? t('battle.phase.dropping')
+            : t('battle.phase.idle');
   const phaseLabel =
     bossIdentity?.phasePrompts?.[battleState.phase === 'idle' ? 'entering' : battleState.phase] ?? defaultPhaseLabel;
 
@@ -172,8 +174,7 @@ export function BattleArena({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                {`波 ${battleState.waveContext.currentWave}/${battleState.waveContext.totalWaves}`}
-                &nbsp;({battleState.waveContext.remainingInWave}剩)
+                {t('battle.wave_display', { current: battleState.waveContext.currentWave, total: battleState.waveContext.totalWaves, remaining: battleState.waveContext.remainingInWave })}
               </motion.span>
             )}
           </div>
@@ -267,7 +268,7 @@ export function BattleArena({
                 })}
               </div>
             ) : (
-              <div className="text-sm text-stone-500">等待下一组怪物...</div>
+              <div className="text-sm text-stone-500">{t('battle.waiting_next_wave')}</div>
             )}
           </div>
 
@@ -283,7 +284,7 @@ export function BattleArena({
             className="cursor-pointer rounded-xl px-4 py-3 border border-amber-700/40 bg-stone-900/60 hover:bg-stone-800/70 disabled:opacity-45 disabled:cursor-not-allowed text-left relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-amber-700/0 via-amber-700/5 to-amber-700/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Skull size={16} className="text-amber-600" /> 挑战怪物</span>
+            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Skull size={16} className="text-amber-600" /> {t('button.challenge_monster')}</span>
           </motion.button>
           <motion.button
             onClick={onChallengeBoss}
@@ -293,7 +294,7 @@ export function BattleArena({
             className="cursor-pointer rounded-xl px-4 py-3 border border-red-900/40 bg-stone-900/60 hover:bg-stone-800/70 disabled:opacity-45 disabled:cursor-not-allowed text-left relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-900/0 via-red-900/5 to-red-900/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Flame size={16} className="text-red-700" /> 挑战 BOSS</span>
+            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Flame size={16} className="text-red-700" /> {t('button.challenge_boss')}</span>
           </motion.button>
 
           <motion.button
@@ -304,8 +305,8 @@ export function BattleArena({
             className="cursor-pointer rounded-xl px-4 py-3 border border-emerald-900/40 bg-stone-900/60 hover:bg-stone-800/70 disabled:opacity-45 disabled:cursor-not-allowed text-left relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/0 via-emerald-900/5 to-emerald-900/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Swords size={16} className="text-emerald-700" /> 群怪来袭</span>
-            <span className="text-xs text-stone-400 block relative z-10">一次清剿 5 只怪物</span>
+            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Swords size={16} className="text-emerald-700" /> {t('button.challenge_wave')}</span>
+            <span className="text-xs text-stone-400 block relative z-10">{t('battle.wave_note')}</span>
           </motion.button>
 
           <motion.button
@@ -316,8 +317,8 @@ export function BattleArena({
             className={`cursor-pointer rounded-xl px-4 py-3 border disabled:opacity-45 disabled:cursor-not-allowed text-left relative overflow-hidden group ${autoBattleEnabled ? 'border-emerald-800/50 bg-stone-900/60 hover:bg-stone-800/70' : 'border-stone-700/40 bg-stone-900/60 hover:bg-stone-800/70'}`}
           >
             <div className={`absolute inset-0 bg-gradient-to-r ${autoBattleEnabled ? 'from-emerald-900/0 via-emerald-900/5 to-emerald-900/0' : 'from-stone-700/0 via-stone-700/5 to-stone-700/0'} translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700`} />
-            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Bot size={16} className={autoBattleEnabled ? 'text-emerald-600' : 'text-stone-500'} /> 自动出怪</span>
-            <span className={`text-xs block relative z-10 ${autoBattleEnabled ? 'text-emerald-500/80' : 'text-stone-500/70'}`}>{autoBattleEnabled ? '状态：运行中（自动连战）' : '状态：已关闭'}</span>
+            <span className="flex items-center gap-2 text-sm font-semibold relative z-10"><Bot size={16} className={autoBattleEnabled ? 'text-emerald-600' : 'text-stone-500'} /> {t('battle.auto_spawn')}</span>
+            <span className={`text-xs block relative z-10 ${autoBattleEnabled ? 'text-emerald-500/80' : 'text-stone-500/70'}`}>{autoBattleEnabled ? t('battle.auto_state_on') : t('battle.auto_state_off')}</span>
           </motion.button>
         </div>
 

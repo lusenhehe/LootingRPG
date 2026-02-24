@@ -1,6 +1,7 @@
 import { LogIn, Plus, Trash2, User } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 import type { SaveProfile } from '../../types/game';
 
 interface LoginScreenProps {
@@ -11,8 +12,8 @@ interface LoginScreenProps {
 }
 
 export function LoginScreen({ profiles, onLogin, onCreate, onDelete }: LoginScreenProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 bg-violet-600/20 blur-3xl rounded-full animate-pulse" />
@@ -33,26 +34,23 @@ export function LoginScreen({ profiles, onLogin, onCreate, onDelete }: LoginScre
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-violet-600/10 rounded-full blur-3xl" />
           
           <div className="relative z-10">
-            <h2 className="text-xl font-display mb-1 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-400">玩家登录</h2>
-            <p className="text-sm text-gray-500 mb-6">选择已有存档继续冒险</p>
+            <h2 className="text-xl font-display mb-1 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-400">{t('login.title')}</h2>
+            <p className="text-sm text-gray-500 mb-6">{t('login.subtitle')}</p>
 
             <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2">
               {profiles.length === 0 && (
                 <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="text-center py-8 border border-dashed border-game-border/50 rounded-xl"
                 >
                   <User size={32} className="mx-auto text-gray-600 mb-2" />
-                  <p className="text-sm text-gray-500">暂无玩家存档，请右侧创建新角色</p>
+                  <p className="text-sm text-gray-500">{t('login.noProfiles')}</p>
                 </motion.div>
               )}
               {profiles.map((profile, index) => (
                 <motion.div 
-                  key={profile.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  key={profile.id} initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}
                   className="flex items-center justify-between bg-game-bg/50 border border-game-border/50 rounded-xl px-3 py-3 hover:border-violet-500/50 hover:bg-game-card/50 transition-all duration-200 cursor-pointer group"
                 >
                   <button onClick={() => onLogin(profile.id)} className="text-left flex-1">
@@ -62,7 +60,7 @@ export function LoginScreen({ profiles, onLogin, onCreate, onDelete }: LoginScre
                       </div>
                       <span className="font-semibold text-gray-200">{profile.name}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1 ml-10">最近保存：{new Date(profile.updatedAt).toLocaleString()}</p>
+                    <p className="text-xs text-gray-500 mt-1 ml-10">{t('login.lastSaved')} {new Date(profile.updatedAt).toLocaleString()}</p>
                   </button>
                   <div className="flex items-center gap-2 ml-2">
                     <motion.button 
@@ -98,14 +96,14 @@ export function LoginScreen({ profiles, onLogin, onCreate, onDelete }: LoginScre
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-rose-600/10 rounded-full blur-3xl" />
           
           <div className="relative z-10">
-            <h2 className="text-xl font-display mb-1 text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-violet-400">创建角色</h2>
-            <p className="text-sm text-gray-500 mb-6">输入玩家名并创建新的本地存档</p>
+            <h2 className="text-xl font-display mb-1 text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-violet-400">{t('login.createTitle')}</h2>
+            <p className="text-sm text-gray-500 mb-6">{t('login.createSubtitle')}</p>
 
             <div className="space-y-3">
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="例如：夜色猎人"
+                placeholder={t('login.placeholder')}
                 className="w-full bg-game-bg/50 border border-game-border/50 rounded-xl px-4 py-3 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/50 text-sm transition-all placeholder:text-gray-600"
               />
               <motion.button
@@ -121,7 +119,7 @@ export function LoginScreen({ profiles, onLogin, onCreate, onDelete }: LoginScre
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 <Plus size={16} className="relative z-10" /> 
-                <span className="relative z-10">创建并进入</span>
+                <span className="relative z-10">{t('login.createEnter')}</span>
               </motion.button>
             </div>
           </div>

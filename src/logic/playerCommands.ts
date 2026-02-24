@@ -1,4 +1,5 @@
 import { QUALITY_CONFIG, STAT_POOL } from '../config/game/equipment';
+import i18n from '../i18n';
 import type { Equipment, GameState } from '../types/game';
 
 export const applyPlayerCommand = (
@@ -27,7 +28,7 @@ export const applyPlayerCommand = (
         oldItem.已装备 = false;
         nextState.背包 = [...nextState.背包, oldItem];
       }
-      logSystemMessage(`已装备 ${item.名称}`);
+      logSystemMessage(i18n.t('message.equipped', { name: item.名称 }));
     }
   } else if (action === '卸下槽位') {
     const slotKey = target;
@@ -36,7 +37,7 @@ export const applyPlayerCommand = (
       item.已装备 = false;
       nextState.当前装备[slotKey] = null;
       nextState.背包 = [...nextState.背包.filter((i) => i.id !== item.id), item];
-      logSystemMessage(`已卸下 ${item.名称}`);
+      logSystemMessage(i18n.t('message.unequipped', { name: item.名称 }));
     }
   } else if (action === '卸下') {
     const slot = Object.keys(nextState.当前装备).find((s) => nextState.当前装备[s]?.名称 === target);
@@ -46,7 +47,7 @@ export const applyPlayerCommand = (
         item.已装备 = false;
         nextState.当前装备[slot] = null;
         nextState.背包 = [...nextState.背包, item];
-        logSystemMessage(`已卸下 ${item.名称}`);
+        logSystemMessage(i18n.t('message.unequipped', { name: item.名称 }));
       }
     }
   } else if (action === '出售') {
@@ -56,7 +57,7 @@ export const applyPlayerCommand = (
       const price = QUALITY_CONFIG[item.品质]?.price ?? 0;
       nextState.玩家状态.金币 += price;
       nextState.背包.splice(itemIndex, 1);
-      logSystemMessage(`出售了 ${item.名称}，获得金币 ${price}`);
+      logSystemMessage(i18n.t('message.sold_item', { name: item.名称, price }));
     }
   } else if (action === '强化') {
     const item =
@@ -76,12 +77,12 @@ export const applyPlayerCommand = (
         if (success) {
           item.强化等级 += 1;
           item.属性[item.主属性] = Math.floor(item.属性[item.主属性] * 1.05);
-          logSystemMessage(`强化成功！${item.名称} 变为 +${item.强化等级}`);
+          logSystemMessage(i18n.t('message.enchant_success', { name: item.名称, level: item.强化等级 }));
         } else {
-          logSystemMessage('强化失败... 金币已消耗。');
+          logSystemMessage(i18n.t('message.enchant_fail'));
         }
       } else {
-        logs.push('金币不足，无法强化。');
+        logs.push(i18n.t('message.not_enough_gold_enchant'));
       }
     }
   } else if (action === '洗练') {
@@ -94,12 +95,12 @@ export const applyPlayerCommand = (
       const secondaryStats = Object.keys(item.属性).filter((key) => key !== item.主属性);
 
       if (secondaryStats.length === 0) {
-        logs.push('该装备无可洗练副词条。');
+        logs.push(i18n.t('message.no_secondary_stats'));
         return { nextState, logs };
       }
 
       if (nextState.玩家状态.金币 < rerollCost) {
-        logs.push('金币不足，无法洗练。');
+        logs.push(i18n.t('message.not_enough_gold_reroll'));
         return { nextState, logs };
       }
 
@@ -118,7 +119,7 @@ export const applyPlayerCommand = (
         item.属性[statName] = value;
       }
 
-      logSystemMessage(`洗练完成：${item.名称} 已重置 ${secondaryStats.length} 条副词条`);
+      logSystemMessage(i18n.t('message.reroll_complete', { name: item.名称, count: secondaryStats.length }));
     }
   }
 

@@ -70,11 +70,11 @@ export function GamePanel({
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/3 via-transparent to-rose-500/3 pointer-events-none" />
         
         <div className="flex border-b border-game-border relative z-10">
-          <TabButton active={activeTab === 'status'} onClick={() => onSetTab('status')} label="战斗场景" />
+          <TabButton active={activeTab === 'status'} onClick={() => onSetTab('status')} label={t('tabs.battleScene')} />
           <TabButton active={activeTab === 'map'} onClick={() => onSetTab('map')} label={t('map.explore')} />
-          <TabButton active={activeTab === 'inventory'} onClick={() => onSetTab('inventory')} label="背包仓库" />
-          <TabButton active={activeTab === 'forge'} onClick={() => onSetTab('forge')} label="强化中心" />
-          <TabButton active={activeTab === 'codex'} onClick={() => onSetTab('codex')} label="怪物图鉴" />
+          <TabButton active={activeTab === 'inventory'} onClick={() => onSetTab('inventory')} label={t('tabs.inventory')} />
+          <TabButton active={activeTab === 'forge'} onClick={() => onSetTab('forge')} label={t('tabs.forge')} />
+          <TabButton active={activeTab === 'codex'} onClick={() => onSetTab('codex')} label={t('tabs.codex')} />
         </div>
 
         <div className="p-4 overflow-hidden relative z-10">
@@ -183,7 +183,7 @@ export function GamePanel({
               className="flex items-center gap-1 cursor-default"
             >
               <Trophy size={10} className="text-yellow-500" /> 
-              <span>传说保底:</span> 
+              <span>{t('label.legendary_pity')}</span> 
               <div className="w-20 h-2 bg-gray-700 rounded overflow-hidden">
                 <div
                   className="h-full bg-yellow-500"
@@ -196,7 +196,7 @@ export function GamePanel({
               className="flex items-center gap-1 cursor-default"
             >
               <Trophy size={10} className="text-red-500" /> 
-              <span>神话保底:</span> 
+              <span>{t('label.mythic_pity')}</span> 
               <div className="w-20 h-2 bg-gray-700 rounded overflow-hidden">
                 <div
                   className="h-full bg-red-500"

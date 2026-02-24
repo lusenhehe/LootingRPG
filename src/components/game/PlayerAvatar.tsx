@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import type { BattlePhase } from '../../types/game';
+import { useTranslation } from 'react-i18next';
 
 interface PlayerAvatarProps {
   phase: BattlePhase;
@@ -8,6 +9,7 @@ interface PlayerAvatarProps {
 }
 
 export function PlayerAvatar({ phase, hpPercent, showAttackFlash }: PlayerAvatarProps) {
+  const { t } = useTranslation();
   return (
     <div className="relative w-[170px]">
       <motion.div
@@ -18,7 +20,7 @@ export function PlayerAvatar({ phase, hpPercent, showAttackFlash }: PlayerAvatar
         <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-violet-600/20 to-fuchsia-500/20 blur opacity-50" />
         <div className="text-center space-y-2 relative">
           <div className="leading-none text-6xl filter drop-shadow-[0_0_10px_rgba(167,139,250,0.5)]">🧙‍♂️</div>
-          <div className="font-display text-sm tracking-wide text-violet-200 drop-shadow-[0_0_8px_rgba(167,139,250,0.4)]">冒险者</div>
+          <div className="font-display text-sm tracking-wide text-violet-200 drop-shadow-[0_0_8px_rgba(167,139,250,0.4)]">{t('player.avatarTitle')}</div>
           <div className="w-full h-2 rounded-full overflow-hidden bg-white/10 border border-white/10 relative">
             <motion.div
               className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-400 relative"

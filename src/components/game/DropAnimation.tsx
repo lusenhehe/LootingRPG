@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
+import { useTranslation } from 'react-i18next';
 
 interface DropAnimationProps {
   visible: boolean;
@@ -6,6 +7,7 @@ interface DropAnimationProps {
 }
 
 export function DropAnimation({ visible, label }: DropAnimationProps) {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {visible && label && (
@@ -17,7 +19,7 @@ export function DropAnimation({ visible, label }: DropAnimationProps) {
           transition={{ duration: 0.7, ease: 'easeInOut' }}
         >
           <div className="px-3 py-1 rounded-full text-xs font-bold bg-amber-400/20 border border-amber-300/50 text-amber-100 shadow-lg">
-            掉落：{label}
+            {t('label.drop')} {label}
           </div>
         </motion.div>
       )}
