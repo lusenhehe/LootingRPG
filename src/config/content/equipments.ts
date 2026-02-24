@@ -1,6 +1,6 @@
-import csvRaw from './UniqueEquipments.csv?raw';
+import csvRaw from './equipments.csv?raw';
 
-export interface UniqueEquipmentTemplate {
+export interface EquipmentTemplate {
   id: string;
   slot: string;
   quality: string;
@@ -16,8 +16,6 @@ export interface UniqueEquipmentTemplate {
   weight: number;
   bossOnly: boolean;
   mapNode?: string;
-  minLevel: number;
-  maxLevel: number;
   levelOffset: number;
   scalePerLevel: number;
 }
@@ -31,20 +29,16 @@ const toNumber = (value: string, fallback = 0): number => {
 
 const parseJsonObject = (value: string): Record<string, number> => {
   if (!value.trim()) return {};
-  try {
-    const parsed = JSON.parse(value);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    const result: Record<string, number> = {};
-    Object.entries(parsed as Record<string, unknown>).forEach(([key, raw]) => {
-      const numberValue = Number(raw);
-      if (Number.isFinite(numberValue)) {
-        result[key] = numberValue;
-      }
-    });
-    return result;
-  } catch {
-    return {};
-  }
+  const parsed = JSON.parse(value);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+  const result: Record<string, number> = {};
+  Object.entries(parsed as Record<string, unknown>).forEach(([key, raw]) => {
+    const numberValue = Number(raw);
+    if (Number.isFinite(numberValue)) {
+      result[key] = numberValue;
+    }
+  });
+  return result;
 };
 
 const parseAffixes = (value: string): Array<{ type: string; value: number }> => {
@@ -95,9 +89,9 @@ const parseCsvLine = (line: string): string[] => {
   return cells;
 };
 
-let cachedTemplates: UniqueEquipmentTemplate[] | null = null;
+let cachedTemplates: EquipmentTemplate[] | null = null;
 
-export const getUniqueEquipmentTemplates = (): UniqueEquipmentTemplate[] => {
+export const getEquipmentTemplates = (): EquipmentTemplate[] => {
   if (cachedTemplates) {
     return cachedTemplates;
   }
@@ -145,11 +139,9 @@ export const getUniqueEquipmentTemplates = (): UniqueEquipmentTemplate[] => {
       weight: Math.max(0.01, toNumber(row.weight, 1)),
       bossOnly: toBoolean(row.bossOnly || ''),
       mapNode: row.mapNode?.trim() || undefined,
-      minLevel: Math.max(1, toNumber(row.minLevel, 1)),
-      maxLevel: Math.max(1, toNumber(row.maxLevel, 999)),
       levelOffset: Math.floor(toNumber(row.levelOffset, 0)),
       scalePerLevel: Math.max(0, toNumber(row.scalePerLevel, 0)),
-    } satisfies UniqueEquipmentTemplate;
+    } satisfies EquipmentTemplate;
   });
 
   cachedTemplates = templates;

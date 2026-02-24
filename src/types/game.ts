@@ -1,12 +1,6 @@
 export interface PlayerStats {
-  level: number;
-  xp: number;
-  attack: number;
-  hp: number;
-  defense: number;
-  critRate: string;
-  damageBonus: number;
-  lifesteal: number;
+  level: number; xp: number; attack: number; hp: number;
+  defense: number; critRate: string; damageBonus: number; lifesteal: number;
   thorns: number;
   elemental: number;
   attackSpeed: number;
@@ -81,13 +75,9 @@ export interface BossIdentity {
 }
 
 export type CounterStatKey =
-  'attack' |
-  'defense' |
-  'hp' |
-  'elemental' |
-  'lifesteal' |
-  'thorns' |
-  'attackSpeed';
+  'attack' | 'defense' | 'hp' |
+  'elemental' | 'lifesteal' |
+  'thorns' | 'attackSpeed';
 
 export interface BossCounterGoal {
   title: string;
@@ -109,7 +99,7 @@ export interface MonsterPhase {
 export interface Monster {
   id: string;
   name: string;
-  icons: string[]; // 支持多个图标
+  icons: string[];
   level: number;
   tier: MonsterTier;
   isBoss?: boolean;
@@ -177,12 +167,7 @@ export interface BattleFrame {
 }
 
 export type ActiveTab = 'status' | 'map' | 'inventory' | 'forge' | 'codex';
-
-export interface SaveProfile {
-  id: string;
-  name: string;
-  updatedAt: number;
-}
+export interface SaveProfile { id: string; name: string; updatedAt: number}
 
 export interface MapProgressState {
   selectedChapterId: string;

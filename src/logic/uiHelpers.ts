@@ -1,6 +1,4 @@
 import type { GameState } from '../types/game';
-import { getEquipmentTotals } from './equipmentUtils';
-// 这个文件包含了一些与 UI 相关的辅助函数，主要用于从游戏状态中计算出一些派生数据，供组件使用。
 export interface DerivedStatItem {
   key: string;
   label: string;
@@ -9,13 +7,9 @@ export interface DerivedStatItem {
   icon: React.ReactNode;
   accent: string;
 }
-import { englishToChinese } from './nameConversion';
 
 export function getDerivedStats(gameState: GameState): Omit<DerivedStatItem, 'icon'>[] {
   const ps = gameState.playerStats;
-
-  // small subset of stats that are shown in the header; iterate with a
-  // mapping so the Chinese labels are not scattered everywhere.
   const statSpecs: Array<{
     en: string;
     key: string;
@@ -30,11 +24,10 @@ export function getDerivedStats(gameState: GameState): Omit<DerivedStatItem, 'ic
   ];
 
   return statSpecs.map(({ en, key, accent, fmt }) => {
-    const ch = englishToChinese[en] ?? en; // label only
     const raw = (ps as any)[en] as number;
     return {
       key,
-      label: ch,
+      label: en,
       value: fmt(raw),
       rawValue: raw,
       accent,

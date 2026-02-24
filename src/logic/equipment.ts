@@ -1,5 +1,5 @@
-import { QUALITIES, SLOTS, AFFIX_SCALING, AFFIX_COUNT_BY_QUALITY, SLOT_ICON_POOL, ENCHANT_BASE_COST, ENCHANT_SCALE_BY_QUALITY, ENCHANT_COST_MULTIPLIER_BY_QUALITY, REROLL_BASE_COST, LOCK_COST } from '../config/game/equipment';
-import { getUniqueEquipmentTemplates, type UniqueEquipmentTemplate } from '../config/content/uniqueEquipments';
+import { QUALITIES, SLOTS, AFFIX_SCALING, AFFIX_COUNT_BY_QUALITY, ENCHANT_BASE_COST, ENCHANT_SCALE_BY_QUALITY, ENCHANT_COST_MULTIPLIER_BY_QUALITY, REROLL_BASE_COST, LOCK_COST } from '../config/game/equipment';
+import { getEquipmentTemplates, type EquipmentTemplate } from '../config/content/equipments';
 import type { Equipment, EquipmentAffix, EquipmentAffixValue } from '../types/game';
 import i18next from 'i18next';
 
@@ -11,28 +11,6 @@ const createAffix = (type: EquipmentAffix, qualityIndex: number): EquipmentAffix
   const value = scaling[idx] ?? 0;
   return { type, value };
 };
-
-const createAffixes = (quality: string, isBoss: boolean): EquipmentAffixValue[] => {
-  const qualityIndex = Math.max(0, QUALITIES.indexOf(quality));
-  const countBase = (AFFIX_COUNT_BY_QUALITY && AFFIX_COUNT_BY_QUALITY[qualityIndex]) ?? 0;
-  const count = Math.max(0, countBase + (isBoss && qualityIndex >= 2 ? 1 : 0));
-
-  const pool = [...AFFIX_POOL];
-  const affixes: EquipmentAffixValue[] = [];
-  for (let i = 0; i < count && pool.length > 0; i++) {
-    const index = Math.floor(Math.random() * pool.length);
-    const affixType = pool.splice(index, 1)[0];
-    affixes.push(createAffix(affixType, qualityIndex));
-  }
-
-  return affixes;
-};
-
-export const getDefaultEquipmentIcon = (slot: string): string => {
-  const pool = SLOT_ICON_POOL[slot] ?? ['🧰'];
-  return pool[Math.floor(Math.random() * pool.length)] ?? '🧰';
-};
-
 const getLocaleKey = (): 'zh' | 'en' => (i18next.language || 'zh').toLowerCase().startsWith('zh') ? 'zh' : 'en';
 
 const inferMainStat = (attributes: Record<string, number>, slot: string): string => {
@@ -57,7 +35,7 @@ const pickWeighted = <T,>(list: T[], weightGetter: (item: T) => number): T => {
   return list[list.length - 1];
 };
 
-const buildFromTemplate = (template: UniqueEquipmentTemplate, playerLevel: number): Equipment => {
+const buildFromTemplate = (template: EquipmentTemplate, playerLevel: number): Equipment => {
   const localeKey = getLocaleKey();
   const level = Math.max(1, playerLevel + template.levelOffset);
   const scale = 1 + Math.max(0, level - 1) * Math.max(0, template.scalePerLevel);
@@ -76,7 +54,7 @@ const buildFromTemplate = (template: UniqueEquipmentTemplate, playerLevel: numbe
 
   return {
     id: `${template.id}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
-    icon: template.icon || getDefaultEquipmentIcon(template.slot),
+    icon: template.icon,
     level,
     name,
     quality: template.quality,
@@ -105,34 +83,27 @@ const normalizePity = (pity: { legendary: number; mythic: number }): { legendary
 };
 
 const pickTemplateOrThrow = (
-  templates: UniqueEquipmentTemplate[],
+  templates: EquipmentTemplate[],
   context: { isBoss: boolean; playerLevel: number; mapNodeId?: string },
-): UniqueEquipmentTemplate => {
+): EquipmentTemplate => {
   const selected = selectTemplate(templates, context);
   if (selected) return selected;
 
   if (templates.length === 0) {
     throw new Error('UniqueEquipments.csv has no valid rows.');
   }
-
-  const byLevel = templates.filter((template) => (
-    template.minLevel <= context.playerLevel && template.maxLevel >= context.playerLevel
-  ));
-
-  const byBoss = byLevel.filter((template) => !template.bossOnly || context.isBoss);
-  const pool = byBoss.length > 0 ? byBoss : (byLevel.length > 0 ? byLevel : templates);
+  const byBoss = templates.filter((template) => !template.bossOnly || context.isBoss);
+  const pool = byBoss.length > 0 ? byBoss : templates;
   return pickWeighted(pool, (item) => item.weight);
 };
 
 const selectTemplate = (
-  templates: UniqueEquipmentTemplate[],
+  templates: EquipmentTemplate[],
   context: { isBoss: boolean; playerLevel: number; mapNodeId?: string },
-): UniqueEquipmentTemplate | null => {
+): EquipmentTemplate | null => {
   const eligible = templates.filter((template) => {
     if (template.bossOnly && !context.isBoss) return false;
     if (template.mapNode && context.mapNodeId && template.mapNode !== context.mapNodeId) return false;
-    if (template.minLevel > context.playerLevel) return false;
-    if (template.maxLevel < context.playerLevel) return false;
     return true;
   });
 
@@ -215,7 +186,7 @@ export const generateEquipment = (
   newPity.legendary += 1;
   newPity.mythic += 1;
 
-  const templates = getUniqueEquipmentTemplates();
+  const templates = getEquipmentTemplates();
   const selected = pickTemplateOrThrow(templates, { isBoss, playerLevel });
   return {
     item: buildFromTemplate(selected, playerLevel),
@@ -229,14 +200,14 @@ export const createCustomEquipment = (
   playerLevel = 1,
   isBoss = false,
 ): Equipment => {
-  const templates = getUniqueEquipmentTemplates().filter((template) => {
+  const templates = getEquipmentTemplates().filter((template) => {
     if (template.slot !== slot) return false;
     if (template.quality !== quality) return false;
     if (template.bossOnly && !isBoss) return false;
     return true;
   });
 
-  const allTemplates = getUniqueEquipmentTemplates();
+  const allTemplates = getEquipmentTemplates();
   const selected = templates.length > 0
     ? pickWeighted(templates, (item) => item.weight)
     : pickTemplateOrThrow(allTemplates, { isBoss, playerLevel });

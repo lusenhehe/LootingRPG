@@ -1,4 +1,3 @@
-import { getDefaultEquipmentIcon } from '../equipment';
 import type { Equipment } from '../../types/game';
 
 /**
@@ -20,7 +19,7 @@ const normalizeEquipment = (item: Equipment): Equipment => {
     level: Math.max(1, Number((item as any).level) || 1),
     quality,
     slot,
-    icon: item.icon || getDefaultEquipmentIcon(slot),
+    icon: item.icon,
     attributes: attrs,
     mainStat: main,
     affixes: Array.isArray(item.affixes) ? item.affixes : [],

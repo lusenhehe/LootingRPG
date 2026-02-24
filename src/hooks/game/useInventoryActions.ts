@@ -14,8 +14,6 @@ interface UseInventoryActionsParams {
 }
 
 export const useInventoryActions = ({
-  gameState,
-  loading,
   setGameState,
   setLoading,
   addLog,

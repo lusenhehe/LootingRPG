@@ -3,7 +3,6 @@ import { MAP_CHAPTERS } from '../../config/map/chapters';
 import { recalculatePlayerStats } from '../../logic/playerStats';
 import { createInitialBattleState } from '../../logic/gameState';
 import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
-import { convertGameState } from '../../logic/nameConversion';
 import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
 import type { GameState, MapProgressState, SavePayload, SaveProfile, BattleState } from '../../types/game';
 import { createAutoSellQualityMap } from '../../logic/inventory/autoSell';
@@ -128,8 +127,7 @@ export function useProfileSave({
 
     try {
       const payload = JSON.parse(payloadText) as SavePayload;
-      const converted = convertGameState(payload.gameState as any);
-      setGameState(recalculatePlayerStats(normalizeGameState(converted)));
+      setGameState(recalculatePlayerStats(normalizeGameState(payload.gameState)));
       setLogs(payload.logs?.length ? payload.logs : ['[系统] 存档已载入。']);
       setAutoSellQualities(convertAutoSell(payload.autoSellQualities));
       setMapProgress(normalizeMapProgress(payload.mapProgress, MAP_CHAPTERS));
@@ -239,12 +237,7 @@ export function useProfileSave({
         } else {
           payload = parsed as SavePayload;
         }
-
-        // convert legacy key names inside gameState if needed
-        const converted = convertGameState(payload.gameState as any);
-        payload.gameState = converted;
-
-        loadProfile(''); // not associated with profile
+        loadProfile('');
         setGameState(recalculatePlayerStats(normalizeGameState(payload.gameState)));
         setLogs(payload.logs?.length ? payload.logs : ['[系统] 存档导入成功。']);
         setAutoSellQualities(payload.autoSellQualities ?? createAutoSellQualityMap());

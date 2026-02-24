@@ -10,12 +10,12 @@ import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
 
 const slotTypeIconMap: Record<string, ReactNode> = {
-  sword: <Sword size={14} className="text-amber-400" />,
-  user: <User size={14} className="text-gray-300" />,
-  package: <Package size={14} className="text-gray-300" />,
-  star: <Star size={14} className="text-red-400" />,
-  gem: <Gem size={14} className="text-blue-400" />,
-  shield: <Shield size={14} className="text-gray-400" />,
+  sword:   <Sword   size={14} className="text-amber-400" />,
+  user:    <User    size={14} className="text-gray-300"  />,
+  package: <Package size={14} className="text-gray-300"  />,
+  star:    <Star    size={14} className="text-red-400"   />,
+  gem:     <Gem     size={14} className="text-blue-400"  />,
+  shield:  <Shield  size={14} className="text-gray-400"  />,
 };
 
 interface PlayerPanelProps {

@@ -12,7 +12,7 @@
 	- `special_zh,special_en`
 	- `attributes`（JSON 对象字符串）
 	- `affixes`（JSON 数组字符串）
-	- `tags,chance,weight,bossOnly,mapNode,minLevel,maxLevel,levelOffset,scalePerLevel`
+	- `tags,chance,weight,bossOnly,mapNode,levelOffset,scalePerLevel`
 - `chance` 取值范围建议 `0~1`，`bossOnly=true` 表示仅 Boss 战可掉落。
 - `attributes` 示例：`{"attack":120,"attackSpeed":12}`
 - `affixes` 示例：`[{"type":"damage_bonus","value":18}]`
