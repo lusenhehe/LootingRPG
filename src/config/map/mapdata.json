@@ -1,0 +1,85 @@
+{
+  "MAP_CHAPTERS": [
+    {
+      "id": "chapter-1",
+      "name": "新手林地",
+      "levelRange": "Lv.1-10",
+      "theme": "林地",
+      "nodes": [
+        {
+          "id": "1-1", "name": "侦查营地", "recommendedLevel": 2, "encounterType": "normal", "firstClearRewardGold": 120,
+          "waves": [
+            { "id": "1-1-a", "label": "第一波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "goblin" } ] },
+            { "id": "1-1-b", "label": "第二波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "wolf" }, { "monsterId": "wolf" }, { "monsterId": "wolf" } ] },
+            { "id": "1-1-c", "label": "第三波", "monsters": [ { "monsterId": "goblin" }, { "monsterId": "goblin" } ] },
+            { "id": "1-1-d", "label": "第四波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "goblin" }, { "monsterId": "goblin" } ] },
+            { "id": "1-1-e", "label": "第五波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "wolf" }, { "monsterId": "goblin" } ] }
+          ]
+        },
+        { "id": "1-2", "name": "苔石峡谷", "recommendedLevel": 4, "encounterType": "elite", "firstClearRewardGold": 160 },
+        { "id": "1-3", "name": "林地小径", "recommendedLevel": 6, "encounterType": "normal", "firstClearRewardGold": 180 },
+        { "id": "1-4", "name": "荒树基地", "recommendedLevel": 8, "encounterType": "elite", "firstClearRewardGold": 200 },
+        { "id": "1-5", "name": "古井之石", "recommendedLevel": 9, "encounterType": "elite", "firstClearRewardGold": 220 },
+        { "id": "1-6", "name": "倒塌断桥", "recommendedLevel": 10, "encounterType": "normal", "firstClearRewardGold": 240 },
+        { "id": "1-7", "name": "密林祭坛", "recommendedLevel": 11, "encounterType": "elite", "firstClearRewardGold": 260 },
+        { "id": "1-8", "name": "蛮兽洞穴", "recommendedLevel": 12, "encounterType": "normal", "firstClearRewardGold": 280 },
+        { "id": "1-9", "name": "风暴草场", "recommendedLevel": 13, "encounterType": "elite", "firstClearRewardGold": 300 },
+        { "id": "1-10", "name": "林地首领巢穴", "recommendedLevel": 14, "encounterType": "boss", "firstClearRewardGold": 400 }
+      ]
+    },
+    {
+      "id": "chapter-2",
+      "name": "废弃地牢",
+      "levelRange": "Lv.10-20",
+      "theme": "地牢",
+      "nodes": [
+        { "id": "2-1", "name": "破碎回廊", "recommendedLevel": 12, "encounterType": "normal", "firstClearRewardGold": 160 },
+        { "id": "2-2", "name": "幽影牢室", "recommendedLevel": 14, "encounterType": "elite", "firstClearRewardGold": 200 },
+        { "id": "2-3", "name": "隐匿小窟", "recommendedLevel": 16, "encounterType": "normal", "firstClearRewardGold": 220 },
+        { "id": "2-4", "name": "漆黑仓库", "recommendedLevel": 18, "encounterType": "elite", "firstClearRewardGold": 240 },
+        { "id": "2-5", "name": "毒气囚室", "recommendedLevel": 19, "encounterType": "elite", "firstClearRewardGold": 260 },
+        { "id": "2-6", "name": "断裂枢纽", "recommendedLevel": 20, "encounterType": "normal", "firstClearRewardGold": 280 },
+        { "id": "2-7", "name": "铁链牢门", "recommendedLevel": 22, "encounterType": "elite", "firstClearRewardGold": 300 },
+        { "id": "2-8", "name": "监狱深渊", "recommendedLevel": 24, "encounterType": "normal", "firstClearRewardGold": 320 },
+        { "id": "2-9", "name": "亡灵囚笼", "recommendedLevel": 26, "encounterType": "elite", "firstClearRewardGold": 340 },
+        { "id": "2-10", "name": "地牢领主王座", "recommendedLevel": 28, "encounterType": "boss", "firstClearRewardGold": 400 }
+      ]
+    },
+    {
+      "id": "chapter-3",
+      "name": "熔岩深渊",
+      "levelRange": "Lv.20-35",
+      "theme": "火山",
+      "nodes": [
+        { "id": "3-1", "name": "熔火", "recommendedLevel": 23, "encounterType": "normal", "firstClearRewardGold": 220 },
+        { "id": "3-2", "name": "灰烬祭坛", "recommendedLevel": 25, "encounterType": "elite", "firstClearRewardGold": 260 },
+        { "id": "3-3", "name": "炽热小径", "recommendedLevel": 27, "encounterType": "normal", "firstClearRewardGold": 280 },
+        { "id": "3-4", "name": "熔岩漩涡", "recommendedLevel": 29, "encounterType": "elite", "firstClearRewardGold": 300 },
+        { "id": "3-5", "name": "熔岩洞穴", "recommendedLevel": 30, "encounterType": "elite", "firstClearRewardGold": 320 },
+        { "id": "3-6", "name": "炽焰断层", "recommendedLevel": 32, "encounterType": "normal", "firstClearRewardGold": 340 },
+        { "id": "3-7", "name": "熔岩祭坛", "recommendedLevel": 33, "encounterType": "elite", "firstClearRewardGold": 360 },
+        { "id": "3-8", "name": "焦土平原", "recommendedLevel": 34, "encounterType": "normal", "firstClearRewardGold": 380 },
+        { "id": "3-9", "name": "烈焰岗哨", "recommendedLevel": 35, "encounterType": "elite", "firstClearRewardGold": 400 },
+        { "id": "3-10", "name": "深渊核心", "recommendedLevel": 36, "encounterType": "boss", "firstClearRewardGold": 520 }
+      ]
+    },
+    {
+      "id": "chapter-4",
+      "name": "永夜墓园",
+      "levelRange": "Lv.35-50",
+      "theme": "亡灵",
+      "nodes": [
+        { "id": "4-1", "name": "枯骨庭院", "recommendedLevel": 38, "encounterType": "normal", "firstClearRewardGold": 260 },
+        { "id": "4-2", "name": "死灵拱廊", "recommendedLevel": 40, "encounterType": "elite", "firstClearRewardGold": 300 },
+        { "id": "4-3", "name": "幽魂小径", "recommendedLevel": 42, "encounterType": "normal", "firstClearRewardGold": 320 },
+        { "id": "4-4", "name": "暗影墓穴", "recommendedLevel": 44, "encounterType": "elite", "firstClearRewardGold": 340 },
+        { "id": "4-5", "name": "灵魂", "recommendedLevel": 45, "encounterType": "elite", "firstClearRewardGold": 360 },
+        { "id": "4-6", "name": "腐蚀祭坛", "recommendedLevel": 47, "encounterType": "normal", "firstClearRewardGold": 380 },
+        { "id": "4-7", "name": "亡者长", "recommendedLevel": 48, "encounterType": "elite", "firstClearRewardGold": 400 },
+        { "id": "4-8", "name": "暗影广场", "recommendedLevel": 49, "encounterType": "normal", "firstClearRewardGold": 420 },
+        { "id": "4-9", "name": "亡灵祭坛", "recommendedLevel": 50, "encounterType": "elite", "firstClearRewardGold": 440 },
+        { "id": "4-10", "name": "冥灯守望", "recommendedLevel": 52, "encounterType": "boss", "firstClearRewardGold": 560 }
+      ]
+    }
+  ]
+}

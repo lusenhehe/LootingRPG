@@ -1,17 +1,46 @@
 import { useCallback } from 'react';
-import type { GameState, Monster } from '../../types/game';
-import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
+import type { BattleState, GameState, Monster } from '../../types/game';
+import type { MapChapterDef, MapNodeDef } from '../../config/map/mapTypes';
+import { simulateBattle } from '../../logic/battle/battleEngine';
+import { FRAME_STEP, FRAME_START_DELAY } from '../../config/game/battleConfig';
+
 import { applySingleBattleReward } from '../../logic/battleRewards';
-import { getMonsterById } from '../../logic/adapters/monsterConfigAdapter';
+import { getMonsterById } from '../../logic/monsters/config';
 import { getRandomMonster } from '../../logic/monsterGeneration';
 import { recalculatePlayerStats } from '../../logic/playerStats';
+
+const createIdleBattleState = (extraFields: Partial<BattleState> = {}): BattleState => ({
+  phase: 'idle',
+  currentMonsters: [],
+  monsterHpPercents: [],
+  currentMonster: null,
+  isBossBattle: false,
+  playerHpPercent: 100,
+  monsterHpPercent: 100,
+  showAttackFlash: false,
+  monsterDamageLabels: [],
+  monsterStatusLabels: [],
+  playerDamageLabel: null,
+  monsterDamageLabel: null,
+  playerStatusLabel: null,
+  monsterStatusLabel: null,
+  elementLabel: null,
+  showDropAnimation: false,
+  dropLabel: null,
+  encounterCount: 0,
+  ...extraFields,
+});
+
+interface BattleCompleteCallback {
+  (args: { simulation: ReturnType<typeof simulateBattle>; isBoss: boolean; mapNodeId?: string }): void;
+}
 
 interface UseBattleActionsParams {
   gameState: GameState;
   battleState: any;
   loading: boolean;
   autoSellQualities: Record<string, boolean>;
-  hookStartBattleSequence: (isBoss: boolean, context?: any, callback?: any, monsters?: Monster[]) => void;
+  hookStartBattleSequence: (isBoss: boolean, context?: any, callback?: BattleCompleteCallback, monsters?: Monster[]) => void;
   scheduleBattleStep: (callback: () => void, delay: number) => void;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   setBattleState: React.Dispatch<React.SetStateAction<any>>;
@@ -58,8 +87,8 @@ export const useBattleActions = ({
     hookStartBattleSequence(isBoss, undefined, ({ simulation, isBoss }) => {
       try {
         const { playerWon, monster } = simulation;
-        const frameStep = 260;
-        const frameStartDelay = 760;
+        const frameStep = FRAME_STEP;
+        const frameStartDelay = FRAME_START_DELAY;
         const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
 
         if (playerWon) {
@@ -91,22 +120,7 @@ export const useBattleActions = ({
           }, battleEndDelay + 420);
 
           scheduleBattleStep(() => {
-            setBattleState((prev: any) => ({
-              ...prev,
-              phase: 'idle',
-              currentMonster: null,
-              currentMonsters: [],
-              monsterHpPercents: [],
-              monsterDamageLabels: [],
-              monsterStatusLabels: [],
-              showDropAnimation: false,
-              showAttackFlash: false,
-              playerDamageLabel: null,
-              monsterDamageLabel: null,
-              playerStatusLabel: null,
-              monsterStatusLabel: null,
-              elementLabel: null,
-            }));
+            setBattleState(() => createIdleBattleState());
             setLoading(false);
           }, battleEndDelay + 1100);
         } else {
@@ -114,29 +128,14 @@ export const useBattleActions = ({
             const failMessage = `战斗失败：你被 ${monster.name} 压制了，继续强化装备再来挑战！`;
             setGameState((prev) => ({
               ...prev,
-              系统消息: failMessage,
-              战斗结果: failMessage,
+              systemMessage: failMessage,
+              battleResult: failMessage,
             }));
             addLog(failMessage);
 
             resolveMapChallengeResult(false);
 
-            setBattleState((prev: any) => ({
-              ...prev,
-              phase: 'idle',
-              currentMonster: null,
-              currentMonsters: [],
-              monsterHpPercents: [],
-              monsterDamageLabels: [],
-              monsterStatusLabels: [],
-              showDropAnimation: false,
-              showAttackFlash: false,
-              playerDamageLabel: null,
-              monsterDamageLabel: null,
-              playerStatusLabel: null,
-              monsterStatusLabel: null,
-              elementLabel: null,
-            }));
+            setBattleState(() => createIdleBattleState());
             setLoading(false);
           }, battleEndDelay + 320);
         }
@@ -148,11 +147,10 @@ export const useBattleActions = ({
 
   const startMonsterWaveBattle = useCallback((waveSize = 5, mapChallenge?: { node: MapNodeDef; chapter: MapChapterDef }) => {
     if (loading || battleState.phase !== 'idle' || waveSize <= 0) return;
-
     const monsters = Array.from({ length: waveSize }).map(() =>
       getRandomMonster({
         isBoss: false,
-        playerLevel: gameState.玩家状态.等级,
+        playerLevel: gameState.playerStats.level  ,
         encounterCount: battleState.encounterCount,
       }),
     );
@@ -174,8 +172,8 @@ export const useBattleActions = ({
 
       hookStartBattleSequence(false, undefined, ({ simulation }) => {
         try {
-          const frameStep = 260;
-          const frameStartDelay = 760;
+          const frameStep = FRAME_STEP;
+          const frameStartDelay = FRAME_START_DELAY;
           const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
 
           if (simulation.playerWon) {
@@ -217,23 +215,7 @@ export const useBattleActions = ({
               if (index < total - 1) {
                 runWave(index + 1);
               } else {
-                setBattleState((prev: any) => ({
-                  ...prev,
-                  phase: 'idle',
-                  currentMonster: null,
-                  currentMonsters: [],
-                  monsterHpPercents: [],
-                  monsterDamageLabels: [],
-                  monsterStatusLabels: [],
-                  showDropAnimation: false,
-                  showAttackFlash: false,
-                  playerDamageLabel: null,
-                  monsterDamageLabel: null,
-                  playerStatusLabel: null,
-                  monsterStatusLabel: null,
-                  elementLabel: null,
-                  waveContext: undefined,
-                }));
+                setBattleState(() => createIdleBattleState({ waveContext: undefined }));
                 setLoading(false);
               }
             }, battleEndDelay + 1100);
@@ -242,8 +224,8 @@ export const useBattleActions = ({
               const failMessage = '战斗失败：你被怪群压制了，继续强化装备再来挑战！';
               setGameState((prev) => ({
                 ...prev,
-                系统消息: failMessage,
-                战斗结果: failMessage,
+                systemMessage: failMessage,
+                battleResult: failMessage,
               }));
               addLog(failMessage);
 
@@ -251,23 +233,7 @@ export const useBattleActions = ({
                 resolveMapChallengeResult(false, mapChallenge);
               }
 
-              setBattleState((prev: any) => ({
-                ...prev,
-                phase: 'idle',
-                currentMonster: null,
-                currentMonsters: [],
-                monsterHpPercents: [],
-                showDropAnimation: false,
-                showAttackFlash: false,
-                playerDamageLabel: null,
-                monsterDamageLabel: null,
-                monsterDamageLabels: [],
-                playerStatusLabel: null,
-                monsterStatusLabel: null,
-                monsterStatusLabels: [],
-                elementLabel: null,
-                waveContext: undefined,
-              }));
+              setBattleState(() => createIdleBattleState({ waveContext: undefined }));
               setLoading(false);
             }, battleEndDelay + 320);
           }
@@ -278,7 +244,7 @@ export const useBattleActions = ({
     };
 
     runWave(0);
-  }, [loading, battleState.phase, battleState.encounterCount, gameState.玩家状态.等级, setBattleState, hookStartBattleSequence, scheduleBattleStep, setGameState, applyBatchBattleRewards, addLog, resolveMapChallengeResult, setLoading, reportError]);
+  }, [loading, battleState.phase, battleState.encounterCount, gameState.playerStats.level, setBattleState, hookStartBattleSequence, scheduleBattleStep, setGameState, applyBatchBattleRewards, addLog, resolveMapChallengeResult, setLoading, reportError]);
 
   return {
     startBattleSequence,

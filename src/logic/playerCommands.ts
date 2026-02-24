@@ -1,4 +1,5 @@
 import { QUALITY_CONFIG, STAT_POOL } from '../config/game/equipment';
+import { applyEnchant } from './equipment';
 import i18n from '../i18n';
 import type { Equipment, GameState } from '../types/game';
 
@@ -10,116 +11,88 @@ export const applyPlayerCommand = (
   const logs: string[] = [];
 
   const logSystemMessage = (message: string) => {
-    nextState.系统消息 = message;
+    nextState.systemMessage = message;
     logs.push(message);
   };
 
   const [action, target] = command.split(' ');
 
   if (action === '装备') {
-    const item = nextState.背包.find((i) => i.名称 === target || i.id === target);
+    const item = nextState.backpack.find((i) => i.name === target || i.id === target);
     if (item) {
-      const slotKey = item.部位;
-      const oldItem = nextState.当前装备[slotKey];
-      item.已装备 = true;
-      nextState.当前装备[slotKey] = item;
-      nextState.背包 = nextState.背包.filter((i) => i.id !== item.id && !i.已装备);
+      const slotKey = item.slot;
+      const oldItem = nextState.currentEquipment[slotKey];
+      item.equipped = true;
+      nextState.currentEquipment[slotKey] = item;
+      nextState.backpack = nextState.backpack.filter((i) => i.id !== item.id && !i.equipped);
       if (oldItem) {
-        oldItem.已装备 = false;
-        nextState.背包 = [...nextState.背包, oldItem];
+        oldItem.equipped = false;
+        nextState.backpack = [...nextState.backpack, oldItem];
       }
-      logSystemMessage(i18n.t('message.equipped', { name: item.名称 }));
+      logSystemMessage(i18n.t('message.equipped', { name: item.name }));
     }
   } else if (action === '卸下槽位') {
     const slotKey = target;
-    const item = nextState.当前装备[slotKey];
+    const item = nextState.currentEquipment[slotKey];
     if (item) {
-      item.已装备 = false;
-      nextState.当前装备[slotKey] = null;
-      nextState.背包 = [...nextState.背包.filter((i) => i.id !== item.id), item];
-      logSystemMessage(i18n.t('message.unequipped', { name: item.名称 }));
+      item.equipped = false;
+      nextState.currentEquipment[slotKey] = null;
+      nextState.backpack = [...nextState.backpack.filter((i) => i.id !== item.id), item];
+      logSystemMessage(i18n.t('message.unequipped', { name: item.name }));
     }
   } else if (action === '卸下') {
-    const slot = Object.keys(nextState.当前装备).find((s) => nextState.当前装备[s]?.名称 === target);
+    const slot = Object.keys(nextState.currentEquipment).find((s) => nextState.currentEquipment[s]?.name === target);
     if (slot) {
-      const item = nextState.当前装备[slot];
+      const item = nextState.currentEquipment[slot];
       if (item) {
-        item.已装备 = false;
-        nextState.当前装备[slot] = null;
-        nextState.背包 = [...nextState.背包, item];
-        logSystemMessage(i18n.t('message.unequipped', { name: item.名称 }));
+        item.equipped = false;
+        nextState.currentEquipment[slot] = null;
+        nextState.backpack = [...nextState.backpack, item];
+        logSystemMessage(i18n.t('message.unequipped', { name: item.name }));
       }
     }
   } else if (action === '出售') {
-    const itemIndex = nextState.背包.findIndex((i) => i.名称 === target || i.id === target);
+    const itemIndex = nextState.backpack.findIndex((i) => i.name === target || i.id === target);
     if (itemIndex > -1) {
-      const item = nextState.背包[itemIndex];
-      const price = QUALITY_CONFIG[item.品质]?.price ?? 0;
-      nextState.玩家状态.金币 += price;
-      nextState.背包.splice(itemIndex, 1);
-      logSystemMessage(i18n.t('message.sold_item', { name: item.名称, price }));
+      const item = nextState.backpack[itemIndex];
+      const price = QUALITY_CONFIG[item.quality]?.price ?? 0;
+      nextState.playerStats.gold += price;
+      nextState.backpack.splice(itemIndex, 1);
+      logSystemMessage(i18n.t('message.sold_item', { name: item.name, price }));
     }
   } else if (action === '强化') {
     const item =
-      nextState.背包.find((i) => i.id === target) ||
-      (Object.values(nextState.当前装备) as (Equipment | null)[]).find((i) => i?.id === target);
+      nextState.backpack.find((i) => i.id === target) ||
+      (Object.values(nextState.currentEquipment) as (Equipment | null)[]).find((i) => i?.id === target);
 
     if (item) {
-      const cost = (item.强化等级 + 1) * 500;
-      if (nextState.玩家状态.金币 >= cost) {
-        nextState.玩家状态.金币 -= cost;
+      // Max enchant cap
+      if ((item.enhancementLevel || 0) >= 20) {
+        logs.push(i18n.t('message.enchant_maxed'));
+        return { nextState, logs };
+      }
+
+      const cost = (item.enhancementLevel + 1) * 500;
+      if (nextState.playerStats.gold >= cost) {
+        nextState.playerStats.gold -= cost;
         let success = false;
-        const lv = item.强化等级;
+        const lv = item.enhancementLevel || 0;
+
+        // Probability tiers with minimum floor at 10%
         if (lv < 5) success = true;
         else if (lv < 10) success = Math.random() < 0.6;
         else if (lv < 15) success = Math.random() < 0.3;
+        else if (lv < 20) success = Math.random() < 0.1; // 10% floor for high levels
 
         if (success) {
-          item.强化等级 += 1;
-          item.属性[item.主属性] = Math.floor(item.属性[item.主属性] * 1.05);
-          logSystemMessage(i18n.t('message.enchant_success', { name: item.名称, level: item.强化等级 }));
+          applyEnchant(item);
+          logSystemMessage(i18n.t('message.enchant_success', { name: item.name, level: item.enhancementLevel }));
         } else {
           logSystemMessage(i18n.t('message.enchant_fail'));
         }
       } else {
         logs.push(i18n.t('message.not_enough_gold_enchant'));
       }
-    }
-  } else if (action === '洗练') {
-    const item =
-      nextState.背包.find((i) => i.id === target) ||
-      (Object.values(nextState.当前装备) as (Equipment | null)[]).find((i) => i?.id === target);
-
-    if (item) {
-      const rerollCost = (item.强化等级 + 1) * 300;
-      const secondaryStats = Object.keys(item.属性).filter((key) => key !== item.主属性);
-
-      if (secondaryStats.length === 0) {
-        logs.push(i18n.t('message.no_secondary_stats'));
-        return { nextState, logs };
-      }
-
-      if (nextState.玩家状态.金币 < rerollCost) {
-        logs.push(i18n.t('message.not_enough_gold_reroll'));
-        return { nextState, logs };
-      }
-
-      nextState.玩家状态.金币 -= rerollCost;
-
-      secondaryStats.forEach((key) => {
-        delete item.属性[key];
-      });
-
-      const availableStats = STAT_POOL.filter((stat) => stat !== item.主属性);
-      const mainValue = item.属性[item.主属性] ?? 1;
-
-      for (let i = 0; i < secondaryStats.length; i++) {
-        const statName = availableStats[Math.floor(Math.random() * availableStats.length)];
-        const value = Math.max(1, Math.floor(mainValue * (0.45 + Math.random() * 0.3)));
-        item.属性[statName] = value;
-      }
-
-      logSystemMessage(i18n.t('message.reroll_complete', { name: item.名称, count: secondaryStats.length }));
     }
   }
 

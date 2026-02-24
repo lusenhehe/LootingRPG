@@ -1,10 +1,8 @@
-import type { Monster, MonsterTrait } from '../types/game';
-import { NORMAL_MONSTERS_DATA, BOSS_MONSTERS_DATA } from './adapters/monsterConfigAdapter';
-import { attachMonsterLore } from './adapters/monsterLoreAdapter';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './stats/monsterScaling';
-
+import { NORMAL_MONSTERS_DATA, BOSS_MONSTERS_DATA } from './monsters/config';
+import type { Monster, MonsterTrait } from '../types/game';
+import { attachMonsterLore } from './monsters/lore';
 const TRAIT_POOL: MonsterTrait[] = ['thorns', 'lifesteal', 'double_attack', 'shield_on_start', 'rage_on_low_hp'];
-
 const pickRandom = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)];
 
 const maybeAddTrait = (base: Monster, force = false): Monster => {

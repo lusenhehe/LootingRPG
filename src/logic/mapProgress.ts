@@ -1,4 +1,4 @@
-import type { MapChapterDef } from './adapters/mapChapterAdapter';
+import type { MapChapterDef } from '../config/map/mapTypes';
 import type { MapProgressState } from '../types/game';
 
 export const createInitialMapProgress = (chapters: MapChapterDef[]): MapProgressState => {
@@ -57,6 +57,19 @@ export const normalizeMapProgress = (
 
 export const isChapterUnlocked = (progress: MapProgressState, chapterId: string) =>
   progress.unlockedChapters.includes(chapterId);
+
+// helpers for navigating chapter/node lists
+export const getNextNode = (chapter: MapChapterDef, nodeId: string) => {
+  const idx = chapter.nodes.findIndex((n) => n.id === nodeId);
+  if (idx < 0 || idx + 1 >= chapter.nodes.length) return undefined;
+  return chapter.nodes[idx + 1];
+};
+
+export const getNextChapter = (chapters: MapChapterDef[], chapterId: string) => {
+  const idx = chapters.findIndex((c) => c.id === chapterId);
+  if (idx < 0 || idx + 1 >= chapters.length) return undefined;
+  return chapters[idx + 1];
+};
 
 export const isNodeUnlocked = (progress: MapProgressState, nodeId: string) =>
   progress.unlockedNodes.includes(nodeId);
@@ -121,15 +134,12 @@ export const applyMapNodeResult = ({ progress, chapters, chapterId, nodeId, won 
     delete nextProgress.failedAttempts[nodeId];
   }
 
-  const chapterIndex = chapters.findIndex((chapter) => chapter.id === chapterId);
-  const chapter = chapterIndex >= 0 ? chapters[chapterIndex] : undefined;
-  const nodeIndex = chapter?.nodes.findIndex((node) => node.id === nodeId) ?? -1;
-
+  const chapter = chapters.find((c) => c.id === chapterId);
   let unlockedNodeId: string | undefined;
   let unlockedChapterId: string | undefined;
 
-  if (chapter && nodeIndex >= 0) {
-    const nextNode = chapter.nodes[nodeIndex + 1];
+  if (chapter) {
+    const nextNode = getNextNode(chapter, nodeId);
     if (nextNode && !nextProgress.unlockedNodes.includes(nextNode.id)) {
       nextProgress.unlockedNodes.push(nextNode.id);
       unlockedNodeId = nextNode.id;
@@ -137,15 +147,16 @@ export const applyMapNodeResult = ({ progress, chapters, chapterId, nodeId, won 
 
     const chapterCompleted = chapter.nodes.every((node) => nextProgress.clearedNodes.includes(node.id));
     if (chapterCompleted) {
-      const nextChapter = chapters[chapterIndex + 1];
+      const nextChapter = getNextChapter(chapters, chapterId);
       if (nextChapter && !nextProgress.unlockedChapters.includes(nextChapter.id)) {
         nextProgress.unlockedChapters.push(nextChapter.id);
         unlockedChapterId = nextChapter.id;
-        const nextChapterFirstNode = nextChapter.nodes[0];
-        if (nextChapterFirstNode && !nextProgress.unlockedNodes.includes(nextChapterFirstNode.id)) {
-          nextProgress.unlockedNodes.push(nextChapterFirstNode.id);
+        const first = nextNode ? undefined : nextChapter.nodes[0];
+        // if we didn't already open a next-node from current chapter, unlock first node of new chapter
+        if (first && !nextProgress.unlockedNodes.includes(first.id)) {
+          nextProgress.unlockedNodes.push(first.id);
           if (!unlockedNodeId) {
-            unlockedNodeId = nextChapterFirstNode.id;
+            unlockedNodeId = first.id;
           }
         }
       }

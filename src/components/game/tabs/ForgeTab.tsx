@@ -4,6 +4,8 @@ import { QUALITY_CONFIG } from '../../../config/game/equipment';
 import { getQualityLabel, getSlotLabel, getStatLabel } from '../../../logic/i18n/labels';
 import type { Equipment, GameState } from '../../../types/game';
 import { useTranslation } from 'react-i18next';
+import React, { useMemo, useState } from 'react';
+import { calculateEnchantCost, previewEnchant, rerollAffixes } from '../../../logic/equipment';
 
 
 interface ForgeTabProps {
@@ -23,11 +25,11 @@ type ForgeCandidate = {
 export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, onReroll }: ForgeTabProps) {
   const { t } = useTranslation();
 
-  const equipped = (Object.entries(gameState.当前装备) as [string, Equipment | null][])
+  const equipped = (Object.entries(gameState.currentEquipment) as [string, Equipment | null][])
     .filter(([, item]) => Boolean(item))
-    .map(([slot, item]) => ({ item: { ...(item as Equipment), 已装备: true }, source: t('label.equipped') + '/' + getSlotLabel(slot) }));
+    .map(([slot, item]) => ({ item: { ...(item as Equipment), equipped: true }, source: t('label.equipped') + '/' + getSlotLabel(slot) }));
 
-  const backpack = gameState.背包.map((item) => ({ item: { ...item, 已装备: false }, source: t('label.backpack') }));
+  const backpack = gameState.backpack.map((item) => ({ item: { ...item, equipped: false }, source: t('label.backpack') }));
   const deduped = new Map<string, ForgeCandidate>();
   [...equipped, ...backpack].forEach((entry) => {
     deduped.set(entry.item.id, entry);
@@ -35,6 +37,18 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
   const candidates: ForgeCandidate[] = [...deduped.values()];
 
   const selected = candidates.find((entry) => entry.item.id === selectedId)?.item ?? candidates[0]?.item;
+
+  // UI state for Forge interactions
+  const [lockedTypes, setLockedTypes] = useState<string[]>([]);
+  const [previewTimes, setPreviewTimes] = useState<number>(1);
+  const [previewResult, setPreviewResult] = useState<Equipment | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const toggleLock = (type: string) => {
+    setLockedTypes((prev) => (prev.includes(type) ? prev.filter((p) => p !== type) : [...prev, type]));
+  };
+
+  const enchantCost = useMemo(() => (selected ? calculateEnchantCost(selected) * previewTimes : 0), [selected, previewTimes]);
 
   if (!selected) {
     return (
@@ -48,12 +62,19 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
     );
   }
 
-  const forgeCost = (selected.强化等级 + 1) * 500;
-  const rerollCost = (selected.强化等级 + 1) * 300;
-  const qualityColor = QUALITY_CONFIG[selected.品质]?.color || 'text-gray-400';
+  const forgeCost =  (selected.enhancementLevel + 1) * 500;
+  const rerollCost = (selected.enhancementLevel + 1) * 300;
+  const qualityColor = QUALITY_CONFIG[selected.quality]?.color || 'text-gray-400';
 
   return (
-    <motion.div key="forge" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden">
+    <motion.div
+      key="forge"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="h-full grid grid-cols-1 gap-4 overflow-hidden"
+      style={{ gridTemplateColumns: selected ? '35% 65%' : undefined }}
+    >
       <div className="h-[420px] overflow-y-auto pr-2 space-y-2">
         {candidates.map(({ item, source }) => (
           <button
@@ -63,13 +84,13 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
           >
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
-                <p className={`text-sm font-bold truncate flex items-center gap-1 ${QUALITY_CONFIG[item.品质]?.color || 'text-gray-200'}`}>
+                <p className={`text-sm font-bold truncate flex items-center gap-1 ${QUALITY_CONFIG[item.quality]?.color || 'text-gray-200'}`}>
                   <span className="text-base leading-none">{item.icon || '🧰'}</span>
-                  {item.名称} {item.强化等级 > 0 ? `+${item.强化等级}` : ''}
+                  {item.name} {item.enhancementLevel > 0 ? `+${item.enhancementLevel}` : ''}
                 </p>
-                <p className="text-[10px] text-gray-500 mt-1">{getSlotLabel(item.部位)} · {source}</p>
+                <p className="text-[10px] text-gray-500 mt-1">{getSlotLabel(item.slot)} · {source}</p>
               </div>
-              {item.已装备 && (
+              {item.equipped && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/30 font-bold">
                   已装备
                 </span>
@@ -83,13 +104,13 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
         <div>
           <h3 className={`text-base font-bold ${qualityColor} flex items-center gap-1`}>
             <span className="text-lg leading-none">{selected.icon || '🧰'}</span>
-            {selected.名称} {selected.强化等级 > 0 ? `+${selected.强化等级}` : ''}
+            {selected.name} {selected.enhancementLevel > 0 ? `+${selected.enhancementLevel}` : ''}
           </h3>
-          <p className="text-xs text-gray-500">{selected.部位} • {selected.品质}</p>
+          <p className="text-xs text-gray-500">{selected.slot} • {selected.quality}</p>
         </div>
 
         <div className="space-y-1">
-          {Object.entries(selected.属性).map(([key, value]) => (
+          {Object.entries(selected.attributes).map(([key, value]) => (
             <div key={key} className="flex justify-between text-sm">
               <span className="text-gray-400">{getStatLabel(key)}</span>
               <span className="font-mono text-gray-200">+{value}</span>
@@ -100,8 +121,8 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
         {selected.affixes && selected.affixes.length > 0 && (
           <div className="mt-2">
             <h4 className="text-xs text-gray-400 mb-1">{t('label.affixes') || 'Affixes'}</h4>
-            <div className="flex flex-wrap gap-2">
-              {selected.affixes.map((affix) => {
+            <div className="flex flex-col gap-2">
+              {selected.affixes.map((affix, idx) => {
                 const labelMap: Record<string, string> = {
                   crit_chance: t('stat.crit'),
                   lifesteal: t('stat.lifesteal'),
@@ -109,35 +130,114 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
                   thorns: t('trait.thorns'),
                   hp_bonus: t('stat.hp'),
                 };
+                const isLocked = lockedTypes.includes(affix.type);
                 return (
-                  <span key={`${affix.type}-${affix.value}`} className="text-[12px] px-2 py-1 rounded border border-white/10 bg-game-card/20 text-gray-200">
-                    {labelMap[affix.type] || affix.type} +{affix.value}
-                  </span>
+                  <div key={`${affix.type}-${idx}`} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-[12px] px-2 py-1 rounded border border-white/10 bg-game-card/20 text-gray-200">{labelMap[affix.type] || affix.type}</span>
+                      <span className="font-mono text-gray-200">+{affix.value}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        aria-pressed={isLocked}
+                        onClick={() => toggleLock(affix.type)}
+                        className={`px-2 py-1 rounded ${isLocked ? 'bg-violet-600 text-white' : 'bg-game-card/10 text-gray-200'} text-xs`}
+                      >
+                        {isLocked ? t('ui.forge.lock') || 'Lock' : t('ui.forge.unlock') || 'Lock'}
+                      </button>
+                    </div>
+                  </div>
                 );
               })}
             </div>
           </div>
         )}
 
-        {selected.特殊效果 && <p className="text-xs text-violet-400 italic">★ {selected.特殊效果}</p>}
+        {selected.special && <p className="text-xs text-violet-400 italic">★ {selected.special}</p>}
 
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <button
-            onClick={() => onForge(selected.id)}
-            disabled={loading || gameState.玩家状态.金币 < forgeCost}
-            className="py-2 rounded-lg border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold transition-all cursor-pointer hover:scale-105"
-          >
-            {t('button.enchant')}（{forgeCost}）
-          </button>
-          <button
-            onClick={() => onReroll(selected.id)}
-            disabled={loading || gameState.玩家状态.金币 < rerollCost}
-            className="py-2 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed text-sm font-bold transition-all cursor-pointer hover:scale-105"
-          >
-            {t('button.reroll')}（{rerollCost}）
-          </button>
+        <div className="grid grid-cols-1 gap-3 pt-2">
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-gray-400">{t('ui.forge.preview_times') || 'Preview'}</label>
+            <div className="flex gap-2 ml-2">
+              {[1, 5, 10].map((n) => (
+                <button key={n} onClick={() => setPreviewTimes(n)} className={`px-3 py-1 rounded text-sm ${previewTimes === n ? 'bg-violet-500 text-white' : 'bg-game-card/10 text-gray-200'}`}>{n}</button>
+              ))}
+            </div>
+            <div className="ml-auto text-sm text-gray-400">{t('ui.forge.cost') || 'Cost'}: <span className="font-mono">{enchantCost}</span></div>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                if (!selected) return;
+                const preview = previewEnchant(JSON.parse(JSON.stringify(selected)), previewTimes);
+                setPreviewResult(preview);
+              }}
+              disabled={loading}
+              className="flex-1 py-2 rounded-lg border border-violet-500/30 bg-violet-500/10 text-violet-400 hover:bg-violet-500 hover:text-white text-sm font-bold"
+            >
+              {t('ui.forge.preview') || 'Preview'}
+            </button>
+            <button
+              onClick={() => setConfirmOpen(true)}
+              disabled={loading || gameState.playerStats.gold < enchantCost}
+              className="flex-1 py-2 rounded-lg border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500 hover:text-white text-sm font-bold"
+            >
+              {t('ui.forge.apply') || 'Apply'} ({enchantCost})
+            </button>
+            <button
+              onClick={() => {
+                if (!selected) return;
+                const copy = JSON.parse(JSON.stringify(selected));
+                const preview = rerollAffixes(copy, { lockTypes: lockedTypes });
+                setPreviewResult(preview);
+              }}
+              disabled={loading}
+              className="py-2 rounded-lg border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white text-sm font-bold"
+            >
+              {t('ui.forge.reroll') || 'Reroll'}
+            </button>
+          </div>
         </div>
       </div>
+      
+      {/* Confirm Modal */}
+      {confirmOpen && selected && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setConfirmOpen(false)} />
+          <div className="relative bg-game-bg border border-game-border rounded-lg p-6" style={{ width: 'min(92%,560px)' }}>
+            <h3 className="text-lg font-bold mb-2">{t('ui.forge.confirm_title') || 'Confirm Enchant'}</h3>
+            <p className="text-sm text-gray-300 mb-4">{t('ui.forge.confirm_body') || 'This will consume resources and apply the enchant.'}</p>
+            {previewResult && (
+              <div className="mb-4">
+                <h4 className="text-sm text-gray-400 mb-2">{t('ui.forge.preview') || 'Preview'}</h4>
+                <div className="space-y-2">
+                  {Object.entries(previewResult.attributes).map(([k, v]) => (
+                    <div key={k} className="flex justify-between text-sm">
+                      <span className="text-gray-400">{getStatLabel(k)}</span>
+                      <span className="font-mono text-gray-200">+{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setConfirmOpen(false)} className="px-4 py-2 rounded bg-game-card/10">{t('button.cancel') || 'Cancel'}</button>
+              <button
+                onClick={() => {
+                  setConfirmOpen(false);
+                  for (let i = 0; i < previewTimes; i++) {
+                    onForge(selected.id);
+                  }
+                }}
+                className="px-4 py-2 rounded bg-yellow-500 text-white"
+              >
+                {t('button.confirm') || 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -255,6 +255,17 @@
   "ui.no_forge_items": "No items to forge",
   "button.enchant": "Enchant",
   "button.reroll": "Reroll",
+  "ui.forge.preview_times": "Number of enchants",
+  "ui.forge.cost": "Cost",
+  "ui.forge.preview": "Preview",
+  "ui.forge.apply": "Apply",
+  "ui.forge.reroll": "Reroll",
+  "ui.forge.lock": "Lock",
+  "ui.forge.unlock": "Unlock",
+  "ui.forge.confirm_title": "Confirm Enchant",
+  "ui.forge.confirm_body": "This will consume resources and apply the enchant. Proceed?",
+  "button.confirm": "Confirm",
+  "button.cancel": "Cancel",
 
   "bossPhase.abyss_annihilation": "Abyss Annihilation",
   "bossPhase.dragon_annihilation": "Dragon Annihilation",
@@ -327,12 +338,8 @@
   "element.thunder": "Thunder Element",
   "element.poison": "Poison Element",
   "element.void": "Dark Element",
-  "codex": {
-    "counterGoal": {
-      "passed": "Counter goal achieved: {{title}} ({{detail}})",
-      "failed": "Counter goal not achieved: {{title}} ({{detail}})"
-    }
-  },
+  "codex.counterGoal.passed": "Counter goal achieved: {{title}} ({{detail}})",
+  "codex.counterGoal.failed": "Counter goal not achieved: {{title}} ({{detail}})",
   "button.challenge_monster": "Challenge Monster",
   "button.challenge_boss": "Challenge Boss",
   "button.challenge_wave": "Wave Assault",
@@ -343,6 +350,7 @@
   "message.sold_item": "Sold {{name}} for {{price}} gold",
   "message.enchant_success": "Enchant success! {{name}} is now +{{level}}",
   "message.enchant_fail": "Enchant failed... gold consumed.",
+  "message.enchant_maxed": "This item has reached maximum enchant level +20.",
   "message.not_enough_gold_enchant": "Not enough gold to enchant.",
   "message.no_secondary_stats": "This item has no secondary stats to reroll.",
   "message.not_enough_gold_reroll": "Not enough gold to reroll.",

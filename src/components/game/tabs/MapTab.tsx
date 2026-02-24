@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, ChevronDown, Mountain, Lock } from 'lucide-react';
-import { MAP_CHAPTERS, type MapChapterDef } from '../../../logic/adapters/mapChapterAdapter';
+import { MAP_CHAPTERS } from '../../../config/map/chapters';
+import type { MapChapterDef } from '../../../config/map/mapTypes';
 import type { MapProgressState } from '../../../types/game';
 import {
   normalizeMapProgress,
@@ -16,14 +17,8 @@ const getThemeColors = (theme: string) => {
     '地牢': { primary: '#78716c', primaryLight: '#d6d3d1', primaryDark: '#44403c' },
     '火山': { primary: '#f97316', primaryLight: '#fdba74', primaryDark: '#c2410c' },
     '亡灵': { primary: '#a855f7', primaryLight: '#d8b4fe', primaryDark: '#7e22ce' },
-    '风暴': { primary: '#06b6d4', primaryLight: '#67e8f9', primaryDark: '#0891b2' },
-    '机械': { primary: '#f59e0b', primaryLight: '#fcd34d', primaryDark: '#d97706' },
-    '晶体': { primary: '#8b5cf6', primaryLight: '#c4b5fd', primaryDark: '#7c3aed' },
-    '虚空': { primary: '#6366f1', primaryLight: '#a5b4fc', primaryDark: '#4f46e5' },
-    '星空': { primary: '#3b82f6', primaryLight: '#93c5fd', primaryDark: '#2563eb' },
-    '终焉': { primary: '#f43f5e', primaryLight: '#fda4af', primaryDark: '#e11d48' },
   };
-  return colorMap[theme] || colorMap['终焉'];
+  return colorMap[theme];
 };
 
 interface MapTabProps {

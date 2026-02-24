@@ -1,6 +1,7 @@
 import { INITIAL_STATE } from '../config/gameConfig';
 import { PLAYER_GROWTH } from '../config/game/progression';
 import type { GameState } from '../types/game';
+import { getEquipmentTotals } from './equipmentUtils';
 
 const toNumber = (value: unknown): number => {
   if (typeof value === 'number') return value;
@@ -15,10 +16,10 @@ const toNumber = (value: unknown): number => {
 export const recalculatePlayerStats = (state: GameState): GameState => {
   const next = structuredClone(state);
 
-  const level = Math.max(1, next.玩家状态.等级);
-  const baseAttack = INITIAL_STATE.玩家状态.攻击力 + (level - 1) * PLAYER_GROWTH.attackPerLevel;
-  const baseHp = INITIAL_STATE.玩家状态.生命值 + (level - 1) * PLAYER_GROWTH.hpPerLevel;
-  const baseDefense = INITIAL_STATE.玩家状态.防御力 + (level - 1) * PLAYER_GROWTH.defensePerLevel;
+  const level = Math.max(1, next.playerStats.level);
+  const baseAttack = INITIAL_STATE.playerStats.attack + (level - 1) * PLAYER_GROWTH.attackPerLevel;
+  const baseHp = INITIAL_STATE.playerStats.hp + (level - 1) * PLAYER_GROWTH.hpPerLevel;
+  const baseDefense = INITIAL_STATE.playerStats.defense + (level - 1) * PLAYER_GROWTH.defensePerLevel;
   const baseCritRate = toNumber(`${PLAYER_GROWTH.baseCritRate}`);
 
   let attackBonus = 0;
@@ -31,42 +32,35 @@ export const recalculatePlayerStats = (state: GameState): GameState => {
   let elementalBonus = 0;
   let attackSpeedBonus = 0;
 
-  Object.values(next.当前装备).forEach((item) => {
-    if (!item) return;
-    Object.entries(item.属性).forEach(([statName, value]) => {
-      const statValue = toNumber(value);
-      const normalized = statName;
-      if (normalized === 'attack')      attackBonus += statValue;
-      if (normalized === 'hp')          hpBonus += statValue;
-      if (normalized === 'defense')     defenseBonus += statValue;
-      if (normalized === 'crit')        critBonus += statValue;
-      if (normalized === 'elemental')   elementalBonus += statValue;
-      if (normalized === 'attackSpeed') attackSpeedBonus += statValue;
-      if (normalized === 'lifesteal')   lifestealPercent += statValue;
-    });
+  const { attributes, affixes } = getEquipmentTotals(next.currentEquipment);
+  // attributes are stored with english keys; affixes by type
+  attackBonus += attributes.attack || 0;
+  hpBonus += attributes.hp || 0;
+  defenseBonus += attributes.defense || 0;
+  critBonus += attributes.crit || 0;
+  elementalBonus += attributes.elemental || 0;
+  attackSpeedBonus += attributes.attackSpeed || 0;
+  lifestealPercent += attributes.lifesteal || 0;
 
-    item.affixes.forEach((affix) => {
-      if (affix.type === 'crit_chance') critBonus += affix.value;
-      if (affix.type === 'lifesteal') lifestealPercent += affix.value;
-      if (affix.type === 'damage_bonus') damageBonusPercent += affix.value;
-      if (affix.type === 'thorns') thornsPercent += affix.value;
-      if (affix.type === 'hp_bonus') hpBonus += affix.value;
-    });
-  });
+  critBonus += affixes.crit_chance || 0;
+  lifestealPercent += affixes.lifesteal || 0;
+  damageBonusPercent += affixes.damage_bonus || 0;
+  thornsPercent += affixes.thorns || 0;
+  hpBonus += affixes.hp_bonus || 0;
 
   const attackBeforeMultiplier = Math.max(1, baseAttack + attackBonus);
   const finalAttack = Math.floor(attackBeforeMultiplier * (1 + Math.max(0, damageBonusPercent) / 100));
   const crit = Math.max(0, Math.round((baseCritRate + critBonus) * 10) / 10);
 
-  next.玩家状态.攻击力 = Math.max(1, finalAttack);
-  next.玩家状态.生命值 = Math.max(1, Math.floor(baseHp + hpBonus));
-  next.玩家状态.防御力 = Math.max(0, Math.floor(baseDefense + defenseBonus));
-  next.玩家状态.暴击率 = `${crit}`;
-  next.玩家状态.伤害加成 = Math.max(0, Math.round(damageBonusPercent));
-  next.玩家状态.吸血 = Math.max(0, Math.round(lifestealPercent));
-  next.玩家状态.反伤 = Math.max(0, Math.round(thornsPercent));
-  next.玩家状态.元素伤害 = Math.max(0, Math.round(elementalBonus));
-  next.玩家状态.攻击速度 = Math.max(0, Math.round(attackSpeedBonus));
+  next.playerStats.attack = Math.max(1, finalAttack);
+  next.playerStats.hp = Math.max(1, Math.floor(baseHp + hpBonus));
+  next.playerStats.defense = Math.max(0, Math.floor(baseDefense + defenseBonus));
+  next.playerStats.critRate = `${crit}`;
+  next.playerStats.damageBonus = Math.max(0, Math.round(damageBonusPercent));
+  next.playerStats.lifesteal = Math.max(0, Math.round(lifestealPercent));
+  next.playerStats.thorns = Math.max(0, Math.round(thornsPercent));
+  next.playerStats.elemental = Math.max(0, Math.round(elementalBonus));
+  next.playerStats.attackSpeed = Math.max(0, Math.round(attackSpeedBonus));
 
   return next;
 };

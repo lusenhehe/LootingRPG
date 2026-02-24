@@ -2,7 +2,7 @@ import type { CounterStatKey, Monster } from '../../types/game';
 import type { FinalPlayerCombatStats } from './playerStats';
 import { getCombatProfile } from './playerStats';
 import i18n from '../../i18n';
-import { getMapNodeById } from '../adapters/mapChapterAdapter';
+import { getMapNodeById } from '../mapUtils';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
 export interface FinalMonsterCombatStats {
@@ -31,13 +31,13 @@ const defenseToReductionRate = (
 };
 
 const readPlayerCounterStat = (player: FinalPlayerCombatStats, stat: CounterStatKey): number => {
-  if (stat === '攻击力') return player.attack;
-  if (stat === '防御力') return player.defense;
-  if (stat === '生命值') return player.maxHp;
-  if (stat === '元素伤害') return player.elementalBonus;
-  if (stat === '吸血') return player.lifestealRate * 100;
-  if (stat === '反伤') return player.thornsRate * 100;
-  if (stat === '攻击速度') return player.attackSpeed;
+  if (stat === 'attack') return player.attack;
+  if (stat === 'defense') return player.defense;
+  if (stat === 'hp') return player.maxHp;
+  if (stat === 'elemental') return player.elementalBonus;
+  if (stat === 'lifesteal') return player.lifestealRate * 100;
+  if (stat === 'thorns') return player.thornsRate * 100;
+  if (stat === 'attackSpeed') return player.attackSpeed;
   return 0;
 };
 

@@ -1,9 +1,10 @@
 import type { ActiveTab, BattleState, GameState } from '../../types/game';
 import type { MapProgressState } from '../../types/game';
-import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
+import type { MapChapterDef, MapNodeDef } from '../../config/map/mapTypes';
 import { AppHeader } from './AppHeader';
 import { GamePanel } from './GamePanel';
 import { PlayerPanel } from './PlayerPanel';
+import DebugPanel from './DebugPanel';
 
 interface GameScreenProps {
   gameState: GameState;
@@ -36,6 +37,7 @@ interface GameScreenProps {
   onReroll: (id: string) => void;
   onSelectForgeItem: (id: string) => void;
   onUnequip: (slot: string) => void;
+  onDebugAddItems?: (quality: string, slot: string, count: number, level?: number) => void;
 }
 
 export function GameScreen({
@@ -67,6 +69,7 @@ export function GameScreen({
   onReroll,
   onSelectForgeItem,
   onUnequip,
+  onDebugAddItems,
 }: GameScreenProps) {
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -76,9 +79,9 @@ export function GameScreen({
       <div className="relative flex flex-col max-w-6xl mx-auto p-4 md:p-6 gap-6">
 
         <AppHeader
-          gold={gameState.玩家状态.金币}
+          gold={gameState.playerStats.gold}
           playerName={playerName}
-          playerStats={gameState.玩家状态}
+          playerStats={gameState.playerStats}
           onExportSave={onExportSave}
           onImportSave={onImportSave}
           onLogout={onLogout}
@@ -112,6 +115,12 @@ export function GameScreen({
             onSelectForgeItem={onSelectForgeItem}
           />
         </main>
+        <DebugPanel onAddItems={(items) => {
+          // forward to parent via optional callback (preserve item level)
+          if (onDebugAddItems) {
+            items.forEach((it) => onDebugAddItems(it.quality, it.slot, 1, it.level));
+          }
+        }} />
       </div>
     </div>
   );

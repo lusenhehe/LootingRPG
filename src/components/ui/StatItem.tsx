@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
 interface StatItemProps {
   icon: ReactNode;
@@ -7,7 +7,7 @@ interface StatItemProps {
   color?: string;
 }
 
-export function StatItem({ icon, label, value, color = "text-gray-400" }: StatItemProps) {
+export const StatItem = React.memo(function StatItem({ icon, label, value, color = "text-gray-400" }: StatItemProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="text-gray-500">{icon}</div>
@@ -17,4 +17,4 @@ export function StatItem({ icon, label, value, color = "text-gray-400" }: StatIt
       </div>
     </div>
   );
-}
+});

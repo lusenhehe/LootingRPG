@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { FLOW_FRAME_STEP, FLOW_FRAME_START_DELAY } from '../../config/game/battleConfig';
 import type { BattleState, GameState, Monster } from '../../types/game';
-import { createInitialBattleState } from '../../logic/gameState';
 import { simulateBattle } from '../../logic/battle/battleEngine.ts';
+import { createInitialBattleState } from '../../logic/gameState';
 import { getRandomMonster } from '../../logic/monsterGeneration';
+import { useState, useRef, useEffect } from 'react';
 
 export interface BattleStartOptions {
   mapNodeId?: string;
@@ -59,10 +60,10 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
     const simulation = simulateBattle(
       forcedMonster || getRandomMonster({
         isBoss,
-        playerLevel: gameState.玩家状态.等级,
+        playerLevel: gameState.playerStats.level,
         encounterCount: battleState.encounterCount,
       }),
-      gameState.玩家状态,
+      gameState.playerStats,
       battleState.encounterCount,
       isBoss,
       mapNodeId,
@@ -125,14 +126,14 @@ export function useBattleFlow({ gameState, addLog }: UseBattleFlowParams) {
         } as typeof prev;
       });
 
-      scheduleBattleStep(() => advance(frame + 1), 120);
+      scheduleBattleStep(() => advance(frame + 1), FLOW_FRAME_STEP);
     };
 
-    scheduleBattleStep(() => advance(0), 120);
+    scheduleBattleStep(() => advance(0), FLOW_FRAME_STEP);
 
     // schedule the onComplete callback once frames are done
-    const frameStartDelay = 120;
-    const frameStep = 120;
+    const frameStartDelay = FLOW_FRAME_START_DELAY;
+    const frameStep = FLOW_FRAME_STEP;
     const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
     if (onComplete) {
       scheduleBattleStep(() => {

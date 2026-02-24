@@ -1,15 +1,22 @@
 import { useCallback, useRef } from 'react';
 import type { GameState, MapProgressState, ActiveTab } from '../../types/game';
-import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
+import type { MapChapterDef, MapNodeDef } from '../../config/map/mapTypes';
 import { applyMapNodeResult, getChapterProgress, isNodeUnlocked, normalizeMapProgress } from '../../logic/mapProgress';
-import { MAP_CHAPTERS } from '../../logic/adapters/mapChapterAdapter';
-import { getMonsterById } from '../../logic/adapters/monsterConfigAdapter';
+import { MAP_CHAPTERS } from '../../config/map/chapters';
+import { getMonsterById } from '../../logic/monsters/config';
 import { getRandomMonster } from '../../logic/monsterGeneration';
 import { applySingleBattleReward } from '../../logic/battleRewards';
+import { simulateBattle } from '../../logic/battle/battleEngine';
+import { FRAME_STEP, FRAME_START_DELAY } from '../../config/game/battleConfig';
+
+
+interface BattleCompleteCallback {
+  (args: { simulation: ReturnType<typeof simulateBattle>; isBoss: boolean; mapNodeId?: string }): void;
+}
 
 interface UseMapActionsParams {
   gameState: GameState; battleState: any; loading: boolean; mapProgress: MapProgressState;
-  hookStartBattleSequence: (isBoss: boolean, context?: any, callback?: any, monsters?: any[]) => void;
+  hookStartBattleSequence: (isBoss: boolean, context?: any, callback?: BattleCompleteCallback, monsters?: any[]) => void;
   scheduleBattleStep: (callback: () => void, delay: number) => void;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   setBattleState: React.Dispatch<React.SetStateAction<any>>;
@@ -58,9 +65,9 @@ export const useMapActions = ({
     if (result.firstClear) {
       setGameState((prev) => ({
         ...prev,
-        玩家状态: {
-          ...prev.玩家状态,
-          金币: prev.玩家状态.金币 + node.firstClearRewardGold,
+        playerStats: {
+          ...prev.playerStats,
+          gold: prev.playerStats.gold + node.firstClearRewardGold,
         },
       }));
       addLog(`[地图] 首通 ${node.name}，获得 ${node.firstClearRewardGold} 金币。`);
@@ -103,8 +110,8 @@ export const useMapActions = ({
       hookStartBattleSequence(true, { mapNodeId: node.id }, ({ simulation, isBoss }) => {
         try {
           const { playerWon, monster } = simulation;
-          const frameStep = 260;
-          const frameStartDelay = 760;
+          const frameStep = FRAME_STEP;
+          const frameStartDelay = FRAME_START_DELAY;
           const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
 
           if (playerWon) {
@@ -159,8 +166,8 @@ export const useMapActions = ({
               const failMessage = `战斗失败：你被 ${monster.name} 压制了，继续强化装备再来挑战！`;
               setGameState((prev) => ({
                 ...prev,
-                系统消息: failMessage,
-                战斗结果: failMessage,
+                systemMessage: failMessage,
+                battleResult: failMessage,
               }));
               addLog(failMessage);
 
@@ -192,44 +199,31 @@ export const useMapActions = ({
       return;
     }
 
-    // Handle wave-based encounters
+    // Handle explicit wave definitions (only `node.waves` is supported now)
     const hasExplicitWaves = node.waves && node.waves.length > 0;
-    const hasLegacySize = !!node.waveSize;
-    if (hasExplicitWaves || hasLegacySize) {
-      let waveGroups: any[][];
-      if (hasExplicitWaves) {
-        waveGroups = node.waves!.map((w) => {
-          const group: any[] = [];
-          w.monsters.forEach((m) => {
-            const count = m.count ?? 1;
-            for (let k = 0; k < count; k++) {
-              const mon =
-                getMonsterById(m.monsterId) ||
-                getRandomMonster({
-                  isBoss: false,
-                  playerLevel: gameState.玩家状态.等级,
-                  encounterCount: battleState.encounterCount,
-                });
-              if (!getMonsterById(m.monsterId)) {
-                console.warn(`配置的波次怪物 id "${m.monsterId}" 未找到，使用随机怪替代。`);
-              }
-              group.push(mon);
+    if (hasExplicitWaves) {
+      const waveGroups = node.waves!.map((w) => {
+        const group: any[] = [];
+        w.monsters.forEach((m) => {
+          const count = m.count ?? 1;
+          for (let k = 0; k < count; k++) {
+            const mon =
+              getMonsterById(m.monsterId) ||
+              getRandomMonster({
+                isBoss: false,
+                playerLevel: gameState.playerStats.level,
+                encounterCount: battleState.encounterCount,
+              });
+            if (!getMonsterById(m.monsterId)) {
+              console.warn(`配置的波次怪物 id "${m.monsterId}" 未找到，使用随机怪替代。`);
             }
-          });
-          return group;
+            group.push(mon);
+          }
         });
-      } else {
-        waveGroups = Array.from({ length: node.waveSize! }).map(() => [
-          getRandomMonster({
-            isBoss: false,
-            playerLevel: gameState.玩家状态.等级,
-            encounterCount: battleState.encounterCount,
-          }),
-        ]);
-      }
+        return group;
+      });
 
       const totalEnemies = waveGroups.reduce((sum, g) => sum + g.length, 0);
-      let currentWaveIndex = 0;
 
       const runWave = (index: number) => {
         const monstersThisWave = waveGroups[index];
@@ -251,8 +245,8 @@ export const useMapActions = ({
           ({ simulation }) => {
             try {
               const { playerWon, monsters } = simulation;
-              const frameStep = 260;
-              const frameStartDelay = 760;
+              const frameStep = FRAME_STEP;
+              const frameStartDelay = FRAME_START_DELAY;
               const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
 
               if (playerWon) {
@@ -320,8 +314,8 @@ export const useMapActions = ({
                   const failMessage = `战斗失败：你被怪群压制了，继续强化装备再来挑战！`;
                   setGameState((prev) => ({
                     ...prev,
-                    系统消息: failMessage,
-                    战斗结果: failMessage,
+                    systemMessage: failMessage,
+                    battleResult: failMessage,
                   }));
                   addLog(failMessage);
 
@@ -363,8 +357,8 @@ export const useMapActions = ({
     hookStartBattleSequence(false, { mapNodeId: node.id }, ({ simulation, isBoss }) => {
       try {
         const { playerWon, monster } = simulation;
-        const frameStep = 260;
-        const frameStartDelay = 760;
+        const frameStep = FRAME_STEP;
+        const frameStartDelay = FRAME_START_DELAY;
         const battleEndDelay = frameStartDelay + simulation.frames.length * frameStep;
 
         if (playerWon) {
@@ -419,8 +413,8 @@ export const useMapActions = ({
             const failMessage = `战斗失败：你被 ${monster.name} 压制了，继续强化装备再来挑战！`;
             setGameState((prev) => ({
               ...prev,
-              系统消息: failMessage,
-              战斗结果: failMessage,
+              systemMessage: failMessage,
+              battleResult: failMessage,
             }));
             addLog(failMessage);
 
@@ -449,7 +443,7 @@ export const useMapActions = ({
         reportError(err, { action: 'map-battle' });
       }
     });
-  }, [loading, battleState.phase, mapProgress, gameState.玩家状态.等级, battleState.encounterCount, setBattleState, hookStartBattleSequence, scheduleBattleStep, setGameState, addLog, resolveMapChallengeResult, setLoading, reportError, applyBatchBattleRewards]);
+  }, [loading, battleState.phase, mapProgress, gameState.playerStats.level, battleState.encounterCount, setBattleState, hookStartBattleSequence, scheduleBattleStep, setGameState, addLog, resolveMapChallengeResult, setLoading, reportError, applyBatchBattleRewards]);
 
   return {
     resolveMapChallengeResult,

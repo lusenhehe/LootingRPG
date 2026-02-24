@@ -1,16 +1,16 @@
 export interface PlayerStats {
-  等级: number;
-  经验: number;
-  攻击力: number;
-  生命值: number;
-  防御力: number;
-  暴击率: string;
-  伤害加成: number;
-  吸血: number;
-  反伤: number;
-  元素伤害: number;
-  攻击速度: number;
-  金币: number;
+  level: number;
+  xp: number;
+  attack: number;
+  hp: number;
+  defense: number;
+  critRate: string;
+  damageBonus: number;
+  lifesteal: number;
+  thorns: number;
+  elemental: number;
+  attackSpeed: number;
+  gold: number;
 }
 
 export type EquipmentAffix = 'crit_chance' | 'lifesteal' | 'damage_bonus' | 'thorns' | 'hp_bonus';
@@ -23,28 +23,28 @@ export interface EquipmentAffixValue {
 export interface Equipment {
   id: string;
   icon: string;
-  等级: number;
-  名称: string;
-  品质: string;
-  部位: string;
-  属性: Record<string, number>;
-  特殊效果?: string;
+  level: number;
+  name: string;
+  quality: string;
+  slot: string;
+  attributes: Record<string, number>;
+  special?: string;
   affixes: EquipmentAffixValue[];
-  强化等级: number;
-  主属性: string;
-  已装备: boolean;
+  enhancementLevel: number;
+  mainStat: string;
+  equipped: boolean;
 }
 
 export interface GameState {
-  玩家状态: PlayerStats;
-  战斗结果: string;
-  掉落装备: Equipment | null;
-  背包: Equipment[];
-  系统消息: string;
-  当前装备: Record<string, Equipment | null>;
-  保底计数: {
-    传说: number;
-    神话: number;
+  playerStats: PlayerStats;
+  battleResult: string;
+  droppedEquipment: Equipment | null;
+  backpack: Equipment[];
+  systemMessage: string;
+  currentEquipment: Record<string, Equipment | null>;
+  pityCounts: {
+    legendary: number;
+    mythic: number;
   };
 }
 
@@ -76,7 +76,14 @@ export interface BossIdentity {
   phasePrompts?: Partial<Record<'entering' | 'fighting' | 'dying' | 'dropping', string>>;
 }
 
-export type CounterStatKey = '攻击力' | '防御力' | '生命值' | '元素伤害' | '吸血' | '反伤' | '攻击速度';
+export type CounterStatKey =
+  'attack' |
+  'defense' |
+  'hp' |
+  'elemental' |
+  'lifesteal' |
+  'thorns' |
+  'attackSpeed';
 
 export interface BossCounterGoal {
   title: string;

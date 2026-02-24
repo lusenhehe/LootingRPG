@@ -5,24 +5,24 @@ import type { Equipment } from '../../types/game';
  * Normalizes equipment data and ensures structural consistency
  */
 const normalizeEquipment = (item: Equipment): Equipment => {
-  const quality = item.品质;
-  const slot = item.部位;
+  const quality = item.quality;
+  const slot = item.slot;
 
   const attrs: Record<string, number> = {};
-  Object.entries(item.属性).forEach(([k, v]) => {
+  Object.entries(item.attributes).forEach(([k, v]) => {
     attrs[k] = v;
   });
 
-  const main = item.主属性;
+  const main = item.mainStat;
 
   return {
     ...item,
-    等级: Math.max(1, Number((item as any).等级) || 1),
-    品质: quality,
-    部位: slot,
+    level: Math.max(1, Number((item as any).level) || 1),
+    quality,
+    slot,
     icon: item.icon || getDefaultEquipmentIcon(slot),
-    属性: attrs,
-    主属性: main,
+    attributes: attrs,
+    mainStat: main,
     affixes: Array.isArray(item.affixes) ? item.affixes : [],
   };
 };
@@ -31,11 +31,11 @@ const normalizeEquipment = (item: Equipment): Equipment => {
  * Normalizes the inventory and equipped items in the game state
  */
 export const normalizeInventory = (backpack: Equipment[], currentEquipment: Record<string, Equipment | null>) => {
-  const normalizedBackpack = backpack.map((item) => ({ ...normalizeEquipment(item), 已装备: false }));
+  const normalizedBackpack = backpack.map((item) => ({ ...normalizeEquipment(item), equipped: false }));
   const normalizedCurrent = Object.fromEntries(
     Object.entries(currentEquipment).map(([slot, item]) => {
       const key = slot;
-      return [key, item ? { ...normalizeEquipment(item), 已装备: true } : null];
+      return [key, item ? { ...normalizeEquipment(item), equipped: true } : null];
     }),
   ) as Record<string, Equipment | null>;
 

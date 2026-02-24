@@ -1,14 +1,12 @@
 import { Package, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
-import { motion } from 'motion/react';
 import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
 import { getQualityLabel } from '../../../logic/i18n/labels';
+import { useMemo, useState, useCallback } from 'react';
 import type { Equipment } from '../../../types/game';
-import { ItemCard } from '../ItemCard';
 import { useTranslation } from 'react-i18next';
-
-
+import { motion } from 'motion/react';
+import type { ReactNode } from 'react';
+import { ItemCard } from '../ItemCard';
 
 const iconMap: Record<string, ReactNode> = {
   shield: <Shield size={14} className="text-gray-400" />,
@@ -30,7 +28,7 @@ interface InventoryTabProps {
   onToggleAutoSellQuality: (quality: string) => void;
 }
 
-type SortField = 'quality' | 'price' | 'name' | '强化等级';
+type SortField = 'quality' | 'price' | 'name' | 'enchantment';
 type SortOrder = 'asc' | 'desc';
 
 export function InventoryTab({
@@ -61,19 +59,23 @@ export function InventoryTab({
     const direction = sortOrder === 'asc' ? 1 : -1;
     return [...items].sort((a, b) => {
       if (sortField === 'quality') {
-        return ((qualityIndexMap[a.品质] ?? 0) - (qualityIndexMap[b.品质] ?? 0)) * direction;
+        return ((qualityIndexMap[a.quality] ?? 0) - (qualityIndexMap[b.quality] ?? 0)) * direction;
       }
       if (sortField === 'price') {
-        const pa = QUALITY_CONFIG[a.品质]?.price || 0;
-        const pb = QUALITY_CONFIG[b.品质]?.price || 0;
+        const pa = QUALITY_CONFIG[a.quality]?.price || 0;
+        const pb = QUALITY_CONFIG[b.quality]?.price || 0;
         return (pa - pb) * direction;
       }
-      if (sortField === '强化等级') {
-        return (a.强化等级 - b.强化等级) * direction;
+      if (sortField === 'enchantment') {
+        return (a.enhancementLevel - b.enhancementLevel) * direction;
       }
-      return a.名称.localeCompare(b.名称, 'zh-Hans-CN') * direction;
+      return a.name.localeCompare(b.name, 'zh-Hans-CN') * direction;
     });
   }, [items, qualityIndexMap, sortField, sortOrder]);
+
+  const handleEquip = useCallback((id: string) => onEquip(id), [onEquip]);
+  const handleSell = useCallback((id: string) => onSell(id), [onSell]);
+  const handleForge = useCallback((id: string) => onForge(id), [onForge]);
 
   return (
     <motion.div key="inventory" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="h-full flex flex-col gap-3">
@@ -139,7 +141,7 @@ export function InventoryTab({
             >
               <option value="quality">{t('label.quality')}</option>
               <option value="price">{t('label.price')}</option>
-              <option value="强化等级">{t('label.enchantLevel')}</option>
+              <option value="enchantment">{t('label.enchantLevel')}</option>
               <option value="name">{t('label.name')}</option>
             </select>
             <select
@@ -165,10 +167,10 @@ export function InventoryTab({
             <div key={item.id}>
               <ItemCard
                 item={item}
-                readonly={item.已装备}
-                onEquip={() => onEquip(item.id)}
-                onSell={() => onSell(item.id)}
-                onForge={() => onForge(item.id)}
+                readonly={item.equipped}
+                onEquip={() => handleEquip(item.id)}
+                onSell={() => handleSell(item.id)}
+                onForge={() => handleForge(item.id)}
                 loading={loading}
               />
             </div>

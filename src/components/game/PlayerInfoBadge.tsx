@@ -10,13 +10,13 @@ interface PlayerInfoBadgeProps {
 
 export function PlayerInfoBadge({ playerName, stats }: PlayerInfoBadgeProps) {
   const { t } = useTranslation();
-  const expNeeded = stats.等级 * 100;
-  const expPercent = Math.min(100, (stats.经验 / expNeeded) * 100);
+  const expNeeded = stats.level * 100;
+  const expPercent = Math.min(100, (stats.xp / expNeeded) * 100);
 
   const statItems = [
-    { icon: Sword, value: stats.攻击力, color: 'text-rose-500', bg: 'bg-rose-950/40', border: 'border-rose-900/30', label: 'ATK' },
-    { icon: Heart, value: stats.生命值, color: 'text-emerald-600', bg: 'bg-emerald-950/40', border: 'border-emerald-900/30', label: 'HP' },
-    { icon: Shield, value: stats.防御力, color: 'text-sky-600', bg: 'bg-sky-950/40', border: 'border-sky-900/30', label: 'DEF' },
+    { icon: Sword, value: stats.attack, color: 'text-rose-500', bg: 'bg-rose-950/40', border: 'border-rose-900/30', label: 'ATK' },
+    { icon: Heart, value: stats.hp, color: 'text-emerald-600', bg: 'bg-emerald-950/40', border: 'border-emerald-900/30', label: 'HP' },
+    { icon: Shield, value: stats.defense, color: 'text-sky-600', bg: 'bg-sky-950/40', border: 'border-sky-900/30', label: 'DEF' },
   ];
 
   return (
@@ -33,7 +33,7 @@ export function PlayerInfoBadge({ playerName, stats }: PlayerInfoBadgeProps) {
           <div className="flex flex-col">
             <span className="text-xs font-medium text-stone-300 leading-tight">{playerName}</span>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-amber-600">LV.{stats.等级}</span>
+              <span className="text-[10px] font-bold text-amber-600">LV.{stats.level}</span>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@ export function PlayerInfoBadge({ playerName, stats }: PlayerInfoBadgeProps) {
         <div className="flex flex-col gap-1 min-w-[100px]">
           <div className="flex items-center justify-between text-[9px] text-stone-500">
             <span>{t('label.experience')}</span>
-            <span className="font-mono text-stone-400">{stats.经验}/{expNeeded}</span>
+            <span className="font-mono text-stone-400">{stats.xp}/{expNeeded}</span>
           </div>
           <div className="h-1 rounded-full bg-stone-800 border border-stone-700/50 overflow-hidden">
             <motion.div
@@ -84,7 +84,7 @@ export function PlayerInfoBadge({ playerName, stats }: PlayerInfoBadgeProps) {
             className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-950/40 border border-amber-900/30"
           >
             <Zap className="w-3 h-3 text-amber-600" />
-            <span className="text-[10px] font-mono font-semibold text-amber-600">{stats.暴击率}</span>
+            <span className="text-[10px] font-mono font-semibold text-amber-600">{stats.critRate}</span>
           </motion.div>
         </div>
       </div>

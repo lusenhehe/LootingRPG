@@ -1,10 +1,12 @@
+import React from 'react';
+
 interface TabButtonProps {
   active: boolean;
   onClick: () => void;
   label: string;
 }
 
-export function TabButton({ active, onClick, label }: TabButtonProps) {
+export const TabButton = React.memo(function TabButton({ active, onClick, label }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -13,4 +15,4 @@ export function TabButton({ active, onClick, label }: TabButtonProps) {
       {label}
     </button>
   );
-}
+});

@@ -27,13 +27,13 @@ export const quickSellByQualityRange = (
   let soldCount = 0;
   let earnedGold = 0;
 
-  nextState.背包.forEach((item) => {
-    const qualityIndex = QUALITIES.indexOf(item.品质);
+  nextState.backpack.forEach((item) => {
+    const qualityIndex = QUALITIES.indexOf(item.quality);
     const inRange = qualityIndex >= lower && qualityIndex <= upper;
 
     if (inRange) {
       soldCount += 1;
-      earnedGold += QUALITY_CONFIG[item.品质].price;
+      earnedGold += QUALITY_CONFIG[item.quality].price;
     } else {
       keep.push(item);
     }
@@ -44,18 +44,18 @@ export const quickSellByQualityRange = (
       min: getQualityLabel(QUALITIES[lower]),
       max: getQualityLabel(QUALITIES[upper]),
     });
-    nextState.系统消息 = message;
+    nextState.systemMessage = message;
     return { nextState, message };
   }
 
-  nextState.背包 = keep;
-  nextState.玩家状态.金币 += earnedGold;
+  nextState.backpack = keep;
+  nextState.playerStats.gold += earnedGold;
   const message = t('message.quick_sell_result', {
     min: getQualityLabel(QUALITIES[lower]),
     max: getQualityLabel(QUALITIES[upper]),
     count: soldCount,
     gold: earnedGold,
   });
-  nextState.系统消息 = message;
+  nextState.systemMessage = message;
   return { nextState, message };
 };

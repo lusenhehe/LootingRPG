@@ -1,20 +1,13 @@
+import MapNode from './MapNode';
+import { motion } from 'motion/react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
-import { Mountain, ChevronRight } from 'lucide-react';
-import type { MapChapterDef } from '../../../logic/adapters/mapChapterAdapter';
+import { Mountain} from 'lucide-react';
+import type { MapChapterDef } from '../../../config/map/mapTypes';
 import type { MapProgressState } from '../../../types/game';
-import {
-  isNodeCleared,
-  isNodeUnlocked,
-} from '../../../logic/mapProgress';
-import MapNode from './MapNode';
-import {
-  clampMapOffset,
-  getZigzagNodePosition,
-  chapterThemeStyles,
-} from './mapConfig';
-import { getThemeHeaderColors, HEADER_CONFIG } from '../../../config/ui/mapNode';
+import { isNodeCleared, isNodeUnlocked,} from '../../../logic/mapProgress';
+import { clampMapOffset, getZigzagNodePosition, chapterThemeStyles,} from './mapConfig';
+import { getThemeHeaderColors} from '../../../config/ui/mapNode';
 
 interface MapViewportProps {
   playerLevel: number;
@@ -42,7 +35,6 @@ export default function MapViewport({
 
   const onWheel = (event: React.WheelEvent) => {
     event.preventDefault();
-    // scroll horizontally using wheel delta
     const deltaX = event.deltaY || event.deltaX;
     setOffset((prev) => {
       const viewport = mapViewportRef.current?.getBoundingClientRect() ?? null;
@@ -150,7 +142,7 @@ export default function MapViewport({
         ref={mapViewportRef}
         className="flex-1 min-h-0 rounded-xl border relative overflow-hidden cursor-grab active:cursor-grabbing"
         style={{
-          background: chapterThemeStyles[selectedChapter.theme as any]?.background || chapterThemeStyles['终焉'].background,
+          background: chapterThemeStyles[selectedChapter.theme]?.background,
           borderColor: themeColors.border.replace('/30', ''),
         }}
         onWheel={onWheel}
@@ -169,14 +161,14 @@ export default function MapViewport({
           <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
             <defs>
               <linearGradient id="pathGradientCleared" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor={chapterThemeStyles[selectedChapter.theme as any]?.pathColor || 'rgb(180, 40, 40)'} stopOpacity="0.9" />
+                <stop offset="0%" stopColor={chapterThemeStyles[selectedChapter.theme]?.pathColor} stopOpacity="0.9" />
                 <stop offset="50%" stopColor="rgba(255, 80, 80, 0.85)" />
-                <stop offset="100%" stopColor={chapterThemeStyles[selectedChapter.theme as any]?.pathColor || 'rgb(180, 40, 40)'} stopOpacity="0.9" />
+                <stop offset="100%" stopColor={chapterThemeStyles[selectedChapter.theme]?.pathColor} stopOpacity="0.9" />
               </linearGradient>
               <linearGradient id="pathGradientReady" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor={chapterThemeStyles[selectedChapter.theme as any]?.pathColor || 'rgb(120, 30, 30)'} stopOpacity="0.7" />
+                <stop offset="0%" stopColor={chapterThemeStyles[selectedChapter.theme]?.pathColor} stopOpacity="0.7" />
                 <stop offset="50%" stopColor="rgba(200, 60, 60, 0.6)" />
-                <stop offset="100%" stopColor={chapterThemeStyles[selectedChapter.theme as any]?.pathColor || 'rgb(120, 30, 30)'} stopOpacity="0.7" />
+                <stop offset="100%" stopColor={chapterThemeStyles[selectedChapter.theme]?.pathColor} stopOpacity="0.7" />
               </linearGradient>
               <filter id="pathGlow">
                 <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
@@ -201,14 +193,8 @@ export default function MapViewport({
               const nextPos = getZigzagNodePosition(index + 1);
               const currentCleared = isNodeCleared(normalizedProgress, node.id);
               const nextUnlocked = isNodeUnlocked(normalizedProgress, nextNode.id);
-              const themePathColor = chapterThemeStyles[selectedChapter.theme as any]?.pathColor || 'rgb(100, 50, 50)';
-
-              const pathColor = currentCleared
-                ? 'url(#pathGradientCleared)'
-                : nextUnlocked
-                ? 'url(#pathGradientReady)'
-                : themePathColor + '40';
-
+              const themePathColor = chapterThemeStyles[selectedChapter.theme]?.pathColor || 'rgb(100, 50, 50)';
+              const pathColor = currentCleared ? 'url(#pathGradientCleared)' : nextUnlocked ? 'url(#pathGradientReady)' : themePathColor + '40';
               return (
                 <>
                   <g key={`${node.id}-${nextNode.id}`}>

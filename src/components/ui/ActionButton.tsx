@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
 interface ActionButtonProps {
   onClick: () => void;
@@ -10,7 +10,7 @@ interface ActionButtonProps {
   color?: string;
 }
 
-export function ActionButton({ onClick, icon, label, sub, active, disabled, color }: ActionButtonProps) {
+export const ActionButton = React.memo(function ActionButton({ onClick, icon, label, sub, active, disabled, color }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -22,4 +22,4 @@ export function ActionButton({ onClick, icon, label, sub, active, disabled, colo
       <span className={`text-[10px] uppercase font-mono ${active ? 'text-white/70' : 'text-gray-500'}`}>{sub}</span>
     </button>
   );
-}
+});

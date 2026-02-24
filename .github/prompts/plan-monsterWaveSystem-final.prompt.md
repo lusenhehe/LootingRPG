@@ -33,8 +33,6 @@ export interface NodeWave {
 export interface MapNodeDef {
   id: string;
   name: string;
-  // 兼容旧数据
-  waveSize?: number;
   waves?: NodeWave[];
   // …其他字段保持
 }
@@ -53,7 +51,6 @@ export interface BattleState {
 ```
 
 ### 1.2 向后兼容
-- 如果仅存在 `waveSize`，运行时默认生成 `waves` 数组（随机怪或同一怪重复）。
 - BattleState 的 `waveContext` 为可选，新存档才填充。
 
 ---
@@ -100,13 +97,11 @@ idle → entering → fighting → (波次完成? next-wave→entering : droppin
 ## 5. 分期实施路径
 
 ### MVP
-- 允许节点配置 `waves` 或 `waveSize` 回退。
 - 战斗流程按波数循环 simulateBattle，更新 `waveContext` 并展示文本提示。
 - MapNode 仅显示波次数与当前剩余数量。
 - 无会话恢复，SavePayload 不改写。
 - 指标：波节点成功率、战斗时长、金币产出无异常。
 ### Phase1
-- 强制使用 `waves` 并停用 `waveSize`。
 - MapNode 悬浮列表可查看各波怪物图标。
 - 奖励逻辑移入单怪战斗函数，统一掉落计算。
 ### Phase2
@@ -116,7 +111,6 @@ idle → entering → fighting → (波次完成? next-wave→entering : droppin
 ### Phase3
 - 实现 `battleSession` 存档恢复。
 - 兼容导入/版本升级，加入一致性校验。
-- 回收 `waveSize` 字段完全，移除旧行为。
 指标：失败率、产出、时长对比、存档恢复成功率。
 ---
 ## 6. 测试与 DoD
@@ -146,7 +140,6 @@ DoD: 所有 wave 节点能战斗；旧存档可用；无 TS 错误；相关 UI �
 ---
 
 ## 8. 决策记录
-1. 并行兼容 waveSize
 2. 本期不破坏元素底层，仅移除展示
 3. 先统一战斗路径后优化 UI
 

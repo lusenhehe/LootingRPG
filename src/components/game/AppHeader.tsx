@@ -24,8 +24,8 @@ export function AppHeader({
   onImportSave,
 }: AppHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
-  const expNeeded = playerStats.等级 * 100;
-  const expPercent = Math.min(100, (playerStats.经验 / expNeeded) * 100);
+  const expNeeded = playerStats.level * 100;
+  const expPercent = Math.min(100, (playerStats.xp / expNeeded) * 100);
 
   return (
     <header className="flex items-center justify-between gap-4 h-16 px-5 border-b border-white/5 bg-gradient-to-b from-stone-900 via-stone-900/95 to-stone-950 backdrop-blur-md shadow-lg shadow-black/20">
@@ -53,7 +53,7 @@ export function AppHeader({
               <span className="text-xs font-bold text-indigo-300">{playerName.charAt(0).toUpperCase()}</span>
             </div>
             <span className="text-sm font-medium text-stone-200">{playerName}</span>
-            <span className="px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-amber-600 to-amber-700 text-amber-100 rounded-md shadow-inner">Lv.{playerStats.等级}</span>
+            <span className="px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-amber-600 to-amber-700 text-amber-100 rounded-md shadow-inner">Lv.{playerStats.level}</span>
           </div>
 
           <div className="flex items-center gap-2 w-28">
@@ -67,23 +67,23 @@ export function AppHeader({
                 <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-full" />
               </motion.div>
             </div>
-            <span className="text-[10px] text-stone-500 font-mono w-12 text-right">{playerStats.经验}/{expNeeded}</span>
+            <span className="text-[10px] text-stone-500 font-mono w-12 text-right">{playerStats.xp}/{expNeeded}</span>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
             <div className="flex items-center gap-1.5 px-2 py-1 bg-rose-500/10 rounded-md border border-rose-500/20">
               <Sword size={12} className="text-rose-400" />
-              <span className="text-rose-300 font-semibold">{playerStats.攻击力}</span>
+              <span className="text-rose-300 font-semibold">{playerStats.attack}</span>
               <span className="text-stone-600 font-normal">ATK</span>
             </div>
             <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded-md border border-emerald-500/20">
               <div className="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-400/50" />
-              <span className="text-emerald-300 font-semibold">{playerStats.生命值}</span>
+              <span className="text-emerald-300 font-semibold">{playerStats.hp}</span>
               <span className="text-stone-600 font-normal">HP</span>
             </div>
             <div className="flex items-center gap-1.5 px-2 py-1 bg-sky-500/10 rounded-md border border-sky-500/20">
               <div className="w-3 h-1.5 rounded-sm bg-sky-400/50" />
-              <span className="text-sky-300 font-semibold">{playerStats.防御力}</span>
+              <span className="text-sky-300 font-semibold">{playerStats.defense}</span>
               <span className="text-stone-600 font-normal">DEF</span>
             </div>
           </div>

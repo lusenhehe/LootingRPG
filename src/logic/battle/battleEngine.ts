@@ -4,6 +4,9 @@ import { getFinalPlayerStats, getCombatProfile } from '../stats/playerStats';
 import { getFinalMonsterStats, getTurnCombatSnapshot, type FinalMonsterCombatStats } from '../stats/monsterStats';
 import i18n from '../../i18n';
 
+// config constants used by battle logic
+import { calculateBonusTurns } from '../../config/game/battleConfig';
+
 export interface SimulatedBattle {
   monster: Monster;
   monsters: Monster[];
@@ -17,6 +20,13 @@ const pickElement = (): string => ELEMENT_POOL[Math.floor(Math.random() * ELEMEN
 
 const toArray = (value: Monster | Monster[]): Monster[] => (Array.isArray(value) ? value : [value]);
 
+const createBattleResult = (monsters: Monster[], frames: BattleFrame[], playerWon: boolean): SimulatedBattle => ({
+  monster: monsters[0],
+  monsters,
+  frames,
+  playerWon,
+});
+
 export const simulateBattle = (
   rawMonsterOrMonsters: Monster | Monster[],
   playerStats: PlayerStats,
@@ -29,7 +39,7 @@ export const simulateBattle = (
   const combatProfile = getCombatProfile();
 
   const finalMonsters: FinalMonsterCombatStats[] = rawMonsters.map((rawMonster) =>
-    getFinalMonsterStats(rawMonster, playerStats.等级, encounterCount, isBoss || !!rawMonster.isBoss, finalPlayer, mapNodeId),
+    getFinalMonsterStats(rawMonster, playerStats.level, encounterCount, isBoss || !!rawMonster.isBoss, finalPlayer, mapNodeId),
   );
 
   const monsters = rawMonsters.map((rawMonster, idx) => ({
@@ -48,7 +58,8 @@ export const simulateBattle = (
   let targetCursor = 0;
 
   const hasBoss = monsters.some((m) => m.isBoss);
-  const bonusTurns = finalPlayer.attackSpeed >= 40 ? 2 : finalPlayer.attackSpeed >= 20 ? 1 : 0;
+  // use centralized bonus turn calculation so thresholds live in config
+  const bonusTurns = calculateBonusTurns(finalPlayer.attackSpeed);
   const maxTurns = (hasBoss ? 10 : 7) + bonusTurns + combatProfile.turnBonus;
 
   const buildPercents = () => monsterCurrentHp.map((hp, i) => Math.max(0, Math.floor((hp / monsters[i].maxHp) * 100)));
@@ -60,21 +71,11 @@ export const simulateBattle = (
       .map((item) => item.idx);
 
     if (!aliveIndexes.length) {
-      return {
-        monster: monsters[0],
-        monsters,
-        frames,
-        playerWon: true,
-      };
+      return createBattleResult(monsters, frames, true);
     }
 
     if (playerHp <= 0) {
-      return {
-        monster: monsters[0],
-        monsters,
-        frames,
-        playerWon: false,
-      };
+      return createBattleResult(monsters, frames, false);
     }
 
     const targetIndex = aliveIndexes[targetCursor % aliveIndexes.length];
@@ -168,21 +169,11 @@ export const simulateBattle = (
 
     const allDead = monsterCurrentHp.every((hp) => hp <= 0);
     if (allDead) {
-      return {
-        monster: monsters[0],
-        monsters,
-        frames,
-        playerWon: true,
-      };
+      return createBattleResult(monsters, frames, true);
     }
 
     if (playerHp <= 0) {
-      return {
-        monster: monsters[0],
-        monsters,
-        frames,
-        playerWon: false,
-      };
+      return createBattleResult(monsters, frames, false);
     }
   }
 
@@ -201,10 +192,5 @@ export const simulateBattle = (
     combatLogs: [playerWon ? i18n.t('battle.log.player_finish') : i18n.t('battle.log.enemy_finish')],
   });
 
-  return {
-    monster: monsters[0],
-    monsters,
-    frames,
-    playerWon,
-  };
+  return createBattleResult(monsters, frames, playerWon);
 };

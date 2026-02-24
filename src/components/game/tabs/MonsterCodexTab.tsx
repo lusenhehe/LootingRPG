@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../logic/adapters/monsterCatalogAdapter';
+import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../logic/monsters/catalog';
 import { UI_DIMENSIONS } from '../../../config/ui/tokens';
 import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/monsterStrategyConfig';
 import type { Monster, MonsterTrait, ThreatType } from '../../../types/game';
@@ -45,10 +45,10 @@ const inferThreatTypes = (monster: Monster): ThreatType[] => {
   if (traits.includes('double_attack') || traits.includes('rage_on_low_hp')) {
     result.push('sustain_pressure');
   }
-  if (traits.includes('shield_on_start') || monster.counterGoal?.stat === '攻击力') {
+  if (traits.includes('shield_on_start') || monster.counterGoal?.stat === 'attack') {
     result.push('tank_breaker');
   }
-  if (traits.includes('lifesteal') || monster.counterGoal?.stat === '生命值' || monster.counterGoal?.stat === '吸血') {
+  if (traits.includes('lifesteal') || monster.counterGoal?.stat === 'hp' || monster.counterGoal?.stat === 'lifesteal') {
     result.push('attrition');
   }
 
@@ -107,14 +107,24 @@ const getStrategyHints = (monster: Monster, t: (k: string, opts?: any) => any): 
 
   (monster.traits ?? []).forEach((trait) => {
     // try to read an array from i18n first, fallback to traitHintMap if missing
-    const traitHints = (t(`trait.hints.${trait}`, { returnObjects: true }) as string[]);
-    traitHints.forEach((text) => {
-      if (!hints.includes(text)) hints.push(text);
-    });
+    const traitHints = t(`trait.hints.${trait}`, { returnObjects: true });
+    if (Array.isArray(traitHints)) {
+      traitHints.forEach((text) => {
+        if (typeof text === 'string' && !hints.includes(text)) hints.push(text);
+      });
+    } else if (typeof traitHints === 'string' && traitHints !== `trait.hints.${trait}`) {
+      if (!hints.includes(traitHints)) hints.push(traitHints);
+    }
   });
 
   if (monster.counterGoal) {
     hints.push(t('codex.hints.counterGoal'));
+    if (monster.counterGoal.successText && !hints.includes(monster.counterGoal.successText)) {
+      hints.push(monster.counterGoal.successText);
+    }
+    if (monster.counterGoal.failText && !hints.includes(monster.counterGoal.failText)) {
+      hints.push(monster.counterGoal.failText);
+    }
   }
 
   if (!monster.traits?.length && !monster.counterGoal) {
@@ -315,13 +325,13 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: (k: string, o
             >
               <div className="flex items-center gap-1.5 mb-1">
                 <Flame size={11} className="text-amber-400" />
-                <span className="text-[10px] font-medium text-amber-200">对抗目标</span>
+                <span className="text-[10px] font-medium text-amber-200">{t('codex.counterGoal')}</span>
               </div>
               <div className="text-[9px] text-amber-100/70">
                 {monster.counterGoal.title}
               </div>
               <div className="text-[8px] text-amber-400/50 mt-0.5">
-                {monster.counterGoal.stat} ≥ {monster.counterGoal.threshold}
+                {t(`stat.${monster.counterGoal.stat}`, { defaultValue: monster.counterGoal.stat })} ≥ {monster.counterGoal.threshold}
               </div>
             </motion.div>
           )}

@@ -1,0 +1,148 @@
+{
+  "chapterNodeStyles": {
+    "林地": {
+      "normal": {
+        "shape": "rounded-[30%_70%_70%_30%/30%_30%_70%_70%]",
+        "size": "w-14 h-14",
+        "iconColor": "text-emerald-200",
+        "ringColor": "ring-emerald-800/50",
+        "glowColor": "rgba(16, 150, 100, 0.4)",
+        "particleColor": "bg-emerald-400",
+        "bgGradient": "from-emerald-950 via-green-950 to-stone-950",
+        "borderStyle": "border-emerald-800/30"
+      },
+      "elite": {
+        "shape": "rounded-lg rotate-12",
+        "size": "w-14 h-14",
+        "iconColor": "text-lime-300",
+        "ringColor": "ring-lime-700/60",
+        "glowColor": "rgba(150, 200, 50, 0.5)",
+        "particleColor": "bg-lime-500",
+        "bgGradient": "from-lime-950 via-emerald-950 to-stone-900",
+        "borderStyle": "border-lime-800/40"
+      },
+      "boss": {
+        "shape": "rounded-[40%_60%_35%_65%/60%_30%_70%_40%]",
+        "size": "w-18 h-18",
+        "iconColor": "text-lime-200",
+        "ringColor": "ring-lime-900/70",
+        "glowColor": "rgba(100, 180, 60, 0.6)",
+        "particleColor": "bg-lime-400",
+        "bgGradient": "from-lime-950 via-emerald-900 to-stone-950",
+        "borderStyle": "border-lime-800/50"
+      }
+    },
+    "地牢": {
+      "normal": {
+        "shape": "rounded-sm",
+        "size": "w-14 h-14",
+        "iconColor": "text-stone-300",
+        "ringColor": "ring-stone-600/50",
+        "glowColor": "rgba(120, 120, 130, 0.4)",
+        "particleColor": "bg-stone-400",
+        "bgGradient": "from-stone-900 via-zinc-900 to-black",
+        "borderStyle": "border-stone-700/40"
+      },
+      "elite": {
+        "shape": "rounded-[2px]",
+        "size": "w-14 h-14",
+        "iconColor": "text-stone-200",
+        "ringColor": "ring-stone-500/60",
+        "glowColor": "rgba(150, 150, 160, 0.5)",
+        "particleColor": "bg-stone-300",
+        "bgGradient": "from-stone-800 via-zinc-800 to-stone-950",
+        "borderStyle": "border-stone-600/50"
+      },
+      "boss": {
+        "shape": "rounded-none",
+        "size": "w-18 h-18",
+        "iconColor": "text-stone-100",
+        "ringColor": "ring-stone-400/70",
+        "glowColor": "rgba(180, 180, 190, 0.6)",
+        "particleColor": "bg-stone-200",
+        "bgGradient": "from-stone-700 via-zinc-700 to-stone-900",
+        "borderStyle": "border-stone-500/60"
+      }
+    },
+    "火山": {
+      "normal": {
+        "shape": "rounded-tl-[40%] rounded-br-[50%]",
+        "size": "w-14 h-14",
+        "iconColor": "text-orange-200",
+        "ringColor": "ring-orange-800/50",
+        "glowColor": "rgba(200, 100, 20, 0.4)",
+        "particleColor": "bg-orange-500",
+        "bgGradient": "from-orange-950 via-red-950 to-stone-950",
+        "borderStyle": "border-orange-800/40"
+      },
+      "elite": {
+        "shape": "rounded-tl-[30%] rounded-tr-[60%] rounded-bl-[60%] rounded-br-[30%]",
+        "size": "w-14 h-14",
+        "iconColor": "text-orange-300",
+        "ringColor": "ring-orange-700/60",
+        "glowColor": "rgba(220, 120, 30, 0.5)",
+        "particleColor": "bg-orange-400",
+        "bgGradient": "from-orange-900 via-red-900 to-stone-950",
+        "borderStyle": "border-orange-700/50"
+      },
+      "boss": {
+        "shape": "rounded-tl-[60%] rounded-br-[60%] rounded-tr-[20%] rounded-bl-[20%]",
+        "size": "w-18 h-18",
+        "iconColor": "text-red-200",
+        "ringColor": "ring-red-800/70",
+        "glowColor": "rgba(220, 50, 20, 0.6)",
+        "particleColor": "bg-red-500",
+        "bgGradient": "from-red-900 via-orange-900 to-stone-950",
+        "borderStyle": "border-red-700/60"
+      }
+    },
+    "亡灵": {
+      "normal": {
+        "shape": "rounded-t-full rounded-b-sm",
+        "size": "w-14 h-14",
+        "iconColor": "text-purple-200",
+        "ringColor": "ring-purple-800/50",
+        "glowColor": "rgba(150, 50, 150, 0.4)",
+        "particleColor": "bg-purple-400",
+        "bgGradient": "from-purple-950 via-violet-950 to-stone-950",
+        "borderStyle": "border-purple-800/40"
+      },
+      "elite": {
+        "shape": "rounded-t-[60%] rounded-b-[40%]",
+        "size": "w-14 h-14",
+        "iconColor": "text-violet-300",
+        "ringColor": "ring-violet-700/60",
+        "glowColor": "rgba(180, 80, 180, 0.5)",
+        "particleColor": "bg-violet-400",
+        "bgGradient": "from-violet-900 via-purple-900 to-stone-950",
+        "borderStyle": "border-violet-700/50"
+      },
+      "boss": {
+        "shape": "rounded-t-[70%] rounded-b-[30%]",
+        "size": "w-18 h-18",
+        "iconColor": "text-fuchsia-200",
+        "ringColor": "ring-fuchsia-800/70",
+        "glowColor": "rgba(200, 50, 150, 0.6)",
+        "particleColor": "bg-fuchsia-500",
+        "bgGradient": "from-fuchsia-900 via-purple-900 to-stone-950",
+        "borderStyle": "border-fuchsia-700/60"
+      }
+    }
+  },
+  "defaultEncounterStyles": {
+    "normal": { "shape": "rounded-xl", "size": "w-14 h-14", "iconColor": "text-red-200", "ringColor": "ring-red-800/50", "glowColor": "rgba(180, 40, 40, 0.4)", "particleColor": "bg-red-400", "bgGradient": "from-red-950 via-stone-900 to-black", "borderStyle": "border-red-800/40" },
+    "elite": { "shape": "rounded-lg rotate-45", "size": "w-14 h-14", "iconColor": "text-amber-200", "ringColor": "ring-amber-900/60", "glowColor": "rgba(200, 100, 20, 0.5)", "particleColor": "bg-amber-600", "bgGradient": "from-amber-950 via-orange-950 to-stone-900", "borderStyle": "border-amber-800/50" },
+    "boss": { "shape": "rounded-xl", "size": "w-18 h-18", "iconColor": "text-rose-200", "ringColor": "ring-rose-900/70", "glowColor": "rgba(220, 40, 60, 0.6)", "particleColor": "bg-rose-500", "bgGradient": "from-rose-950 via-red-950 to-stone-950", "borderStyle": "border-rose-800/60" }
+  },
+  "MAP_NODE_CONFIG": {
+    "bossIconSize": 26,
+    "normalIconSize": 22,
+    "starCount": { "boss": 3, "elite": 2, "normal": 1 },
+    "floatDelayBase": 0.3,
+    "floatDelayIncrement": 0.08,
+    "animationDuration": { "float": 2.5, "hover": 0.35, "glow": 1.5, "particle": 1.2 },
+    "hoverScale": 1.1,
+    "hoverY": -8,
+    "tapScale": 0.95
+  }
+}

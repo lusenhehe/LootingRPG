@@ -209,6 +209,17 @@
   "ui.no_forge_items": "暂无可锻造装备",
   "button.enchant": "强化",
   "button.reroll": "洗练",
+  "ui.forge.preview_times": "强化次数",
+  "ui.forge.cost": "消耗",
+  "ui.forge.preview": "查看预览",
+  "ui.forge.apply": "应用强化",
+  "ui.forge.reroll": "重铸",
+  "ui.forge.lock": "锁定",
+  "ui.forge.unlock": "解锁",
+  "ui.forge.confirm_title": "确认强化",
+  "ui.forge.confirm_body": "将消耗资源并应用强化，确定吗？",
+  "button.confirm": "确认",
+  "button.cancel": "取消",
 
   "bossPhase.abyss_annihilation": "深渊湮灭",
   "bossPhase.dragon_annihilation": "龙炎天罚",
@@ -416,12 +427,8 @@
       }
     }
   },
-  "codex": {
-    "counterGoal": {
-      "passed": "对抗目标达成：{{title}}（{{detail}}）",
-      "failed": "对抗目标未达成：{{title}}（{{detail}}）"
-    }
-  },
+  "codex.counterGoal.passed": "对抗目标达成：{{title}}（{{detail}}）",
+  "codex.counterGoal.failed": "对抗目标未达成：{{title}}（{{detail}}）",
   "button.challenge_monster": "挑战怪物",
   "button.challenge_boss": "挑战 BOSS",
   "button.challenge_wave": "群怪来袭",
@@ -432,6 +439,7 @@
   "message.sold_item": "出售了 {{name}}，获得金币 {{price}}",
   "message.enchant_success": "强化成功！{{name}} 变为 +{{level}}",
   "message.enchant_fail": "强化失败... 金币已消耗。",
+  "message.enchant_maxed": "该装备已达到最大强化等级 +20。",
   "message.not_enough_gold_enchant": "金币不足，无法强化。",
   "message.no_secondary_stats": "该装备无可洗练副词条。",
   "message.not_enough_gold_reroll": "金币不足，无法洗练。",

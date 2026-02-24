@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { MAP_CHAPTERS } from '../../logic/adapters/mapChapterAdapter';
+import { MAP_CHAPTERS } from '../../config/map/chapters';
 import { recalculatePlayerStats } from '../../logic/playerStats';
 import { createInitialBattleState } from '../../logic/gameState';
 import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
+import { convertGameState } from '../../logic/nameConversion';
 import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
 import type { GameState, MapProgressState, SavePayload, SaveProfile, BattleState } from '../../types/game';
 import { createAutoSellQualityMap } from '../../logic/inventory/autoSell';
@@ -127,7 +128,8 @@ export function useProfileSave({
 
     try {
       const payload = JSON.parse(payloadText) as SavePayload;
-      setGameState(recalculatePlayerStats(normalizeGameState(payload.gameState)));
+      const converted = convertGameState(payload.gameState as any);
+      setGameState(recalculatePlayerStats(normalizeGameState(converted)));
       setLogs(payload.logs?.length ? payload.logs : ['[系统] 存档已载入。']);
       setAutoSellQualities(convertAutoSell(payload.autoSellQualities));
       setMapProgress(normalizeMapProgress(payload.mapProgress, MAP_CHAPTERS));
@@ -224,21 +226,30 @@ export function useProfileSave({
         const text = await file.text();
         const parsed = JSON.parse(text) as SavePayload | GameState;
 
-        if ('玩家状态' in parsed) {
-          loadProfile(''); // not associated with profile
-          setGameState(recalculatePlayerStats(normalizeGameState(parsed)));
-          setLogs(['[系统] 存档导入成功。']);
-          setAutoSellQualities(createAutoSellQualityMap());
-          setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
-          if (setBattleState) setBattleState(createInitialBattleState());
+        // normalize into SavePayload structure for downstream code
+        let payload: SavePayload;
+        if ((parsed as any).playerStats && !(parsed as any).gameState) {
+          // old-style import: top-level game state
+          payload = {
+            gameState: parsed as GameState,
+            logs: ['[系统] 存档导入成功。'],
+            autoSellQualities: createAutoSellQualityMap(),
+            mapProgress: createInitialMapProgress(MAP_CHAPTERS),
+          };
         } else {
-          loadProfile('');
-          setGameState(recalculatePlayerStats(normalizeGameState(parsed.gameState)));
-          setLogs(parsed.logs?.length ? parsed.logs : ['[系统] 存档导入成功。']);
-          setAutoSellQualities(parsed.autoSellQualities ?? createAutoSellQualityMap());
-          setMapProgress(normalizeMapProgress(parsed.mapProgress, MAP_CHAPTERS));
-          if (setBattleState) setBattleState(createInitialBattleState());
+          payload = parsed as SavePayload;
         }
+
+        // convert legacy key names inside gameState if needed
+        const converted = convertGameState(payload.gameState as any);
+        payload.gameState = converted;
+
+        loadProfile(''); // not associated with profile
+        setGameState(recalculatePlayerStats(normalizeGameState(payload.gameState)));
+        setLogs(payload.logs?.length ? payload.logs : ['[系统] 存档导入成功。']);
+        setAutoSellQualities(payload.autoSellQualities ?? createAutoSellQualityMap());
+        setMapProgress(normalizeMapProgress(payload.mapProgress, MAP_CHAPTERS));
+        if (setBattleState) setBattleState(createInitialBattleState());
         addLog('已从 JSON 文件导入存档。');
       } catch {
         addLog('导入失败：JSON 格式无效。');

@@ -71,13 +71,11 @@ export const getFinalPlayerStats = (
   encounterCount: number,
 ): FinalPlayerCombatStats => {
   const combatProfile = DEFAULT_COMBAT_PROFILE;
-  const rawCritPercent = toNumber(source.暴击率);
-  const rawLifestealPercent = toNumber(source.吸血);
-  const rawThornsPercent = toNumber(source.反伤);
-  const rawDefense = Math.max(0, Math.floor(source.防御力));
-
-  // mirror monster scaling so player curve is no longer strictly linear
-  const levelFactor = 1 + Math.max(0, source.等级 - 1) * 0.08;
+  const rawCritPercent = toNumber(source.critRate);
+  const rawLifestealPercent = toNumber(source.lifesteal);
+  const rawThornsPercent = toNumber(source.thorns);
+  const rawDefense = Math.max(0, Math.floor(source.defense));
+  const levelFactor = 1 + Math.max(0, source.level - 1) * 0.08;
   const encounterFactor = 1 + Math.min(0.65, encounterCount * 0.003);
 
   const critPercent = toSoftCappedPercent(rawCritPercent, 50, 75, 0.08);
@@ -86,18 +84,17 @@ export const getFinalPlayerStats = (
   const damageReduction = defenseToReductionRate(rawDefense, 0.68, 0.01);
 
   return {
-    maxHp: Math.max(1, Math.floor(source.生命值 * levelFactor * encounterFactor)),
-    attack: Math.max(
-      1,
-      Math.floor(source.攻击力 * levelFactor * encounterFactor * combatProfile.playerDamageMultiplier),
+    maxHp: Math.max(1, Math.floor(source.hp * levelFactor * encounterFactor)),
+    attack: Math.max( 1,
+      Math.floor(source.attack * levelFactor * encounterFactor * combatProfile.playerDamageMultiplier),
     ),
     defense: Math.max(0, Math.floor(rawDefense * levelFactor * encounterFactor)),
     damageReduction,
     critRate: clamp(critPercent / 100, 0, 0.8),
-    elementalBonus: Math.max(0, toNumber(source.元素伤害)),
+    elementalBonus: Math.max(0, toNumber(source.elemental)),
     lifestealRate: clamp(lifestealPercent / 100, 0, 0.45),
     thornsRate: clamp(thornsPercent / 100, 0, 0.35),
-    attackSpeed: Math.max(0, toNumber(source.攻击速度)),
+    attackSpeed: Math.max(0, toNumber(source.attackSpeed)),
   };
 };
 

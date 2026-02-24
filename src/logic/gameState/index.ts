@@ -7,12 +7,12 @@ import type { GameState } from '../../types/game';
  * Normalizes the entire game state, including inventory and equipment
  */
 export const normalizeGameState = (state: GameState): GameState => {
-  const { normalizedBackpack, normalizedCurrent } = normalizeInventory(state.背包, state.当前装备);
+  const { normalizedBackpack, normalizedCurrent } = normalizeInventory(state.backpack, state.currentEquipment);
 
   return {
     ...state,
-    背包: normalizedBackpack,
-    当前装备: normalizedCurrent,
+    backpack: normalizedBackpack,
+    currentEquipment: normalizedCurrent,
   };
 };
 

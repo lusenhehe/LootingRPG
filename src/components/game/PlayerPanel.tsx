@@ -1,19 +1,13 @@
-import { ArrowUpCircle, Heart, Shield, Sword, User, Zap, Gem, Crown, Star, Hexagon, Flame, Droplets, ShieldAlert, Sparkles, Gauge, Package } from 'lucide-react';
+import { ArrowUpCircle, Shield, Sword, User, Star, Gem, Package, Flame, Droplets, ShieldAlert, Sparkles, Gauge, Coins } from 'lucide-react';
+import { getSlotLabel, getQualityLabel, getStatLabel } from '../../logic/i18n/labels';
+import { getDerivedStats } from '../../logic/uiHelpers';
+import { getEquipmentTotals } from '../../logic/equipmentUtils';
+import { QUALITY_CONFIG, SLOT_CONFIG } from '../../config/game/equipment';
+import type { Equipment, GameState } from '../../types/game';
+import { useTranslation } from 'react-i18next';
+import { useState, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
-import { useTranslation } from 'react-i18next';
-import type { Equipment, GameState } from '../../types/game';
-import { getQualityColor, QUALITY_CONFIG, SLOT_CONFIG } from '../../config/game/equipment';
-import { getQualityLabel, getSlotLabel } from '../../logic/i18n/labels';
-
-const slotIconMap: Record<string, ReactNode> = {
-  shield: <Shield size={14} className="text-gray-400" />,
-  zap: <Zap size={14} className="text-emerald-400" />,
-  gem: <Gem size={14} className="text-blue-400" />,
-  hexagon: <Hexagon size={14} className="text-purple-400" />,
-  crown: <Crown size={14} className="text-yellow-400" />,
-  star: <Star size={14} className="text-red-400" />,
-};
 
 const slotTypeIconMap: Record<string, ReactNode> = {
   sword: <Sword size={14} className="text-amber-400" />,
@@ -31,79 +25,95 @@ interface PlayerPanelProps {
 
 export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
   const { t } = useTranslation();
-  const expProgress = (gameState.玩家状态.经验 / (gameState.玩家状态.等级 * 100)) * 100;
-  const critRateLabel = `${String(gameState.玩家状态.暴击率).replace('%', '')}%`;
-  const derivedStats = [
-    {
-      key: 'dmg',
-      label: '伤害加成',
-      value: `${gameState.玩家状态.伤害加成}%`,
-      rawValue: gameState.玩家状态.伤害加成,
-      icon: <Flame size={12} className="text-orange-300" />,
-      accent: 'border-orange-400/35 bg-orange-500/10 text-orange-200',
-    },
-    {
-      key: 'ls',
-      label: '吸血',
-      value: `${gameState.玩家状态.吸血}%`,
-      rawValue: gameState.玩家状态.吸血,
-      icon: <Droplets size={12} className="text-red-300" />,
-      accent: 'border-red-400/35 bg-red-500/10 text-red-200',
-    },
-    {
-      key: 'thorns',
-      label: '反伤',
-      value: `${gameState.玩家状态.反伤}%`,
-      rawValue: gameState.玩家状态.反伤,
-      icon: <ShieldAlert size={12} className="text-emerald-300" />,
-      accent: 'border-emerald-400/35 bg-emerald-500/10 text-emerald-200',
-    },
-    {
-      key: 'element',
-      label: '元素伤害',
-      value: `+${gameState.玩家状态.元素伤害}`,
-      rawValue: gameState.玩家状态.元素伤害,
-      icon: <Sparkles size={12} className="text-cyan-300" />,
-      accent: 'border-cyan-400/35 bg-cyan-500/10 text-cyan-200',
-    },
-    {
-      key: 'spd',
-      label: '攻击速度',
-      value: `+${gameState.玩家状态.攻击速度}`,
-      rawValue: gameState.玩家状态.攻击速度,
-      icon: <Gauge size={12} className="text-violet-300" />,
-      accent: 'border-violet-400/35 bg-violet-500/10 text-violet-200',
-    },
-  ];
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  
+  const derivedStats = useMemo(() => {
+    const base = getDerivedStats(gameState);
+    // add icons to each entry here so the util stays UI-agnostic
+    return base.map((stat) => {
+      let icon: ReactNode = null;
+      switch (stat.key) {
+        case 'dmg':
+          icon = <Flame size={12} className="text-orange-300" />;
+          break;
+        case 'ls':
+          icon = <Droplets size={12} className="text-red-300" />;
+          break;
+        case 'thorns':
+          icon = <ShieldAlert size={12} className="text-emerald-300" />;
+          break;
+        case 'element':
+          icon = <Sparkles size={12} className="text-cyan-300" />;
+          break;
+        case 'spd':
+          icon = <Gauge size={12} className="text-violet-300" />;
+          break;
+      }
+      return { ...stat, icon };
+    });
+  }, [gameState]);
+
+  const selectedItem = selectedSlot 
+    ? gameState.currentEquipment[selectedSlot as keyof typeof gameState.currentEquipment] as Equipment | null
+    : null;
+
+  const qualityColor = useMemo(() => {
+    return selectedItem
+      ? QUALITY_CONFIG[selectedItem.quality]?.color || 'text-gray-400'
+      : 'text-gray-400';
+  }, [selectedItem]);
+
+  const equipmentTotals = useMemo(() => {
+    return getEquipmentTotals(gameState.currentEquipment);
+  }, [gameState]);
+
+  // you could render equipmentTotals in a tooltip or debug panel; for now we simply log when it changes
+  useMemo(() => {
+    console.debug('equipment totals', equipmentTotals);
+    return null;
+  }, [equipmentTotals]);
+
+  const handleSlotClick = (slot: string) => {
+    const item = gameState.currentEquipment[slot as keyof typeof gameState.currentEquipment];
+    if (item) {
+      setSelectedSlot(selectedSlot === slot ? null : slot);
+    }
+  };
+
+  const handleUnequipClick = () => {
+    if (selectedSlot) {
+      onUnequip(selectedSlot);
+      setSelectedSlot(null);
+    }
+  };
 
   return (
-    <div className="lg:col-span-4 space-y-6">
+    <div className="lg:col-span-4 space-y-3">
       <motion.section
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.08 }}
-        className="bg-gradient-to-br from-game-card to-game-card/80 border border-game-border/50 rounded-2xl p-5 shadow-xl shadow-purple-500/5 relative overflow-hidden"
+        className="bg-gradient-to-br from-game-card to-game-card/80 border border-game-border/50 rounded-xl p-3 shadow-xl shadow-purple-500/5 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-fuchsia-500/5" />
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
-          <Sparkles size={14} className="text-cyan-300" /> {t('player.battleAffixes')}
+        <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-1.5 relative z-10">
+          <Sparkles size={12} className="text-cyan-300" /> {t('player.battleAffixes')}
         </h3>
 
-        <div className="grid grid-cols-2 gap-2 relative z-10">
+        <div className="grid grid-cols-5 gap-1.5 relative z-10">
           {derivedStats.map((stat) => {
             const active = stat.rawValue > 0;
             return (
               <motion.div
                 key={stat.key}
                 whileHover={{ scale: 1.02 }}
-                className={`rounded-xl border px-2.5 py-2 transition-all ${active ? stat.accent : 'border-white/10 bg-white/[0.03] text-gray-500'}`}
+                className={`rounded-lg border px-2 py-1.5 transition-all ${active ? stat.accent : 'border-white/10 bg-white/[0.03] text-gray-500'}`}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide">
+                <div className="flex flex-col items-center gap-1">
+                  <span className="flex items-center gap-1">
                     {stat.icon}
-                    {stat.label}
                   </span>
-                  <span className={`font-mono text-xs font-bold ${active ? 'text-white' : 'text-gray-500'}`}>
+                  <span className={`font-mono text-[10px] font-bold ${active ? 'text-white' : 'text-gray-500'}`}>
                     {stat.value}
                   </span>
                 </div>
@@ -117,76 +127,134 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-gradient-to-br from-game-card to-game-card/80 border border-game-border/50 rounded-2xl p-5 shadow-xl shadow-purple-500/5 relative overflow-hidden"
+        className="bg-gradient-to-br from-game-card to-game-card/80 border border-game-border/50 rounded-xl p-3 shadow-xl shadow-purple-500/5 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/3 to-transparent" />
         
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
-          <Shield size={14} className="text-violet-400" /> {t('player.currentEquipment')}
+        <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-1.5 relative z-10">
+          <Shield size={12} className="text-violet-400" /> {t('player.currentEquipment')}
         </h3>
-        <div className="grid grid-cols-2 gap-3 relative z-10">
-          {(Object.entries(gameState.当前装备) as [string, Equipment | null][]).map(([slot, item]) => (
-            <div key={slot} className="relative group">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className={`h-24 rounded-xl border border-dashed flex flex-col items-center justify-center transition-all duration-200 ${item 
-                  ? `bg-game-bg/80 border-solid ${getQualityColor(item.品质).replace('text-', 'border-')}` 
-                  : 'border-game-border/50 hover:border-violet-500/50 hover:bg-game-card'}`}
-              >
-                {item ? (
-                  <div className="flex flex-col items-center w-full px-1">
-                    <div className="mb-1 flex items-center gap-1.5">
-                      <span className="text-2xl leading-none">{item.icon || '🧰'}</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded border border-white/15 bg-game-card/50 text-gray-200 font-mono inline-flex items-center gap-1">
-                        {slotIconMap[QUALITY_CONFIG[item.品质]?.iconName || 'shield']}
-                        {getQualityLabel(item.品质)}
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-medium truncate w-full text-center px-1 text-gray-200">{item.名称}</span>
-                    <span className="text-[10px] text-violet-300/80 font-mono mt-0.5">Lv.{item.等级}</span>
-                    {item.强化等级 > 0 && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute top-1 right-1 text-[8px] font-mono text-violet-400 bg-violet-950/50 px-1 rounded"
-                      >
-                        +{item.强化等级}
-                      </motion.span>
-                    )}
-                    {item.品质 === 'legendary' && (
-                      <div className="absolute inset-0 rounded-xl legendary-shine pointer-events-none" />
-                    )}
-                    {item.品质 === 'mythic' && (
-                      <div className="absolute inset-0 rounded-xl mythic-glow pointer-events-none" />
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-[10px] text-gray-600 uppercase font-mono flex items-center gap-2">
-                    {slotTypeIconMap[SLOT_CONFIG[slot]?.icon || 'package']}
-                    {getSlotLabel(slot)}
-                  </span>
-                )}
-              </motion.div>
-              {item && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  className="absolute inset-0 bg-black/80 rounded-xl flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <motion.button 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => onUnequip(slot)} 
-                    className="p-2 bg-violet-600/80 rounded-lg hover:bg-violet-500 transition-colors"
-                  >
-                    <ArrowUpCircle size={16} />
-                  </motion.button>
-                </motion.div>
+        
+        <div className="grid grid-cols-3 gap-2 relative z-10">
+          {(Object.entries(gameState.currentEquipment) as [string, Equipment | null][]).map(([slot, item]) => {
+            const qualityClass = item ? {
+              common: 'border-quality-common',
+              uncommon: 'equip-slot-uncommon',
+              rare: 'equip-slot-rare',
+              epic: 'equip-slot-epic',
+              legendary: 'equip-slot-legendary',
+              mythic: 'equip-slot-mythic',
+            }[item.quality] || 'border-game-border' : '';
+            
+            return (
+            <div 
+              key={slot}
+              onClick={() => handleSlotClick(slot)}
+              className={`relative aspect-square rounded-lg border border-dashed flex flex-col items-center justify-center transition-all duration-200 cursor-pointer ${
+                selectedSlot === slot 
+                  ? 'ring-2 ring-violet-500 ring-offset-2 ring-offset-game-bg' 
+                  : item 
+                    ? `bg-game-bg/60 border-solid ${qualityClass}` 
+                    : 'border-game-border/40 hover:border-violet-500/40 hover:bg-game-card'
+              }`}
+            >
+              {item ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl leading-none">{item.icon || '🧰'}</span>
+                  {item.enhancementLevel > 0 && (
+                    <span className="absolute top-1 right-1 text-[8px] font-mono text-violet-400 bg-violet-950/50 px-1 rounded">
+                      +{item.enhancementLevel}
+                    </span>
+                  )}
+                  {item.quality === 'legendary' && (
+                    <div className="absolute inset-0 rounded-lg legendary-shine pointer-events-none" />
+                  )}
+                  {item.quality === 'mythic' && (
+                    <div className="absolute inset-0 rounded-lg mythic-glow pointer-events-none" />
+                  )}
+                </div>
+              ) : (
+                <span className="text-[9px] text-gray-600 uppercase font-mono flex flex-col items-center gap-1">
+                  {slotTypeIconMap[SLOT_CONFIG[slot]?.icon || 'package']}
+                  {getSlotLabel(slot)}
+                </span>
               )}
             </div>
-          ))}
+          );        
+        })}
         </div>
       </motion.section>
+
+      {selectedItem && (
+        <motion.section 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`bg-game-bg/95 backdrop-blur-sm border rounded-xl p-4 shadow-2xl ${selectedItem.quality === 'mythic' ? 'mythic-border' : selectedItem.quality === 'legendary' ? 'legendary-border' : 'border-game-border'}`}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-game-card/60 text-3xl leading-none">{selectedItem.icon || '🧰'}</div>
+            <div>
+              <h4 className={`font-bold text-sm ${qualityColor}`}>
+                {selectedItem.name} {selectedItem.enhancementLevel > 0 ? `+${selectedItem.enhancementLevel}` : ''}
+              </h4>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] text-gray-500 uppercase font-mono">Lv.{selectedItem.level} • {selectedItem.slot}</span>
+              </div>
+              <span className="text-[10px] px-1.5 py-0.5 rounded border border-white/15 bg-game-card/40 text-gray-300 font-mono mt-1 inline-block">
+                {getQualityLabel(selectedItem.quality)}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-yellow-400 font-mono ml-auto">
+              <Coins size={10} /> {QUALITY_CONFIG[selectedItem.quality].price}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 py-2 border-y border-game-border/50">
+            {Object.entries(selectedItem.attributes).map(([k, v]) => (
+              <div key={k} className="flex justify-between text-[10px]">
+                <span className="text-gray-500">{getStatLabel(k)}</span>
+                <span className="text-gray-300 font-mono">+{v}</span>
+              </div>
+            ))}
+          </div>
+
+          {selectedItem.affixes.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {(() => {
+                const labelMap: Record<string, string> = {
+                  crit_chance: t('stat.crit'),
+                  lifesteal: t('stat.lifesteal'),
+                  damage_bonus: t('stat.damage'),
+                  thorns: t('trait.thorns'),
+                  hp_bonus: t('stat.hp'),
+                };
+                return selectedItem.affixes.map((affix) => (
+                  <span
+                    key={`${affix.type}-${affix.value}`}
+                    className="text-[9px] px-2 py-0.5 rounded border border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
+                  >
+                    {labelMap[affix.type] || getStatLabel(affix.type)} +{affix.value}
+                  </span>
+                ));
+              })()}
+            </div>
+          )}
+
+          {selectedItem.special && (
+            <p className="text-[10px] text-violet-400 italic leading-tight mt-2">★ {selectedItem.special}</p>
+          )}
+
+          <div className="mt-3 pt-2 border-t border-game-border/50">
+            <button 
+              onClick={handleUnequipClick}
+              className="w-full py-2 bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white text-xs font-bold rounded-lg transition-colors border border-violet-500/30 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <ArrowUpCircle size={14} />
+              卸下装备
+            </button>
+          </div>
+        </motion.section>
+      )}
     </div>
   );
 }

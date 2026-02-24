@@ -24,8 +24,8 @@ const localizeAdditionalFields = (monster: RawMonsterData): RawMonsterData => {
     result.counterGoal = {
       ...monster.counterGoal,
       title: monster.counterGoal.titleKey ? t(monster.counterGoal.titleKey) : monster.counterGoal.title,
-      successText: monster.counterGoal.successTextKey ? t(monster.counterGoal.successTextKey) : monster.counterGoal.successText,
-      failText: monster.counterGoal.failTextKey ? t(monster.counterGoal.failTextKey) : monster.counterGoal.failText,
+      successText: monster.counterGoal.successTextKey ? t(monster.counterGoal.successTextKey) : t(monster.counterGoal.successText || ''),
+      failText: monster.counterGoal.failTextKey ? t(monster.counterGoal.failTextKey) : t(monster.counterGoal.failText || ''),
     };
   }
 

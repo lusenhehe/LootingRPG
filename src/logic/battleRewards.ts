@@ -13,51 +13,50 @@ export const applySingleBattleReward = (
 ): { nextState: GameState; droppedName: string; logs: string[] } => {
   const nextState = structuredClone(state);
   const logs: string[] = [];
+  const { item, newPity } = generateEquipment(isBoss, nextState.pityCounts, nextState.playerStats.level);
+  nextState.pityCounts = newPity;
+  nextState.droppedEquipment = item;
 
-  const { item, newPity } = generateEquipment(isBoss, nextState.保底计数, nextState.玩家状态.等级);
-  nextState.保底计数 = newPity;
-  nextState.掉落装备 = item;
-
-  if (autoSellQualities[item.品质]) {
-    const price = QUALITY_CONFIG[item.品质].price;
-    nextState.玩家状态.金币 += price;
-    nextState.系统消息 = t('message.auto_sold_drop', {
-      quality: getQualityLabel(item.品质),
-      name: item.名称,
+  if (autoSellQualities[item.quality]) {
+    const price = QUALITY_CONFIG[item.quality].price;
+    nextState.playerStats.gold += price;
+    nextState.systemMessage = t('message.auto_sold_drop', {
+      quality: getQualityLabel(item.quality),
+      name: item.name,
       gold: price,
     });
-    logs.push(nextState.系统消息);
+    logs.push(nextState.systemMessage);
   } else {
-    nextState.背包 = [...nextState.背包, item];
-    nextState.系统消息 = t('message.dropped_item', {
-      quality: getQualityLabel(item.品质),
-      name: item.名称,
+    nextState.backpack = [...nextState.backpack, item];
+    nextState.systemMessage = t('message.dropped_item', {
+      quality: getQualityLabel(item.quality),
+      name: item.name,
     });
-    logs.push(nextState.系统消息);
+    logs.push(nextState.systemMessage);
   }
 
   const xpGain = isBoss ? BATTLE_REWARD.xpPerBoss : BATTLE_REWARD.xpPerMonster;
-  nextState.玩家状态.经验 += xpGain;
-  const xpNeeded = nextState.玩家状态.等级 * PLAYER_GROWTH.xpPerLevel;
+  nextState.playerStats.xp += xpGain;
+  const xpNeeded = nextState.playerStats.level * PLAYER_GROWTH.xpPerLevel;
 
   let levelUpMsg = '';
-  if (nextState.玩家状态.经验 >= xpNeeded) {
-    nextState.玩家状态.等级 += 1;
-    nextState.玩家状态.经验 -= xpNeeded;
-    nextState.玩家状态.攻击力 += 5;
-    nextState.玩家状态.生命值 += 20;
-    nextState.玩家状态.防御力 += 2;
-    levelUpMsg = ` 等级提升至 ${nextState.玩家状态.等级}！`;
+  if (nextState.playerStats.xp >= xpNeeded) {
+    nextState.playerStats.level += 1;
+    nextState.playerStats.xp -= xpNeeded;
+    nextState.playerStats.attack += 5;
+    nextState.playerStats.hp += 20;
+    nextState.playerStats.defense += 2;
+    levelUpMsg = `Level up to ${nextState.playerStats.level}!`;
   }
 
-  nextState.战斗结果 = t('message.defeat_result', {
+  nextState.battleResult = t('message.defeat_result', {
       target: isBoss ? t('label.boss') : t('label.monster'),
       xp: xpGain,
       levelUp: levelUpMsg,
     });
-  logs.push(nextState.战斗结果);
+  logs.push(nextState.battleResult);
 
-  return { nextState, droppedName: item.名称, logs };
+  return { nextState, droppedName: item.name, logs };
 };
 
 export const applyWaveBattleReward = (
@@ -73,33 +72,33 @@ export const applyWaveBattleReward = (
 
   for (let i = 0; i < waveSize; i++) {
     const isElite = Math.random() < 0.18;
-    const { item, newPity } = generateEquipment(isElite, nextState.保底计数, nextState.玩家状态.等级);
+    const { item, newPity } = generateEquipment(isElite, nextState.pityCounts, nextState.playerStats.level);
 
-    nextState.保底计数 = newPity;
-    nextState.掉落装备 = item;
+    nextState.pityCounts = newPity;
+    nextState.droppedEquipment = item;
 
-    if (autoSellQualities[item.品质]) {
-      const price = QUALITY_CONFIG[item.品质].price;
-      nextState.玩家状态.金币 += price;
+    if (autoSellQualities[item.quality]) {
+      const price = QUALITY_CONFIG[item.quality].price;
+      nextState.playerStats.gold += price;
       soldCount += 1;
       soldGold += price;
     } else {
-      nextState.背包 = [...nextState.背包, item];
+      nextState.backpack = [...nextState.backpack, item];
       bagCount += 1;
     }
 
     totalXp += isElite ? 50 : 20;
-    nextState.玩家状态.经验 += isElite ? 50 : 20;
+    nextState.playerStats.xp += isElite ? 50 : 20;
   }
 
   let levelUpCount = 0;
-  while (nextState.玩家状态.经验 >= nextState.玩家状态.等级 * 100) {
-    const needXp = nextState.玩家状态.等级 * 100;
-    nextState.玩家状态.经验 -= needXp;
-    nextState.玩家状态.等级 += 1;
-    nextState.玩家状态.攻击力 += 5;
-    nextState.玩家状态.生命值 += 20;
-    nextState.玩家状态.防御力 += 2;
+  while (nextState.playerStats.xp >= nextState.playerStats.level * 100) {
+    const needXp = nextState.playerStats.level * 100;
+    nextState.playerStats.xp -= needXp;
+    nextState.playerStats.level += 1;
+    nextState.playerStats.attack += 5;
+    nextState.playerStats.hp += 20;
+    nextState.playerStats.defense += 2;
     levelUpCount += 1;
   }
 
@@ -113,8 +112,8 @@ export const applyWaveBattleReward = (
       soldGold,
     });
 
-  nextState.系统消息 = summary;
-  nextState.战斗结果 = t('message.wave_result', { wave: waveSize });
+  nextState.systemMessage = summary;
+  nextState.battleResult = t('message.wave_result', { wave: waveSize });
 
   return { nextState, summary };
 };

@@ -106,17 +106,13 @@ export const attachMonsterLore = (monster: Monster): Monster => {
         introLine: i18n.t(rawBoss.introLine as string),
         battleLogLine: i18n.t(rawBoss.battleLogLine as string),
         phasePrompts: {
-          entering: i18n.t(rawBoss.phasePrompts.entering as string),
-          fighting: i18n.t(rawBoss.phasePrompts.fighting as string),
-          dying: i18n.t(rawBoss.phasePrompts.dying as string),
-          dropping: i18n.t(rawBoss.phasePrompts.dropping as string),
+          entering: i18n.t(rawBoss.phasePrompts?.entering || ''),
+          fighting: i18n.t(rawBoss.phasePrompts?.fighting || ''),
+          dying: i18n.t(rawBoss.phasePrompts?.dying || ''),
+          dropping: i18n.t(rawBoss.phasePrompts?.dropping || ''),
         },
       }
     : undefined;
 
-  return {
-    ...monster,
-    background,
-    bossIdentity,
-  };
+  return { ...monster, background, bossIdentity};
 };

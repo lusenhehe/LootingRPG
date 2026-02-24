@@ -1,14 +1,16 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { lazy, Suspense } from 'react';
 import { Trophy } from 'lucide-react';
 import type { ActiveTab, BattleState, GameState, MapProgressState } from '../../types/game';
 import { TabButton } from '../ui/TabButton';
-import { InventoryTab } from './tabs/InventoryTab';
-import { ForgeTab } from './tabs/ForgeTab';
-import { MonsterCodexTab } from './tabs/MonsterCodexTab';
-import { MapTab } from './tabs/MapTab';
 import { BattleArena } from './BattleArena';
-import type { MapChapterDef, MapNodeDef } from '../../logic/adapters/mapChapterAdapter';
+import type { MapChapterDef, MapNodeDef } from '../../config/map/mapTypes';
+
+const InventoryTab = lazy(() => import('./tabs/InventoryTab').then(m => ({ default: m.InventoryTab })));
+const ForgeTab = lazy(() => import('./tabs/ForgeTab').then(m => ({ default: m.ForgeTab })));
+const MonsterCodexTab = lazy(() => import('./tabs/MonsterCodexTab').then(m => ({ default: m.MonsterCodexTab })));
+const MapTab = lazy(() => import('./tabs/MapTab').then(m => ({ default: m.MapTab })));
 
 interface GamePanelProps {
   gameState: GameState;
@@ -60,10 +62,9 @@ export function GamePanel({
   onSelectForgeItem,
 }: GamePanelProps) {
   const { t } = useTranslation();
-  const inventoryItems = gameState.背包
-    .filter((item) => !item.已装备)
-    .map((item) => ({ ...item, 已装备: false }));
-
+  const inventoryItems = gameState.backpack
+    .filter((item) => !item.equipped)
+    .map((item) => ({ ...item, equipped: false }));
   return (
     <div className="lg:col-span-8 flex flex-col gap-6">
       <div className="bg-gradient-to-br from-game-card/90 to-game-card/70 border border-game-border/50 rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-purple-500/5 min-h-[400px] relative">
@@ -109,69 +110,77 @@ export function GamePanel({
                 transition={{ duration: 0.3 }}
                 className="h-full"
               >
-                <InventoryTab
-                  items={inventoryItems}
-                  loading={loading}
-                  onEquip={onEquip}
-                  onSell={onSell}
+                <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">加载中...</div>}>
+                  <InventoryTab
+                    items={inventoryItems}
+                    loading={loading}
+                    onEquip={onEquip}
+                    onSell={onSell}
                   onForge={onForge}
                   onQuickSellByQualityRange={onQuickSellByQualityRange}
                   autoSellQualities={autoSellQualities}
                   onToggleAutoSellQuality={onToggleAutoSellQuality}
                 />
+                </Suspense>
               </motion.div>
             )}
 
             {activeTab === 'map' && (
-              <motion.div
-                key="map"
-                initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.3 }}
-                className="h-full"
-              >
-                <MapTab
-                  playerLevel={gameState.玩家状态.等级}
-                  loading={loading}
-                  progress={mapProgress}
-                  onSelectChapter={onSelectMapChapter}
-                  onEnterNode={onEnterMapNode}
-                />
-              </motion.div>
+              <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">加载中...</div>}>
+                <motion.div
+                  key="map"
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                >
+                  <MapTab
+                    playerLevel={gameState.playerStats.level}
+                    loading={loading}
+                    progress={mapProgress}
+                    onSelectChapter={onSelectMapChapter}
+                    onEnterNode={onEnterMapNode}
+                  />
+                </motion.div>
+              </Suspense>
             )}
 
             {activeTab === 'forge' && (
-              <motion.div 
-                key="forge"
-                initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.3 }}
-                className="h-full"
-              >
-                <ForgeTab
-                  gameState={gameState}
-                  selectedId={forgeSelectedId}
-                  loading={loading}
-                  onSelect={onSelectForgeItem}
-                  onForge={onForge}
-                  onReroll={onReroll}
-                />
-              </motion.div>
+              <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">加载中...</div>}>
+                <motion.div 
+                  key="forge"
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                >
+                  <ForgeTab
+                    gameState={gameState}
+                    selectedId={forgeSelectedId}
+                    loading={loading}
+                    onSelect={onSelectForgeItem}
+                    onForge={onForge}
+                    onReroll={onReroll}
+                  />
+                </motion.div>
+              </Suspense>
             )}
 
             {activeTab === 'codex' && (
-              <motion.div 
-                key="codex"
-                initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.3 }}
-                className="h-full"
-              >
-                <MonsterCodexTab />
-              </motion.div>
+              <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">加载中...</div>}>
+                <motion.div 
+                  key="codex"
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full"
+                >
+                  <MonsterCodexTab />
+                </motion.div>
+              </Suspense>
             )}
           </AnimatePresence>
         </div>
@@ -187,7 +196,7 @@ export function GamePanel({
               <div className="w-20 h-2 bg-gray-700 rounded overflow-hidden">
                 <div
                   className="h-full bg-yellow-500"
-                  style={{ width: `${(gameState.保底计数.传说 / 50) * 100}%` }}
+                  style={{ width: `${(gameState.pityCounts.legendary / 50) * 100}%` }}
                 />
               </div>
             </motion.span>
@@ -200,7 +209,7 @@ export function GamePanel({
               <div className="w-20 h-2 bg-gray-700 rounded overflow-hidden">
                 <div
                   className="h-full bg-red-500"
-                  style={{ width: `${(gameState.保底计数.神话 / 200) * 100}%` }}
+                  style={{ width: `${(gameState.pityCounts.mythic / 200) * 100}%` }}
                 />
               </div>
             </motion.span>

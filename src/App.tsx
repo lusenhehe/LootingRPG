@@ -1,19 +1,20 @@
-import { useState } from 'react';
-import { createAutoSellQualityMap } from './logic/inventory/autoSell';
-import { ACTIVE_PROFILE_KEY } from './config/runtime/storage';
-import type { ActiveTab, GameState, MapProgressState } from './types/game';
-import { useBattleFlow } from './hooks/battle/useBattleFlow';
-import { useProfileSave } from './hooks/profile/useProfileSave';
-import { useBattleActions } from './hooks/game/useBattleActions';
-import { useMapActions } from './hooks/game/useMapActions';
-import { useAutoBattle } from './hooks/game/useAutoBattle';
-import { useInventoryActions } from './hooks/game/useInventoryActions';
-import { LoginScreen } from './components/auth/LoginScreen';
-import { GameScreen } from './components/game/GameScreen';
 import { createFreshInitialState, createInitialBattleState } from './logic/gameState';
+import type { ActiveTab, GameState, MapProgressState, Equipment } from './types/game';
+import { useInventoryActions } from './hooks/game/useInventoryActions';
+import { createAutoSellQualityMap } from './logic/inventory/autoSell';
+import { useBattleActions } from './hooks/game/useBattleActions';
+import { useProfileSave } from './hooks/profile/useProfileSave';
 import { applySingleBattleReward } from './logic/battleRewards';
 import { createInitialMapProgress } from './logic/mapProgress';
-import { MAP_CHAPTERS } from './logic/adapters/mapChapterAdapter';
+import { ACTIVE_PROFILE_KEY } from './config/runtime/storage';
+import { useBattleFlow } from './hooks/battle/useBattleFlow';
+import { LoginScreen } from './components/auth/LoginScreen';
+import { useMapActions } from './hooks/game/useMapActions';
+import { useAutoBattle } from './hooks/game/useAutoBattle';
+import { GameScreen  } from './components/game/GameScreen';
+import { createCustomEquipment } from './logic/equipment';
+import { MAP_CHAPTERS } from './config/map/chapters';
+import { useState, useCallback } from 'react';
 
 export default function App() {
   // Core state
@@ -146,6 +147,38 @@ export default function App() {
     reportError,
   });
 
+  const handleEquip = useCallback((id: string) => processAction(`装备 ${id}`), [processAction]);
+  const handleSell = useCallback((id: string) => processAction(`出售 ${id}`), [processAction]);
+  const handleForge = useCallback((id: string) => processAction(`强化 ${id}`), [processAction]);
+  const handleReroll = useCallback((id: string) => processAction(`洗练 ${id}`), [processAction]);
+  const handleUnequip = useCallback((slot: string) => processAction(`卸下槽位 ${slot}`), [processAction]);
+  const handleToggleAutoSellQuality = useCallback((quality: string) => {
+    setAutoSellQualities((prev) => ({ ...prev, [quality]: !prev[quality] }));
+  }, []);
+
+  const handleLogoutAction = useCallback(() => {
+    clearBattleTimers();
+    clearAutoBattleTimer();
+    handleLogout();
+    setBattleState(createInitialBattleState());
+    setLoading(false);
+    setAutoBattleEnabled(false);
+    localStorage.removeItem(ACTIVE_PROFILE_KEY);
+  }, [clearBattleTimers, clearAutoBattleTimer, handleLogout, setBattleState, setLoading, setAutoBattleEnabled]);
+
+  const handleReset = useCallback(() => {
+    if (confirm('确定要重置存档吗？')) {
+      clearBattleTimers();
+      clearAutoBattleTimer();
+      setGameState(createFreshInitialState());
+      setBattleState(createInitialBattleState());
+      setLoading(false);
+      setAutoBattleEnabled(false);
+      setLogs(['[系统] 存档已重置。']);
+      setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
+    }
+  }, [clearBattleTimers, clearAutoBattleTimer, setGameState, setBattleState, setLoading, setAutoBattleEnabled, setLogs, setMapProgress]);
+
   if (!isAuthenticated) {
     return (
       <LoginScreen
@@ -168,30 +201,11 @@ export default function App() {
       autoBattleEnabled={autoBattleEnabled}
       autoSellQualities={autoSellQualities}
       forgeSelectedId={forgeSelectedId}
-      playerStats={gameState.玩家状态}
+      playerStats={gameState.playerStats}
       onExportSave={handleExportSave}
       onImportSave={handleImportSave}
-      onLogout={() => {
-        clearBattleTimers();
-        clearAutoBattleTimer();
-        handleLogout();
-        setBattleState(createInitialBattleState());
-        setLoading(false);
-        setAutoBattleEnabled(false);
-        localStorage.removeItem(ACTIVE_PROFILE_KEY);
-      }}
-      onReset={() => {
-        if (confirm('确定要重置存档吗？')) {
-          clearBattleTimers();
-          clearAutoBattleTimer();
-          setGameState(createFreshInitialState());
-          setBattleState(createInitialBattleState());
-          setLoading(false);
-          setAutoBattleEnabled(false);
-          setLogs(['[系统] 存档已重置。']);
-          setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
-        }
-      }}
+      onLogout={handleLogoutAction}
+      onReset={handleReset}
       mapProgress={mapProgress}
       onSelectMapChapter={(chapterId) => {
         setMapProgress((prev) => ({ ...prev, selectedChapterId: chapterId }));
@@ -203,15 +217,22 @@ export default function App() {
       onEnterMapNode={mapNodeBattle}
       onToggleAutoBattle={toggleAutoBattle}
       onQuickSellByQualityRange={quickSellByQualityRange}
-      onEquip={(id) => processAction(`装备 ${id}`)}
-      onSell={(id) => processAction(`出售 ${id}`)}
-      onForge={(id) => processAction(`强化 ${id}`)}
-      onToggleAutoSellQuality={(quality) => {
-        setAutoSellQualities((prev) => ({ ...prev, [quality]: !prev[quality] }));
-      }}
-      onReroll={(id) => processAction(`洗练 ${id}`)}
+      onEquip={handleEquip}
+      onSell={handleSell}
+      onForge={handleForge}
+      onToggleAutoSellQuality={handleToggleAutoSellQuality}
+      onReroll={handleReroll}
       onSelectForgeItem={setForgeSelectedId}
-      onUnequip={(slot) => processAction(`卸下槽位 ${slot}`)}
+      onUnequip={handleUnequip}
+      onDebugAddItems={(quality, slot, count, level) => {
+        const items: Equipment[] = [];
+        const lv = Math.max(1, Math.floor(level ?? gameState.playerStats.level));
+        for (let i = 0; i < count; i++) {
+          items.push(createCustomEquipment(quality, slot, lv, false));
+        }
+        setGameState((prev) => ({ ...prev, backpack: [...prev.backpack, ...items] }));
+        addLog(`[Debug] 已添加 ${count} 件 ${quality} ${slot} (Lv.${lv}) 装备至背包`);
+      }}
     />
   );
 }

@@ -1,10 +1,10 @@
 import {getNodeAttempts,isNodeCleared,isNodeUnlocked} from '../../../logic/mapProgress';
-import { Lock, Sparkles, Star, Zap, Skull, Crown, Trophy, Swords, Ghost } from 'lucide-react';
-import { chapterThemeStyles, encounterBadge, getNodeState, stateOverlayStyles, getZigzagNodePosition } from './mapConfig';
-import type { MapNodeDef, MapChapterDef, MapEncounterType } from '../../../logic/adapters/mapChapterAdapter';
+import { Lock, Sparkles, Star, Zap, Skull, Crown, Trophy, Ghost } from 'lucide-react';
+import { chapterThemeStyles, getNodeState, stateOverlayStyles, getZigzagNodePosition } from './mapConfig';
+import type { MapNodeDef, MapChapterDef, MapEncounterType } from '../../../config/map/mapTypes';
 import type { MapProgressState } from '../../../types/game';
 import { UI_STYLES } from '../../../config/ui/tokens';
-import { getChapterNodeStyles, themeColors, defaultEncounterStyles, MAP_NODE_CONFIG, type ChapterTheme } from '../../../config/ui/mapNode';
+import { getChapterNodeStyles, themeColors, defaultEncounterStyles } from '../../../config/ui/mapNode';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 
@@ -25,7 +25,6 @@ const EncounterIcon = ({ type, size = 22 }: { type: MapEncounterType; size?: num
   switch (type) {
     case 'boss':  return  <Crown size={size} className={style.iconColor} />;
     case 'elite': return  <Trophy size={size} className={style.iconColor} />;
-    case 'wave':  return  <Swords size={size} className={style.iconColor} />;
     default:      return  <Ghost size={size} className={style.iconColor} />;
   }
 };
@@ -38,24 +37,19 @@ export default function MapNode({
   const unlocked = isNodeUnlocked(normalizedProgress, node.id);
   const cleared = isNodeCleared(normalizedProgress, node.id);
   const attempts = getNodeAttempts(normalizedProgress, node.id);
-  const waves =
-    node.waves && node.waves.length > 0
-      ? node.waves
-      : node.waveSize
-      ? Array.from({ length: node.waveSize }).map((_,i)=>({ id: `${node.id}-auto-${i}`, monsters: [] }))
-      : [];
+  const waves = node.waves && node.waves.length > 0 ? node.waves : [];
   const waveCount = waves.length;
   const state = getNodeState(unlocked, cleared, playerLevel, node.recommendedLevel);
   const disabled = loading || state === 'locked';
-  const themeStyle = chapterThemeStyles[selectedChapter.theme as any];
+  const themeStyle = chapterThemeStyles[selectedChapter.theme];
   const overlayStyle = stateOverlayStyles[state];
   const floatDelay = nodeIndex * 0.3;
   const chapterEncounterStyles = getChapterNodeStyles(selectedChapter.theme);
   const encounterStyle = chapterEncounterStyles[node.encounterType];
-  const starCount = node.encounterType === 'boss' ? 3 : node.encounterType === 'elite' ? 2 : node.encounterType === 'wave' ? 2 : 1;
+  const starCount = node.encounterType === 'boss' ? 3 : node.encounterType === 'elite' ? 2 : 1;
   const nodePosition = getZigzagNodePosition(nodeIndex);
   const isBoss = node.encounterType === 'boss';
-  const themeColorConfig = themeColors[selectedChapter.theme as ChapterTheme];
+  const themeColorConfig = themeColors[selectedChapter.theme];
 
   return (
     <div
@@ -113,15 +107,11 @@ export default function MapNode({
                 transition={{ duration: 2, repeat: Infinity }}
               />
             )}
-
             <motion.div
               className={`
                 relative ${encounterStyle.size} ${encounterStyle.shape}
                 bg-gradient-to-br ${encounterStyle.bgGradient}
-                ring-2 ${encounterStyle.ringColor}
-                shadow-lg
-                flex items-center justify-center
-                overflow-hidden
+                ring-2 ${encounterStyle.ringColor} shadow-lg flex items-center justify-center overflow-hidden
               `}
               animate={isBoss && !disabled ? { boxShadow: [`0 0 20px ${themeColorConfig.primary}80`, `0 0 40px ${themeColorConfig.primaryLight}aa`, `0 0 20px ${themeColorConfig.primary}80`] } : {}}
               transition={{ duration: 1.5, repeat: Infinity }}
@@ -137,19 +127,9 @@ export default function MapNode({
                   <div className="w-full h-full bg-gradient-to-br from-amber-600/15 to-transparent" />
                 </div>
               )}
-
-              {node.encounterType === 'wave' && !disabled && (
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                />
-              )}
-
               <div className={`relative z-10 ${node.encounterType === 'elite' ? '-rotate-45' : ''}`}>
                 <EncounterIcon type={node.encounterType} size={isBoss ? 26 : 22} />
               </div>
-
               {Array.from({ length: 4 }).map((_, i) => (
                 <motion.div
                   key={i}
