@@ -15,10 +15,10 @@ const bossThemeCardStyles: Record<BossTheme, {
   hpBar: string;
 }> = {
   abyss: {
-    card: 'border-violet-500/60 bg-violet-950/30',
-    glow: 'from-violet-600/25 to-fuchsia-500/20',
-    name: 'text-violet-200',
-    hpBar: 'from-violet-600 to-fuchsia-400',
+    card: 'border-red-700/60 bg-red-950/30',
+    glow: 'from-red-700/30 to-red-900/20',
+    name: 'text-red-200',
+    hpBar: 'from-red-700 to-red-900',
   },
   dragonfire: {
     card: 'border-orange-500/60 bg-orange-950/30',
@@ -51,10 +51,10 @@ const bossThemeCardStyles: Record<BossTheme, {
     hpBar: 'from-rose-600 to-red-400',
   },
   void: {
-    card: 'border-indigo-500/60 bg-indigo-950/30',
-    glow: 'from-indigo-600/25 to-purple-500/20',
-    name: 'text-indigo-200',
-    hpBar: 'from-indigo-600 to-purple-400',
+    card: 'border-red-800/60 bg-red-950/30',
+    glow: 'from-red-800/30 to-red-950/20',
+    name: 'text-red-200',
+    hpBar: 'from-red-800 to-red-950',
   },
   clockwork: {
     card: 'border-amber-500/60 bg-amber-950/30',
@@ -112,7 +112,7 @@ export function MonsterCard({ monster, phase, hpPercent }: MonsterCardProps) {
             {traitTags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className={`text-[9px] px-1.5 py-0.5 rounded border ${isBoss ? 'border-red-400/35 bg-red-500/10 text-red-200' : 'border-violet-400/30 bg-violet-500/10 text-violet-200'}`}
+                className={`text-[9px] px-1.5 py-0.5 rounded border ${isBoss ? 'border-red-400/35 bg-red-500/10 text-red-200' : 'border-red-400/30 bg-red-900/10 text-red-200'}`}
               >
                 {tag}
               </span>

@@ -57,7 +57,7 @@ export const themeHeaderColors: Record<ChapterTheme, { primary: string; secondar
   '林地': { primary: 'emerald', secondary: 'green', glow: 'rgba(16, 150, 100, 0.1)', border: 'emerald-900/30', text: 'emerald' },
   '地牢': { primary: 'stone', secondary: 'zinc', glow: 'rgba(120, 120, 130, 0.1)', border: 'stone-900/30', text: 'stone' },
   '火山': { primary: 'orange', secondary: 'red', glow: 'rgba(200, 100, 20, 0.1)', border: 'orange-900/30', text: 'orange' },
-  '亡灵': { primary: 'purple', secondary: 'violet', glow: 'rgba(150, 50, 150, 0.1)', border: 'purple-900/30', text: 'purple' },
+  '亡灵': { primary: 'red', secondary: 'red', glow: 'rgba(150, 30, 30, 0.1)', border: 'red-900/30', text: 'red' },
 };
 
 export const getThemeHeaderColors = (theme: ChapterTheme) => {

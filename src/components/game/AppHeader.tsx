@@ -1,8 +1,9 @@
-import { Coins, Download, LogOut, RefreshCw, Sword, Upload, Settings2, ChevronDown } from 'lucide-react';
+import { Coins, Download, LogOut, RefreshCw, Sword, Upload, Settings2, ChevronDown, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { PlayerStats } from '../../types/game';
+import { useTheme } from '../../config/themes/ThemeContext';
 
 interface AppHeaderProps {
   gold: number;
@@ -23,6 +24,7 @@ export function AppHeader({
   onExportSave,
   onImportSave,
 }: AppHeaderProps) {
+  const { theme, themes, setTheme } = useTheme();
   const [showMenu, setShowMenu] = useState(false);
   const expNeeded = playerStats.level * 100;
   const expPercent = Math.min(100, (playerStats.xp / expNeeded) * 100);
@@ -49,7 +51,7 @@ export function AppHeader({
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2.5 px-3.5 py-2 bg-stone-800/40 rounded-xl border border-white/5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500/30 to-purple-600/30 flex items-center justify-center border border-indigo-500/20">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-red-800/30 to-red-900/30 flex items-center justify-center border border-red-700/20">
               <span className="text-xs font-bold text-indigo-300">{playerName.charAt(0).toUpperCase()}</span>
             </div>
             <span className="text-sm font-medium text-stone-200">{playerName}</span>
@@ -114,11 +116,29 @@ export function AppHeader({
             onImportSave={() => { onImportSave(); setShowMenu(false); }}
             onLogout={() => { onLogout(); setShowMenu(false); }}
             onReset={() => { onReset(); setShowMenu(false); }}
+            theme={theme}
+            themes={themes}
+            onThemeChange={(id) => { setTheme(id); setShowMenu(false); }}
           />
         </div>
       </div>
     </header>
   );
+}
+
+import type { Theme } from '../../config/themes/types';
+
+interface MenuPortalProps {
+  show: boolean;
+  onClose: () => void;
+  anchorRef?: any;
+  onExportSave: () => void;
+  onImportSave: () => void;
+  onLogout: () => void;
+  onReset: () => void;
+  theme: Theme;
+  themes: Theme[];
+  onThemeChange: (id: string) => void;
 }
 
 function MenuPortal({
@@ -129,7 +149,10 @@ function MenuPortal({
   onImportSave,
   onLogout,
   onReset,
-}: any) {
+  theme,
+  themes,
+  onThemeChange,
+}: MenuPortalProps) {
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
@@ -181,6 +204,31 @@ function MenuPortal({
             <Upload size={15} />
             导入存档
           </button>
+          <div className="my-1.5 border-t border-white/5" />
+          <div className="px-4 py-2">
+            <div className="flex items-center gap-2 text-xs text-stone-500 mb-2">
+              <Palette size={12} />
+              <span>主题</span>
+            </div>
+            <div className="flex gap-1.5">
+              {themes.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => onThemeChange(t.id)}
+                  className={`flex-1 px-2 py-1.5 text-xs rounded-md border transition-all cursor-pointer ${
+                    theme.id === t.id
+                      ? 'bg-stone-700/80 border-stone-500 text-stone-100'
+                      : 'bg-stone-800/50 border-stone-700/50 text-stone-400 hover:border-stone-600 hover:text-stone-300'
+                  }`}
+                  style={{
+                    borderColor: theme.id === t.id ? t.colors.gameAccent : undefined,
+                  }}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="my-1.5 border-t border-white/5" />
           <button
             onClick={onLogout}

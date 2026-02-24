@@ -1,5 +1,0 @@
-{
-  "name": "AI Loot Grinder RPG",
-  "description": "An AI-powered loot grinder RPG where Gemini acts as the game engine, generating loot, managing combat, and maintaining game balance.",
-  "requestFramePermissions": []
-}

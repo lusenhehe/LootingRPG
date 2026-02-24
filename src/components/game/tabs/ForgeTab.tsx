@@ -54,7 +54,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
     return (
       <motion.div key="forge" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="h-full flex flex-col items-center justify-center space-y-6">
         <div className="text-center space-y-2">
-          <Sparkles className="mx-auto text-violet-400" size={48} />
+          <Sparkles className="mx-auto text-red-400" size={48} />
           <h2 className="text-xl font-display">{t('ui.forgeCenter')}</h2>
           <p className="text-sm text-gray-500">{t('ui.no_forge_items')}</p>
         </div>
@@ -80,7 +80,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
           <button
             key={item.id}
             onClick={() => onSelect(item.id)}
-            className={`w-full p-3 rounded-lg border text-left transition-all duration-200 cursor-pointer ${selected.id === item.id ? 'border-violet-500 bg-violet-500/10 hover:border-violet-400' : 'border-game-border/50 bg-game-bg/50 hover:border-violet-500/50 hover:bg-game-card/50'}`}
+            className={`w-full p-3 rounded-lg border text-left transition-all duration-200 cursor-pointer ${selected.id === item.id ? 'border-red-700 bg-red-900/10 hover:border-red-600' : 'border-game-border/50 bg-game-bg/50 hover:border-red-800/50 hover:bg-game-card/50'}`}
           >
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
@@ -91,7 +91,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
                 <p className="text-[10px] text-gray-500 mt-1">{getSlotLabel(item.slot)} · {source}</p>
               </div>
               {item.equipped && (
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/30 font-bold">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-900/20 text-red-400 border border-red-700/30 font-bold">
                   已装备
                 </span>
               )}
@@ -141,7 +141,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
                       <button
                         aria-pressed={isLocked}
                         onClick={() => toggleLock(affix.type)}
-                        className={`px-2 py-1 rounded ${isLocked ? 'bg-violet-600 text-white' : 'bg-game-card/10 text-gray-200'} text-xs`}
+                        className={`px-2 py-1 rounded ${isLocked ? 'bg-red-800 text-white' : 'bg-game-card/10 text-gray-200'} text-xs`}
                       >
                         {isLocked ? t('ui.forge.lock') || 'Lock' : t('ui.forge.unlock') || 'Lock'}
                       </button>
@@ -153,14 +153,14 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
           </div>
         )}
 
-        {selected.special && <p className="text-xs text-violet-400 italic">★ {selected.special}</p>}
+        {selected.special && <p className="text-xs text-red-400 italic">★ {selected.special}</p>}
 
         <div className="grid grid-cols-1 gap-3 pt-2">
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-400">{t('ui.forge.preview_times') || 'Preview'}</label>
             <div className="flex gap-2 ml-2">
               {[1, 5, 10].map((n) => (
-                <button key={n} onClick={() => setPreviewTimes(n)} className={`px-3 py-1 rounded text-sm ${previewTimes === n ? 'bg-violet-500 text-white' : 'bg-game-card/10 text-gray-200'}`}>{n}</button>
+                <button key={n} onClick={() => setPreviewTimes(n)} className={`px-3 py-1 rounded text-sm ${previewTimes === n ? 'bg-red-700 text-white' : 'bg-game-card/10 text-gray-200'}`}>{n}</button>
               ))}
             </div>
             <div className="ml-auto text-sm text-gray-400">{t('ui.forge.cost') || 'Cost'}: <span className="font-mono">{enchantCost}</span></div>
@@ -174,7 +174,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
                 setPreviewResult(preview);
               }}
               disabled={loading}
-              className="flex-1 py-2 rounded-lg border border-violet-500/30 bg-violet-500/10 text-violet-400 hover:bg-violet-500 hover:text-white text-sm font-bold"
+              className="flex-1 py-2 rounded-lg border border-red-700/30 bg-red-900/10 text-red-400 hover:bg-red-700 hover:text-white text-sm font-bold"
             >
               {t('ui.forge.preview') || 'Preview'}
             </button>

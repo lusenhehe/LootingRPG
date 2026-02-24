@@ -12,7 +12,7 @@ const iconMap: Record<string, ReactNode> = {
   shield: <Shield size={14} className="text-gray-400" />,
   zap: <Zap size={14} className="text-emerald-400" />,
   gem: <Gem size={14} className="text-blue-400" />,
-  hexagon: <Hexagon size={14} className="text-purple-400" />,
+  hexagon: <Hexagon size={14} className="text-red-400" />,
   crown: <Crown size={14} className="text-yellow-400" />,
   star: <Star size={14} className="text-red-400" />,
 };
@@ -88,7 +88,7 @@ export function InventoryTab({
                 type="checkbox"
                 checked={Boolean(autoSellQualities[quality])}
                 onChange={() => onToggleAutoSellQuality(quality)}
-                className="accent-violet-500"
+                className="accent-red-700"
               />
               <span className="flex items-center gap-1">
                 {iconMap[QUALITY_CONFIG[quality]?.iconName || 'shield']}

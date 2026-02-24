@@ -208,7 +208,7 @@ export function useProfileSave({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `loot-grinder-save-${activeProfileId}.json`;
+    link.download = `LootingRPG_Save.json`;
     link.click();
     URL.revokeObjectURL(url);
     addLog('存档已导出为 JSON 文件。');

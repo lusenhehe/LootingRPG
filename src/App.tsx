@@ -15,6 +15,7 @@ import { GameScreen  } from './components/game/GameScreen';
 import { createCustomEquipment } from './logic/equipment';
 import { MAP_CHAPTERS } from './config/map/chapters';
 import { useState, useCallback } from 'react';
+import { ThemeProvider } from './config/themes/ThemeContext';
 
 export default function App() {
   // Core state
@@ -192,6 +193,7 @@ export default function App() {
   const currentProfile = profiles.find((profile) => profile.id === activeProfileId);
 
   return (
+    <ThemeProvider>
     <GameScreen
       gameState={gameState}
       battleState={battleState}
@@ -234,5 +236,6 @@ export default function App() {
         addLog(`[Debug] 已添加 ${count} 件 ${quality} ${slot} (Lv.${lv}) 装备至背包`);
       }}
     />
+    </ThemeProvider>
   );
 }

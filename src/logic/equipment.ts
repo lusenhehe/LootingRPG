@@ -1,7 +1,7 @@
-import { QUALITIES, QUALITY_CONFIG, SLOTS, STAT_POOL, AFFIX_SCALING, AFFIX_COUNT_BY_QUALITY, BASE_MULTIPLIER_BY_QUALITY, SLOT_BASE_NAMES, SLOT_ICON_POOL, NAME_PREFIXES, NAME_SUFFIXES, ENCHANT_BASE_COST, ENCHANT_SCALE_BY_QUALITY, ENCHANT_COST_MULTIPLIER_BY_QUALITY, REROLL_BASE_COST, LOCK_COST } from '../config/game/equipment';
-import { getQualityLabel, getSlotLabel } from './i18n/labels';
+import { QUALITIES, SLOTS, AFFIX_SCALING, AFFIX_COUNT_BY_QUALITY, SLOT_ICON_POOL, ENCHANT_BASE_COST, ENCHANT_SCALE_BY_QUALITY, ENCHANT_COST_MULTIPLIER_BY_QUALITY, REROLL_BASE_COST, LOCK_COST } from '../config/game/equipment';
+import { getUniqueEquipmentTemplates, type UniqueEquipmentTemplate } from '../config/content/uniqueEquipments';
 import type { Equipment, EquipmentAffix, EquipmentAffixValue } from '../types/game';
-const pick = <T,>(list: T[]): T => list[Math.floor(Math.random() * list.length)];
+import i18next from 'i18next';
 
 const AFFIX_POOL: EquipmentAffix[] = ['crit_chance', 'lifesteal', 'damage_bonus', 'thorns', 'hp_bonus'];
 
@@ -28,59 +28,119 @@ const createAffixes = (quality: string, isBoss: boolean): EquipmentAffixValue[] 
   return affixes;
 };
 
-const buildEquipmentName = (quality: string, slot: string): string => {
-  const prefix = pick(NAME_PREFIXES);
-  const base = pick(SLOT_BASE_NAMES[slot] ?? ['装备']);
-  const suffix = pick(NAME_SUFFIXES);
-  const qLabel = getQualityLabel(quality);
-  return `${qLabel}·${prefix}${base}${suffix}`;
-};
-
 export const getDefaultEquipmentIcon = (slot: string): string => {
-  return pick(SLOT_ICON_POOL[slot] ?? ['🧰']);
+  const pool = SLOT_ICON_POOL[slot] ?? ['🧰'];
+  return pool[Math.floor(Math.random() * pool.length)] ?? '🧰';
 };
 
-const buildEquipmentStats = (
-  quality: string,
-  slot: string,
-  equipmentLevel: number,
-): { stats: Record<string, number>; mainStat: string; baseValue: number } => {
-  const config = QUALITY_CONFIG[quality];
-  const stats: Record<string, number> = {};
-  const qualityIndex = Math.max(0, QUALITIES.indexOf(quality));
+const getLocaleKey = (): 'zh' | 'en' => (i18next.language || 'zh').toLowerCase().startsWith('zh') ? 'zh' : 'en';
 
-  const mainStat = slot === 'weapon' ? 'attack' : slot === 'armor' || slot === 'helmet' ? 'hp' : 'defense';
-  const multiplier = (BASE_MULTIPLIER_BY_QUALITY && BASE_MULTIPLIER_BY_QUALITY[qualityIndex]) ?? (qualityIndex + 1);
-  const baseValue = Math.floor(multiplier * 5 * equipmentLevel);
-  stats[mainStat] = baseValue;
-
-  const availableStats = STAT_POOL.filter((s) => s !== mainStat);
-  for (let i = 0; i < (config.stats || 1) - 1; i++) {
-    const statName = availableStats[Math.floor(Math.random() * availableStats.length)];
-    stats[statName] = Math.floor(baseValue * 0.6);
+const inferMainStat = (attributes: Record<string, number>, slot: string): string => {
+  const preferredBySlot = slot === 'weapon' ? 'attack' : slot === 'armor' || slot === 'helmet' ? 'hp' : 'defense';
+  if (attributes[preferredBySlot] !== undefined) {
+    return preferredBySlot;
   }
 
-  return { stats, mainStat, baseValue };
+  const ranked = Object.entries(attributes).sort((a, b) => b[1] - a[1]);
+  return ranked[0]?.[0] || preferredBySlot;
 };
 
-const createEquipmentObject = (
-  quality: string, slot: string, equipmentLevel: number, isBoss: boolean,
-): Equipment => {
-  const { stats, mainStat } = buildEquipmentStats(quality, slot, equipmentLevel);
+const pickWeighted = <T,>(list: T[], weightGetter: (item: T) => number): T => {
+  const total = list.reduce((sum, item) => sum + Math.max(0.01, weightGetter(item)), 0);
+  let threshold = Math.random() * total;
+  for (const item of list) {
+    threshold -= Math.max(0.01, weightGetter(item));
+    if (threshold <= 0) {
+      return item;
+    }
+  }
+  return list[list.length - 1];
+};
+
+const buildFromTemplate = (template: UniqueEquipmentTemplate, playerLevel: number): Equipment => {
+  const localeKey = getLocaleKey();
+  const level = Math.max(1, playerLevel + template.levelOffset);
+  const scale = 1 + Math.max(0, level - 1) * Math.max(0, template.scalePerLevel);
+
+  const attributes = Object.fromEntries(
+    Object.entries(template.attributes).map(([key, value]) => [key, Math.max(0, Math.round(value * scale))]),
+  );
+
+  const affixes = template.affixes.map((entry) => ({
+    type: entry.type as EquipmentAffix,
+    value: Math.max(0, Math.round(entry.value * scale)),
+  }));
+
+  const name = localeKey === 'zh' ? template.nameZh : template.nameEn;
+  const special = localeKey === 'zh' ? template.specialZh : template.specialEn;
+
   return {
-    id: Math.random().toString(36).slice(2, 11),
-    icon: getDefaultEquipmentIcon(slot),
-    level: equipmentLevel,
-    name: buildEquipmentName(quality, slot),
-    quality: quality,
-    slot: slot,
-    attributes: stats,
-    affixes: createAffixes(quality, isBoss),
+    id: `${template.id}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+    icon: template.icon || getDefaultEquipmentIcon(template.slot),
+    level,
+    name,
+    quality: template.quality,
+    slot: template.slot,
+    attributes,
+    affixes,
     enhancementLevel: 0,
-    mainStat: mainStat,
+    mainStat: inferMainStat(attributes, template.slot),
     equipped: false,
-    special: quality === 'mythic' ? '全属性提升 10%' : undefined,
+    special,
+    localeNames: {
+      zh: template.nameZh,
+      en: template.nameEn,
+    },
   };
+};
+
+const normalizePity = (pity: { legendary: number; mythic: number }): { legendary: number; mythic: number } => {
+  const copy = { ...pity } as any;
+  if (copy.神话 !== undefined && copy.mythic === undefined) copy.mythic = copy.神话;
+  if (copy.传说 !== undefined && copy.legendary === undefined) copy.legendary = copy.传说;
+  return {
+    legendary: Number(copy.legendary ?? 0),
+    mythic: Number(copy.mythic ?? 0),
+  };
+};
+
+const pickTemplateOrThrow = (
+  templates: UniqueEquipmentTemplate[],
+  context: { isBoss: boolean; playerLevel: number; mapNodeId?: string },
+): UniqueEquipmentTemplate => {
+  const selected = selectTemplate(templates, context);
+  if (selected) return selected;
+
+  if (templates.length === 0) {
+    throw new Error('UniqueEquipments.csv has no valid rows.');
+  }
+
+  const byLevel = templates.filter((template) => (
+    template.minLevel <= context.playerLevel && template.maxLevel >= context.playerLevel
+  ));
+
+  const byBoss = byLevel.filter((template) => !template.bossOnly || context.isBoss);
+  const pool = byBoss.length > 0 ? byBoss : (byLevel.length > 0 ? byLevel : templates);
+  return pickWeighted(pool, (item) => item.weight);
+};
+
+const selectTemplate = (
+  templates: UniqueEquipmentTemplate[],
+  context: { isBoss: boolean; playerLevel: number; mapNodeId?: string },
+): UniqueEquipmentTemplate | null => {
+  const eligible = templates.filter((template) => {
+    if (template.bossOnly && !context.isBoss) return false;
+    if (template.mapNode && context.mapNodeId && template.mapNode !== context.mapNodeId) return false;
+    if (template.minLevel > context.playerLevel) return false;
+    if (template.maxLevel < context.playerLevel) return false;
+    return true;
+  });
+
+  if (eligible.length === 0) return null;
+
+  const rolled = eligible.filter((template) => Math.random() <= template.chance);
+  const pool = rolled.length > 0 ? rolled : eligible;
+  return pickWeighted(pool, (item) => item.weight);
 };
 
 // ----- Enchant / Reroll helpers -----
@@ -151,66 +211,16 @@ export const generateEquipment = (
   pity: { legendary: number; mythic: number },
   playerLevel: number,
 ): { item: Equipment; newPity: { legendary: number; mythic: number } } => {
-  // english keys used internally
-  let quality = 'common';
-  const rand = Math.random() * 100;
-  const newPity = { ...pity };
+  const newPity = normalizePity(pity);
+  newPity.legendary += 1;
+  newPity.mythic += 1;
 
-  newPity.legendary++;
-  newPity.mythic++;
-
-  // pity counters still stored with Chinese keys for legacy persistence
-  if ((newPity as any).神话 !== undefined || (newPity as any).传说 !== undefined) {
-    const n: any = newPity;
-    if (n.神话 !== undefined) {
-      n.mythic = n.神话;
-      delete n.神话;
-    }
-    if (n.传说 !== undefined) {
-      n.legendary = n.传说;
-      delete n.传说;
-    }
-  }
-
-  if (newPity.mythic >= 201) {
-    quality = 'mythic';
-    newPity.mythic = 0;
-    newPity.legendary = 0;
-  } else if (newPity.legendary >= 51) {
-    quality = Math.random() > 0.1 ? 'legendary' : 'mythic';
-    if (quality === 'mythic') newPity.mythic = 0;
-    newPity.legendary = 0;
-  } else {
-    if (isBoss) {
-      if (rand < 3) quality = 'mythic';
-      else if (rand < 10) quality = 'legendary';
-      else if (rand < 25) quality = 'epic';
-      else if (rand < 50) quality = 'rare';
-      else if (rand < 80) quality = 'uncommon';
-      else quality = 'common';
-    } else {
-      if      (rand < 0) quality = 'mythic';
-      else if (rand < 1) quality = 'legendary';
-      else if (rand < 5) quality = 'epic';
-      else if (rand < 15) quality = 'rare';
-      else if (rand < 40) quality = 'uncommon';
-      else quality = 'common';
-    }
-    if (quality === 'legendary') newPity.legendary = 0;
-    if (quality === 'mythic') {
-      newPity.mythic = 0;
-      newPity.legendary = 0;
-    }
-  }
-
-  const slot = SLOTS[Math.floor(Math.random() * SLOTS.length)];
-  const levelVariance = Math.floor(Math.random() * 3) - 1;
-  const bossLevelBonus = isBoss ? 2 : 0;
-  const equipmentLevel = Math.max(1, playerLevel + levelVariance + bossLevelBonus);
-
-  const item = createEquipmentObject(quality, slot, equipmentLevel, isBoss);
-
-  return { item, newPity };
+  const templates = getUniqueEquipmentTemplates();
+  const selected = pickTemplateOrThrow(templates, { isBoss, playerLevel });
+  return {
+    item: buildFromTemplate(selected, playerLevel),
+    newPity,
+  };
 };
 
 export const createCustomEquipment = (
@@ -219,8 +229,17 @@ export const createCustomEquipment = (
   playerLevel = 1,
   isBoss = false,
 ): Equipment => {
-  const bossLevelBonus = isBoss ? 2 : 0;
-  const equipmentLevel = Math.max(1, playerLevel + bossLevelBonus);
+  const templates = getUniqueEquipmentTemplates().filter((template) => {
+    if (template.slot !== slot) return false;
+    if (template.quality !== quality) return false;
+    if (template.bossOnly && !isBoss) return false;
+    return true;
+  });
 
-  return createEquipmentObject(quality, slot, equipmentLevel, isBoss);
+  const allTemplates = getUniqueEquipmentTemplates();
+  const selected = templates.length > 0
+    ? pickWeighted(templates, (item) => item.weight)
+    : pickTemplateOrThrow(allTemplates, { isBoss, playerLevel });
+
+  return buildFromTemplate(selected, playerLevel);
 };

@@ -33,6 +33,20 @@ const threatStyleMap: Record<ThreatType, string> = {
   attrition: 'border-cyan-400/35 bg-cyan-500/10 text-cyan-200',
 };
 
+// fallback hint map in case i18n fails (e.g. zh file missing or not loaded)
+const traitHintMap: Record<MonsterTrait, string[]> = {
+  thorns: ['此敌人对爆发输出有反制能力，节奏过快容易被反噬。',
+           '更稳妥的做法是提高生存与续航，拉长有效作战时间。'],
+  lifesteal: ['此敌人擅长在缠斗中回稳，久拖会放大其优势。',
+              '建议准备持续压制手段，减少其恢复窗口。'],
+  double_attack: ['此敌人有连续打击倾向，容易形成瞬时压力。',
+                  '建议优先强化容错与减伤，避免被连段带走。'],
+  shield_on_start: ['此敌人开局防线稳固，前段硬冲收益较低。',
+                    '先建立稳定节奏，再寻找破口更容易滚起优势。'],
+  rage_on_low_hp: ['此敌人在残局阶段威胁更高，收尾处理很关键。',
+                   '建议保留后段资源，避免在终局被反推。'],
+};
+
 const inferThreatTypes = (monster: Monster): ThreatType[] => {
   if (monster.threatTypes?.length) return monster.threatTypes;
 
@@ -106,14 +120,23 @@ const getStrategyHints = (monster: Monster, t: (k: string, opts?: any) => any): 
   }
 
   (monster.traits ?? []).forEach((trait) => {
-    // try to read an array from i18n first, fallback to traitHintMap if missing
-    const traitHints = t(`trait.hints.${trait}`, { returnObjects: true });
+    // try to read an array from i18n first
+    let traitHints: any = t(`trait.hints.${trait}`, { returnObjects: true });
+    // if translation returns the key itself or English text, fall back to hardcoded map
+    const isFallback =
+      traitHints === `trait.hints.${trait}` ||
+      (Array.isArray(traitHints) && traitHints.every((s: any) => typeof s === 'string' && /^[A-Za-z0-9 ,;:'".?!-]+$/.test(s))) ||
+      (typeof traitHints === 'string' && /^[A-Za-z0-9 ,;:'".?!-]+$/.test(traitHints));
+    if (isFallback) {
+      traitHints = traitHintMap[trait] ?? [];
+    }
+
     if (Array.isArray(traitHints)) {
       traitHints.forEach((text) => {
         if (typeof text === 'string' && !hints.includes(text)) hints.push(text);
       });
-    } else if (typeof traitHints === 'string' && traitHints !== `trait.hints.${trait}`) {
-      if (!hints.includes(traitHints)) hints.push(traitHints);
+    } else if (typeof traitHints === 'string' && !hints.includes(traitHints)) {
+      hints.push(traitHints);
     }
   });
 
@@ -144,7 +167,7 @@ function TraitTags({ traits, t }: { traits?: MonsterTrait[]; t: (k: string) => s
       {traits.map((trait) => (
         <span
           key={trait}
-          className={`text-[10px] px-2 py-0.5 rounded border ${traitColorMap[trait] || 'border-violet-400/30 bg-violet-500/10 text-violet-200'}`}
+          className={`text-[10px] px-2 py-0.5 rounded border ${traitColorMap[trait] || 'border-red-400/30 bg-red-900/10 text-red-200'}`}
         >
           {t(`trait.${trait}`)}
         </span>
@@ -171,10 +194,10 @@ function MonsterListItem({
         isSelected
           ? isBoss
             ? 'border-rose-500/60 bg-rose-500/20'
-            : 'border-violet-500/60 bg-violet-500/20'
+            : 'border-red-700/60 bg-red-900/20'
           : isBoss
             ? 'border-rose-500/20 bg-rose-950/15 hover:border-rose-500/40 hover:bg-rose-500/10'
-            : 'border-game-border/40 bg-game-bg/40 hover:border-violet-500/40 hover:bg-violet-500/10'
+            : 'border-game-border/40 bg-game-bg/40 hover:border-red-800/40 hover:bg-red-900/10'
       }`}
     >
       <div
@@ -190,7 +213,7 @@ function MonsterListItem({
           {monster.name}
         </div>
         <div className="text-[9px] text-gray-500 flex items-center gap-1.5">
-          <span className="text-violet-300/80">Lv.{monster.level}</span>
+          <span className="text-red-400/80">Lv.{monster.level}</span>
           <span className="text-red-400/70">{monster.maxHp}</span>
           <span className="text-orange-400/70">{monster.attack}</span>
           <span className="text-blue-400/70">{monster.defense}</span>
@@ -216,7 +239,7 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: (k: string, o
       className="h-full flex flex-col"
     >
       <div className={`relative rounded-xl border p-3 flex-1 ${isBoss ? 'border-rose-500/30 bg-gradient-to-br from-rose-950/25 to-rose-900/10' : 'border-game-border/60 bg-game-bg/50'}`}>
-        <div className="absolute -top-10 -right-10 w-24 h-24 bg-violet-500/8 rounded-full blur-2xl" />
+        <div className="absolute -top-10 -right-10 w-24 h-24 bg-red-900/20 rounded-full blur-2xl" />
         
         <div className="relative z-10 h-full flex flex-col">
           <div className="flex items-center gap-2 mb-3">
@@ -230,7 +253,7 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: (k: string, o
               <h3 className={`text-sm font-display font-bold truncate ${isBoss ? 'text-rose-200 drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]' : 'text-gray-100'}`}>
                 {monster.name}
               </h3>
-              <div className="text-[10px] text-violet-300/80 font-mono mt-0.5">Lv.{monster.level}</div>
+              <div className="text-[10px] text-red-400/80 font-mono mt-0.5">Lv.{monster.level}</div>
               {isBoss && (
                 <div className="flex items-center gap-1 mt-0.5">
                     <Crown size={10} className="text-yellow-400" />
@@ -284,7 +307,7 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: (k: string, o
 
           <div className="mb-2">
             <div className="flex items-center gap-1 mb-1.5">
-              <Zap size={10} className="text-violet-400" />
+              <Zap size={10} className="text-red-400" />
               <span className="text-[9px] text-gray-400 uppercase">{t('codex.traits')}</span>
             </div>
             <TraitTags traits={monster.traits} t={t} />
@@ -393,7 +416,7 @@ export function MonsterCodexTab() {
         animate={{ opacity: 1, x: 0 }}
         className="border border-game-border/50 rounded-xl bg-gradient-to-br from-game-card/80 to-game-card/40 p-3 relative overflow-hidden flex-shrink-0"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-purple-500/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-red-900/10" />
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl" />
         
         <div className="relative z-10">
@@ -405,7 +428,7 @@ export function MonsterCodexTab() {
               >
                 <BookOpen size={14} className="text-cyan-300" />
               </motion.div>
-              <span className="font-display text-sm text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">{t('codex.title')}</span>
+              <span className="font-display text-sm text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-red-500">{t('codex.title')}</span>
             </div>
             
             <div className="flex gap-1 bg-game-bg/50 p-0.5 rounded-lg border border-game-border/30">
@@ -417,7 +440,7 @@ export function MonsterCodexTab() {
                   const first = NORMAL_MONSTERS[0];
                   if (first) setSelectedMonsterId(first.id);
                 }}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${activeTab === 'normal' ? 'bg-violet-500/30 text-violet-300 border border-violet-500/30' : 'text-gray-400 hover:text-gray-200'}`}
+                className={`px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${activeTab === 'normal' ? 'bg-red-900/30 text-red-300 border border-red-700/30' : 'text-gray-400 hover:text-gray-200'}`}
               >
                 <Skull size={10} className="inline mr-1" />
                 {t('codex.tab.normal')} ({NORMAL_MONSTERS.length})

@@ -67,8 +67,8 @@ export function GamePanel({
     .map((item) => ({ ...item, equipped: false }));
   return (
     <div className="lg:col-span-8 flex flex-col gap-6">
-      <div className="bg-gradient-to-br from-game-card/90 to-game-card/70 border border-game-border/50 rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-purple-500/5 min-h-[400px] relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/3 via-transparent to-rose-500/3 pointer-events-none" />
+      <div className="bg-gradient-to-br from-game-card/90 to-game-card/70 border border-game-border/50 rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-red-900/10 min-h-[400px] relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900/10 via-transparent to-rose-500/3 pointer-events-none" />
         
         <div className="flex border-b border-game-border relative z-10">
           <TabButton active={activeTab === 'status'} onClick={() => onSetTab('status')} label={t('tabs.battleScene')} />

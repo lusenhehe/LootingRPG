@@ -73,7 +73,7 @@ export function GameScreen({
 }: GameScreenProps) {
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 bg-violet-600/20 blur-3xl rounded-full" />
+      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 bg-red-900/30 blur-3xl rounded-full" />
       <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 bg-rose-500/15 blur-3xl rounded-full" />
 
       <div className="relative flex flex-col max-w-6xl mx-auto p-4 md:p-6 gap-6">

@@ -21,13 +21,16 @@ const basePlayerStats: PlayerStats = {
   gold: 0,
 };
 
+import { SLOTS } from './game/equipment';
+
 export const INITIAL_STATE: GameState = {
   playerStats: basePlayerStats,
   battleResult: '',
   droppedEquipment: null,
   backpack: [] as Equipment[],
   systemMessage: '',
-  currentEquipment: {},
+  // ensure every slot exists even if empty to drive UI layout
+  currentEquipment: Object.fromEntries(SLOTS.map((s) => [s, null])) as Record<string, Equipment | null>,
   pityCounts: {
     legendary: 0,
     mythic: 0,

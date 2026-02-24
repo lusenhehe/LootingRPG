@@ -38,7 +38,7 @@ export function DebugPanel({ onAddItems }: DebugPanelProps) {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <button
-        className="px-3 py-2 bg-violet-600 text-white rounded-lg shadow-md"
+        className="px-3 py-2 bg-red-800 text-white rounded-lg shadow-md"
         onClick={() => setOpen((v) => !v)}
       >
         Debug

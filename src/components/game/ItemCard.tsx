@@ -9,7 +9,7 @@ const iconMap: Record<string, ReactNode> = {
   shield: <Shield size={18} className="text-gray-400" />,
   zap: <Zap size={18} className="text-emerald-400" />,
   gem: <Gem size={18} className="text-blue-400" />,
-  hexagon: <Hexagon size={18} className="text-purple-400" />,
+  hexagon: <Hexagon size={18} className="text-red-400" />,
   crown: <Crown size={18} className="text-yellow-400" />,
   star: <Star size={18} className="text-red-400" />,
 };
@@ -38,7 +38,8 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
     shield: <Shield size={18} className="text-gray-400" />,
   }[slotIconKey];
   const forgeCost = (item.enhancementLevel + 1) * 500;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const localeName = i18n.language.startsWith('zh') ? (item.localeNames?.zh || item.name) : (item.localeNames?.en || item.name);
   const affixLabelMap: Record<string, string> = {
     crit_chance: t('stat.crit'),
     lifesteal: t('stat.lifesteal'),
@@ -52,8 +53,8 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
     : item.quality === 'legendary' 
       ? 'legendary-border shadow-lg shadow-amber-900/20' 
       : highlighted 
-        ? 'border-violet-500 shadow-lg shadow-violet-500/20' 
-        : 'border-game-border/50 hover:border-violet-500/50';
+        ? 'border-red-700 shadow-lg shadow-red-900/30' 
+        : 'border-game-border/50 hover:border-red-800/50';
 
   const bgClass = item.quality === 'mythic' 
     ? 'mythic-card-bg' 
@@ -66,8 +67,22 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
       onClick={onClick}
       className={`${bgClass} border rounded-xl p-4 space-y-3 transition-all duration-200 relative group hover:shadow-lg ${borderClass} ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
     >
+      {item.quality === 'mythic' && (
+        <div className="mythic-ornaments" aria-hidden>
+          <div className="mythic-embers" />
+          <span className="mythic-sparkle s1" />
+          <span className="mythic-sparkle s2" />
+          <span className="mythic-sparkle s3" />
+          <span className="mythic-sparkle s4" />
+          <span className="mythic-sparkle s5" />
+          <div className="mythic-shard sh1" />
+          <div className="mythic-shard sh2" />
+          <div className="mythic-shard sh3" />
+          <div className="mythic-ember-trail" />
+        </div>
+      )}
       {item.equipped && (
-        <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/30 font-bold">
+        <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full bg-red-900/20 text-red-400 border border-red-700/30 font-bold">
           {t('label.equipped')}
         </span>
       )}
@@ -76,7 +91,7 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
           <div className="p-2 rounded-lg bg-game-card/60 text-2xl leading-none">{item.icon || '🧰'}</div>
           <div>
             <h4 className={`font-bold text-sm ${qualityColor}`}>
-              {item.name} {item.enhancementLevel > 0 ? `+${item.enhancementLevel}` : ''}
+              {localeName} {item.enhancementLevel > 0 ? `+${item.enhancementLevel}` : ''}
             </h4>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-[10px] text-gray-500 uppercase font-mono">Lv.{item.level} • {item.slot}</span>
@@ -114,11 +129,11 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
         </div>
       )}
 
-      {item.special && <p className="text-[10px] text-violet-400 italic leading-tight">★ {item.special}</p>}
+      {item.special && <p className="text-[10px] text-red-400 italic leading-tight">★ {item.special}</p>}
 
       {!readonly && (
         <div className="flex gap-2 pt-1">
-          <button onClick={onEquip} disabled={loading} className="flex-1 py-1.5 bg-violet-600/10 hover:bg-violet-600 text-violet-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-violet-500/20 cursor-pointer hover:scale-105">{t('button.equip')}</button>
+          <button onClick={onEquip} disabled={loading} className="flex-1 py-1.5 bg-red-900/20 hover:bg-red-800 text-red-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-red-700/20 cursor-pointer hover:scale-105">{t('button.equip')}</button>
           <button onClick={onForge} disabled={loading} className="flex-1 py-1.5 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-yellow-500/20 cursor-pointer hover:scale-105" title={`消耗 ${forgeCost} 金币`}>{t('button.enchant')}</button>
           <button onClick={onSell} disabled={loading} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-red-500/20 cursor-pointer hover:scale-105"><Trash2 size={12} /></button>
         </div>

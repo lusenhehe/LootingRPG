@@ -18,7 +18,7 @@ interface BattleArenaProps {
 
 const bossThemeArenaStyles: Record<BossTheme, { arena: string; overlay: string; phaseColor: string; laneColor: string }> = {
   abyss: {
-    arena: 'bg-gradient-to-br from-stone-950 via-purple-950/80 to-stone-950',
+    arena: 'bg-gradient-to-br from-stone-950 via-red-950/80 to-stone-950',
     overlay: 'bg-[radial-gradient(circle_at_20%_18%,rgba(180,83,9,0.15),transparent_45%),radial-gradient(circle_at_82%_74%,rgba(153,27,27,0.12),transparent_42%)]',
     phaseColor: 'text-amber-600',
     laneColor: 'rgba(180, 83, 9, 0.5)',

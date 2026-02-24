@@ -24,18 +24,23 @@ const normalizeEquipment = (item: Equipment): Equipment => {
     attributes: attrs,
     mainStat: main,
     affixes: Array.isArray(item.affixes) ? item.affixes : [],
+    localeNames: item.localeNames || undefined,
   };
 };
 
 /**
  * Normalizes the inventory and equipped items in the game state
  */
+import { SLOTS } from '../../config/game/equipment';
+
 export const normalizeInventory = (backpack: Equipment[], currentEquipment: Record<string, Equipment | null>) => {
   const normalizedBackpack = backpack.map((item) => ({ ...normalizeEquipment(item), equipped: false }));
+
+  // ensure every configured slot exists in the normalized output
   const normalizedCurrent = Object.fromEntries(
-    Object.entries(currentEquipment).map(([slot, item]) => {
-      const key = slot;
-      return [key, item ? { ...normalizeEquipment(item), equipped: true } : null];
+    SLOTS.map((slot) => {
+      const item = currentEquipment[slot] || null;
+      return [slot, item ? { ...normalizeEquipment(item), equipped: true } : null];
     }),
   ) as Record<string, Equipment | null>;
 

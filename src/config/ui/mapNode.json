@@ -100,32 +100,32 @@
       "normal": {
         "shape": "rounded-t-full rounded-b-sm",
         "size": "w-14 h-14",
-        "iconColor": "text-purple-200",
-        "ringColor": "ring-purple-800/50",
-        "glowColor": "rgba(150, 50, 150, 0.4)",
-        "particleColor": "bg-purple-400",
-        "bgGradient": "from-purple-950 via-violet-950 to-stone-950",
-        "borderStyle": "border-purple-800/40"
+        "iconColor": "text-red-200",
+        "ringColor": "ring-red-800/50",
+        "glowColor": "rgba(150, 30, 30, 0.4)",
+        "particleColor": "bg-red-400",
+        "bgGradient": "from-red-950 via-red-900 to-stone-950",
+        "borderStyle": "border-red-800/40"
       },
       "elite": {
         "shape": "rounded-t-[60%] rounded-b-[40%]",
         "size": "w-14 h-14",
-        "iconColor": "text-violet-300",
-        "ringColor": "ring-violet-700/60",
-        "glowColor": "rgba(180, 80, 180, 0.5)",
-        "particleColor": "bg-violet-400",
-        "bgGradient": "from-violet-900 via-purple-900 to-stone-950",
-        "borderStyle": "border-violet-700/50"
+        "iconColor": "text-red-300",
+        "ringColor": "ring-red-700/60",
+        "glowColor": "rgba(180, 40, 40, 0.5)",
+        "particleColor": "bg-red-400",
+        "bgGradient": "from-red-900 via-red-900 to-stone-950",
+        "borderStyle": "border-red-700/50"
       },
       "boss": {
         "shape": "rounded-t-[70%] rounded-b-[30%]",
         "size": "w-18 h-18",
-        "iconColor": "text-fuchsia-200",
-        "ringColor": "ring-fuchsia-800/70",
-        "glowColor": "rgba(200, 50, 150, 0.6)",
-        "particleColor": "bg-fuchsia-500",
-        "bgGradient": "from-fuchsia-900 via-purple-900 to-stone-950",
-        "borderStyle": "border-fuchsia-700/60"
+        "iconColor": "text-red-200",
+        "ringColor": "ring-red-800/70",
+        "glowColor": "rgba(200, 50, 50, 0.6)",
+        "particleColor": "bg-red-500",
+        "bgGradient": "from-red-900 via-red-900 to-stone-950",
+        "borderStyle": "border-red-700/60"
       }
     }
   },

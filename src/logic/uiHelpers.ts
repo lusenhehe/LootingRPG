@@ -26,7 +26,7 @@ export function getDerivedStats(gameState: GameState): Omit<DerivedStatItem, 'ic
     { en: 'lifesteal', key: 'ls', accent: 'border-red-400/35 bg-red-500/10 text-red-200', fmt: v => `${v}%` },
     { en: 'thorns', key: 'thorns', accent: 'border-emerald-400/35 bg-emerald-500/10 text-emerald-200', fmt: v => `${v}%` },
     { en: 'elemental', key: 'element', accent: 'border-cyan-400/35 bg-cyan-500/10 text-cyan-200', fmt: v => `+${v}` },
-    { en: 'attackSpeed', key: 'spd', accent: 'border-violet-400/35 bg-violet-500/10 text-violet-200', fmt: v => `+${v}` },
+    { en: 'attackSpeed', key: 'spd', accent: 'border-red-400/35 bg-red-500/10 text-red-200', fmt: v => `+${v}` },
   ];
 
   return statSpecs.map(({ en, key, accent, fmt }) => {
@@ -41,10 +41,3 @@ export function getDerivedStats(gameState: GameState): Omit<DerivedStatItem, 'ic
     };
   });
 }
-
-// // 计算当前装备提供的总属性加成，返回一个以属性名为键、
-// // 总加成数值为值的对象。组件可以使用这个函数来显示装备总加成或者在计算伤害时使用。
-// export function getEquipmentStatTotals(gameState: GameState): Record<string, number> {
-//   const { attributes, affixes } = getEquipmentTotals(gameState.currentEquipment);
-//   return { ...attributes, ...affixes };
-// }

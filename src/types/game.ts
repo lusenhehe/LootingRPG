@@ -33,6 +33,10 @@ export interface Equipment {
   enhancementLevel: number;
   mainStat: string;
   equipped: boolean;
+  localeNames?: {
+    zh?: string;
+    en?: string;
+  };
 }
 
 export interface GameState {

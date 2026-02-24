@@ -71,8 +71,8 @@ export const chapterThemeStyles: Record<ChapterTheme, ChapterThemeStyle> = {
     pathColor: 'rgb(180, 60, 20)',
   },
   '亡灵': {
-    islandGradient: 'from-slate-950 via-purple-950 to-black',
-    terrainTop: 'from-purple-900 via-red-900 to-stone-950',
+    islandGradient: 'from-slate-950 via-red-950 to-black',
+    terrainTop: 'from-red-900 via-red-900 to-stone-950',
     glowColor: 'rgba(160, 50, 100, 0.4)',
     shadowColor: 'rgba(120, 30, 60, 0.3)',
     accentColor: 'purple',

@@ -1,12 +1,3 @@
-// Utility layer to translate between Chinese and English property names used across game state
-// and UI. This helps isolate the mixed naming problem and provides a single
-// place to extend when moving toward a consistent convention.
-
-/**
- * Primary mapping for player stats and other common keys.
- * keys are the Chinese property names used in GameState/PlayerStats;
- * values are the preferred English identifiers.
- */
 export const chineseToEnglish: Record<string, string> = {
   等级: 'level',
   经验: 'xp',

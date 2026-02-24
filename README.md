@@ -1,10 +1,21 @@
-**Prerequisites:**  Node.js
+**怎么游玩:** 
+1. 安装Node.js
+2. 终端运行 `npm install`
+3. 终端运行 `npm run dev`
 
+## 专属装备 CSV 配置
 
-1. Install dependencies:
-   `npm install`
-3. Run the app:
-   `npm run dev`
+- 当前装备掉落已改为读取 `src/config/content/UniqueEquipments.csv`（不再走原随机词条拼装）。
+- 可直接编辑 CSV 添加条目，核心列：
+	- `id,slot,quality,icon`
+	- `name_zh,name_en`
+	- `special_zh,special_en`
+	- `attributes`（JSON 对象字符串）
+	- `affixes`（JSON 数组字符串）
+	- `tags,chance,weight,bossOnly,mapNode,minLevel,maxLevel,levelOffset,scalePerLevel`
+- `chance` 取值范围建议 `0~1`，`bossOnly=true` 表示仅 Boss 战可掉落。
+- `attributes` 示例：`{"attack":120,"attackSpeed":12}`
+- `affixes` 示例：`[{"type":"damage_bonus","value":18}]`
 
 ## 地图系统开发
 
@@ -36,8 +47,3 @@
 | 交易市场 | 玩家间交易装备 | 高 |
 | 公会系统 | 加入公会，共同讨伐BOSS | 高 |
 ---
-💡 快速见效的建议
-1. 增加装备名称随机性 - 当前都是"普通武器"这种单调命名
-2. 添加套装效果 - 最少开发量提升深度
-3. 连击系统 - 简单代码增加成瘾性
-4. 每日任务 - "击败10只怪物"等任务奖励
