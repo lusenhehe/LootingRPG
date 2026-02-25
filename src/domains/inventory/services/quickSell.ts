@@ -1,5 +1,5 @@
 import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
-import { getQualityLabel } from '../../../logic/i18n/labels';
+import { getQualityLabel } from '../../../infra/i18n/labels';
 import type { Equipment, GameState } from '../../../types/game';
 import { t } from 'i18next';
 

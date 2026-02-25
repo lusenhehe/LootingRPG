@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Mountain} from 'lucide-react';
 import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData';
 import type { MapProgressState } from '../../../types/game';
-import { isNodeCleared, isNodeUnlocked,} from '../../../logic/mapProgress';
+import { isNodeCleared, isNodeUnlocked,} from '../../../domains/map/services/progress';
 import { clampMapOffset, getZigzagNodePosition, chapterThemeStyles,} from './mapConfig';
 import { themeHeaderColors} from '../../../config/map/mapNode';
 

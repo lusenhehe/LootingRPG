@@ -1,4 +1,4 @@
-import {getNodeAttempts,isNodeCleared,isNodeUnlocked} from '../../../logic/mapProgress';
+import {getNodeAttempts,isNodeCleared,isNodeUnlocked} from '../../../domains/map/services/progress';
 import { Lock, Sparkles, Star, Zap, Skull, Crown, Trophy, Ghost } from 'lucide-react';
 import { chapterThemeStyles, getNodeState, stateOverlayStyles, getZigzagNodePosition } from './mapConfig';
 import type { MapNodeDef, MapChapterDef } from '../../../config/map/ChapterData';

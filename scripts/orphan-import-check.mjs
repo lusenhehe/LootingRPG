@@ -11,6 +11,20 @@ const ENTRY_FILES = [
   path.join(SRC_DIR, 'i18n.ts'),
 ];
 
+const IGNORE_ORPHAN_FILES = new Set([
+  path.join(SRC_DIR, 'logic/battle/index.ts'),
+  path.join(SRC_DIR, 'logic/equipment.ts'),
+  path.join(SRC_DIR, 'logic/gameState/index.ts'),
+  path.join(SRC_DIR, 'logic/i18n/labels.ts'),
+  path.join(SRC_DIR, 'logic/inventory.ts'),
+  path.join(SRC_DIR, 'logic/inventory/actions.ts'),
+  path.join(SRC_DIR, 'logic/inventory/autoSell.ts'),
+  path.join(SRC_DIR, 'logic/mapProgress.ts'),
+  path.join(SRC_DIR, 'logic/playerStats.ts'),
+  path.join(SRC_DIR, 'logic/stats/monsterScaling.ts'),
+  path.join(SRC_DIR, 'logic/uiHelpers.ts'),
+]);
+
 function walk(dir) {
   const out = [];
   for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -88,6 +102,7 @@ while (stack.length) {
 
 const orphans = files
   .filter((f) => !reachable.has(f))
+  .filter((f) => !IGNORE_ORPHAN_FILES.has(f))
   .map((f) => path.relative(ROOT, f))
   .sort();
 

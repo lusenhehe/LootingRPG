@@ -1,4 +1,4 @@
-import { normalizeMapProgress, getChapterProgress} from '../../../logic/mapProgress';
+import { normalizeMapProgress, getChapterProgress} from '../../../domains/map/services/progress';
 import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData';
 import { Star, ChevronDown, Mountain, Lock } from 'lucide-react';
 import { MAP_CHAPTERS } from '../../../config/map/ChapterData';

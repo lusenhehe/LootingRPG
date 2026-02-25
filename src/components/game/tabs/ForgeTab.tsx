@@ -1,11 +1,11 @@
 import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LOCK_COST, QUALITY_CONFIG, REROLL_BASE_COST } from '../../../config/game/equipment';
-import { getSlotLabel, getStatLabel } from '../../../logic/i18n/labels';
+import { getSlotLabel, getStatLabel } from '../../../infra/i18n/labels';
 import type { Equipment, GameState } from '../../../types/game';
 import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
-import { calculateEnchantCost, previewEnchant } from '../../../logic/equipment';
+import { calculateEnchantCost, previewEnchant } from '../../../domains/inventory/services/equipment';
 
 
 interface ForgeTabProps {
