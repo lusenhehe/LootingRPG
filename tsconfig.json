@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@data/*": [
+        "./asset/data/*"
       ]
     },
     "allowImportingTsExtensions": true,

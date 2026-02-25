@@ -32,7 +32,7 @@ export default function MapViewport({
 }: MapViewportProps) {
   const { t } = useTranslation();
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [, setHoveredNode] = useState<string | null>(null);
   const mapViewportRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dragging: boolean; x: number; y: number }>({ dragging: false, x: 0, y: 0 });
   const themeColors = themeHeaderColors[selectedChapter.theme];
@@ -85,7 +85,7 @@ export default function MapViewport({
       const targetX = (pos.x / 100) * viewport.width;
       const centerX = viewport.width / 2;
       const desired = { x: centerX - targetX, y: 0 };
-      setOffset((prev) => clampMapOffset(desired, viewport, selectedChapter.nodes.length));
+      setOffset(() => clampMapOffset(desired, viewport, selectedChapter.nodes.length));
     }
     onClearFocus?.();
   }, [focusNodeId, selectedChapter, onClearFocus]);

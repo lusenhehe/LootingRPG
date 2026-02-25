@@ -24,7 +24,7 @@ const ensureNodeWaves = (node: MapNodeDef): NodeWave[] => {
   }
   return node.waves;
 };
-
+/// > 正常化战斗会话中的波次和敌人数据，确保每个敌人都有 waveId，并且 currentWaveIndex 在有效范围内
 const normalizeSessionWaves = (session: BattleSession): BattleSession => {
   const enemies = (session.enemies ?? []).map((enemy, index) => ({
     ...enemy,
@@ -49,7 +49,7 @@ const normalizeSessionWaves = (session: BattleSession): BattleSession => {
     currentWaveIndex,
   };
 };
-
+///> 根据地图节点、波次和怪物配置构建战斗敌人快照，计算最终属性并生成唯一 ID
 const buildEnemySnapshot = (
   node: MapNodeDef,
   wave: NodeWave,

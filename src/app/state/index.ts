@@ -1,4 +1,3 @@
-import { createFreshInitialState } from './globalState';
 import { normalizeInventory } from './inventoryState';
 import type { BattleSession, GameState } from '../../types/game';
 

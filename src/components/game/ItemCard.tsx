@@ -1,6 +1,6 @@
-import { Coins, Trash2, Shield, Zap, Gem, Crown, Star, Hexagon, Sword, User, Package } from 'lucide-react';
+import { Coins, Trash2, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { QUALITY_CONFIG, SLOT_CONFIG } from '../../config/game/equipment';
+import { QUALITY_CONFIG } from '../../config/game/equipment';
 import { getQualityLabel, getStatLabel } from '../../infra/i18n/labels';
 import type { Equipment } from '../../types/game';
 import { useTranslation } from 'react-i18next';
@@ -28,15 +28,6 @@ interface ItemCardProps {
 export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, highlighted, onClick }: ItemCardProps) {
   const qualityColor = QUALITY_CONFIG[item.quality]?.color || 'text-gray-400';
   const qualityIcon = iconMap[QUALITY_CONFIG[item.quality]?.iconName || 'shield'];
-  const slotIconKey = SLOT_CONFIG[item.slot]?.icon || 'package';
-  const slotIcon = {
-    sword: <Sword size={18} className="text-amber-400" />,
-    user: <User size={18} className="text-gray-300" />,
-    package: <Package size={18} className="text-gray-300" />,
-    star: <Star size={18} className="text-red-400" />,
-    gem: <Gem size={18} className="text-blue-400" />,
-    shield: <Shield size={18} className="text-gray-400" />,
-  }[slotIconKey];
   const forgeCost = (item.enhancementLevel + 1) * 500;
   const { t, i18n } = useTranslation();
   const localeName = i18n.language.startsWith('zh') ? (item.localeNames?.zh || item.name) : (item.localeNames?.en || item.name);

@@ -57,7 +57,7 @@
 - `message.enchant_success`
 - `message.enchant_fail`
 
-（请在 `src/locales/zh/translation.json` 与 `src/locales/en/translation.json` 中增加对应翻译。）
+（请在 `asset/data/locales/zh/translation.json` 与 `asset/data/locales/en/translation.json` 中增加对应翻译。）
 
 **可访问性与交互细节**
 - 锁定开关应为键盘可聚焦的按钮（`button`），并提供 `aria-pressed`。

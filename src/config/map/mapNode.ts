@@ -1,4 +1,4 @@
-import nodeUiConfig from './mapNode.json';
+import nodeUiConfig from '@data/config/map/mapNode.json';
 export type ChapterTheme = typeof nodeUiConfig.chapterNodeStyles extends Record<infer K, unknown> ? K : never;
 export interface NodeEncounterStyle {
   shape: string; size: string; iconColor: string; ringColor: string;

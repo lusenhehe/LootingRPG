@@ -1,5 +1,5 @@
-import type { GameState, PlayerStats, Equipment } from '../types/game';
-import { PLAYER_GROWTH } from './game/progression';
+import type { GameState, PlayerStats, Equipment } from '../../types/game';
+import { PLAYER_GROWTH } from './progression';
 /**
  * 游戏全局配置对象
  * - INITIAL_STATE: 全部游戏状态的初始快照
@@ -15,7 +15,7 @@ const basePlayerStats: PlayerStats = {
   thorns: 0, elemental: 0, attackSpeed: 0, gold: 0,
 };
 
-import { SLOTS } from './game/equipment';
+import { SLOTS } from './equipment';
 
 export const INITIAL_STATE: GameState = {
   playerStats: basePlayerStats,

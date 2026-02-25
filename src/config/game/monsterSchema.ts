@@ -1,56 +1,42 @@
 export type MonsterType = 'normal' | 'elite' | 'boss';
+import monsterConfig from '@data/config/game/monsterConfig.json';
 
-export type MonsterTrait =
-  | 'thorns'
-  | 'lifesteal'
-  | 'double_attack'
-  | 'shield_on_start'
-  | 'rage_on_low_hp';
-export const ALL_MONSTER_TRAITS: MonsterTrait[] = [
-  'thorns',
-  'lifesteal',
-  'double_attack',
-  'shield_on_start',
-  'rage_on_low_hp',
-];
-
+export type MonsterTrait = typeof monsterConfig.traits[number];
 export interface RawMonsterBaseStats { hp?: number; attack?: number; defense?: number;}
 
 export interface RawMonsterPhase {
-  id?: string;
-  label?: string;
-  labelKey?: string;
-  interval?: number;
-  action?: string;
-}
+  id?: string; label?: string; labelKey?: string; interval?: number;
+  action?: string;}
 
 export interface RawBossCounterGoal {
-  title?: string;
-  titleKey?: string;
-  stat?: string;
-  threshold?: number;
-  successText?: string;
-  successTextKey?: string;
-  failText?: string;
-  failTextKey?: string;
+  title?: string; titleKey?: string;
+  stat?: string; threshold?: number;
+  successText?: string; successTextKey?: string;
+  failText?: string; failTextKey?: string;
 }
 
+/**
+ * 只包含普通怪共有的字段
+ */
 export interface RawMonsterData {
   id?: string;
-  name?: string;
-  nameKey?: string;
   icon?: string;
-  level?: number;
   monsterType?: MonsterType;
   baseStats?: RawMonsterBaseStats;
   scalingProfile?: string;
-  tags?: string[];
   skillSet?: string[];
   traits?: MonsterTrait[];
   uniqueTraits?: MonsterTrait[];
   phases?: RawMonsterPhase[];
   threatTypes?: string[];
   background?: string;
+  dropdict?: Record<string, number>;
+}
+
+/**
+ * boss 构造时的额外字段
+ */
+export interface RawBossData extends RawMonsterData {
   bossIdentity?: {
     theme?: string;
     introLine?: string;
@@ -61,12 +47,11 @@ export interface RawMonsterData {
   };
   counterGoal?: RawBossCounterGoal;
   counterGoalLabel?: string;
-  dropdict?: Record<string, number>;
 }
 
 export interface MonsterConfigData {
   normal: RawMonsterData[];
-  boss: RawMonsterData[];
+  boss:   RawBossData[];
 }
 
 export type MonsterPhaseAction = 'drain_soul' | 'reconstruct' | 'annihilation';
@@ -86,10 +71,7 @@ export interface BossIdentity {
   battleLogLine: string;
   phasePrompts?: Partial<Record<'entering' | 'fighting' | 'dying' | 'dropping', string>>;
 }
-export type CounterStatKey =
-  'attack' | 'defense' | 'hp' |
-  'elemental' | 'lifesteal' |
-  'thorns' | 'attackSpeed';
+export type CounterStatKey = typeof monsterConfig.strategy.counterGoalScoreMap[keyof typeof monsterConfig.strategy.counterGoalScoreMap];
 export interface BossCounterGoal {
   title: string;
   stat: CounterStatKey;
@@ -97,17 +79,21 @@ export interface BossCounterGoal {
   successText: string;
   failText: string;
 }
-
+//战术标签（策略推荐方向）
+export type StrategyTag = typeof monsterConfig.strategy.tag[number];
+//词条评分映射表
+export const traitScoreMap: Record<MonsterTrait, Partial<Record<StrategyTag, number>>> = monsterConfig.strategy.traitScoreMap;
+//**对抗目标计分表
+export const counterGoalScoreMap: Record<string, StrategyTag> = monsterConfig.strategy.counterGoalScoreMap;
 export interface Monster {
-  id: string;        // 唯一标识符
-  name: string;      // 显示名称
+  id:    string;     // 唯一标识符
+  name:  string;     // 显示名称
   icons: string[];   // 图标列表，至少一个
   level: number;     // 怪物等级，影响属性和掉落
-  monsterType:    MonsterType; // 怪物类型：normal / elite / boss
-  baseStats:      MonsterBaseStats;/// 基础属性，包含hp、attack和defense
+  monsterType:    MonsterType;          /// 怪物类型
+  baseStats:      MonsterBaseStats;     /// 基础属性，包含hp、attack和defense
   scalingProfile: MonsterScalingProfile;/// 属性成长类型，影响属性随等级的增长方式
-  tags?: string[];/// 
-  skillSet?: string[];/// 
+  skillSet?: string[];   /// 
   maxHp: number;/// 
   attack: number;/// 
   defense: number;/// 
@@ -130,7 +116,8 @@ const isObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null;
 };
 
-const ensureMonsterArray = (value: unknown, key: 'normal' | 'boss'): RawMonsterData[] => {
+
+function ensureMonsterArray<K extends 'normal' | 'boss'>(value: unknown, key: K): K extends 'boss' ? RawBossData[] : RawMonsterData[] {
   if (!Array.isArray(value)) {
     throw new Error(`[monsterSchema] '${key}' must be an array`);
   }
@@ -170,6 +157,9 @@ const ensureMonsterArray = (value: unknown, key: 'normal' | 'boss'): RawMonsterD
     }
   });
 
+  if (key === 'boss') {
+    return value as RawBossData[];
+  }
   return value as RawMonsterData[];
 };
 

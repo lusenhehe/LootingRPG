@@ -1,4 +1,4 @@
-import { INITIAL_STATE } from '../../../config/gameConfig';
+import { INITIAL_STATE } from '../../../config/game/gameConfig';
 import { PLAYER_GROWTH } from '../../../config/game/progression';
 import type { GameState } from '../../../types/game';
 import { getEquipmentTotals } from '../../inventory/services/equipmentTotals';

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { Theme, ThemeContextValue } from './types';
-import DarkScareTheme from './DarkScare.json';
-import ArcaneMysticTheme from './ArcaneMystic.json';
+import DarkScareTheme from '@data/config/themes/DarkScare.json';
+import ArcaneMysticTheme from '@data/config/themes/ArcaneMystic.json';
 
 const themes: Theme[] = [DarkScareTheme, ArcaneMysticTheme];
 

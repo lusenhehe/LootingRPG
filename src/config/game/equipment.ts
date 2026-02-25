@@ -1,13 +1,11 @@
 // 本模块合并了原来的两个配置文件：
-// - `config/game/equipment.ts` (装备品质/槽位等静态数据)
-// - `config/content/equipments.ts` (从 CSV 读取的装备模板)
-//
+// - `data/config/game/equipment.json`：包含装备相关的静态配置数据，如属性池、品质配置、槽位信息等。
+// - `data/config/game/equipments.csv`：包含装备模板数据，用于从 CSV 导入自定义装备。CSV 解析工具也在此模块中实现并导出。
 // 所有导出内容包括基础配置常量、配色、价格信息
 // 以及为了调试/加载自定义装备而使用的 CSV 解析工具。
-// 删除了原 `config/content/equipments.ts`，相关引用已更新。
 
-import equipment from './equipment.json';
-import csvRaw from '../content/equipments.csv?raw';
+import equipment from '@data/config/game/equipment.json';
+import csvRaw from '@data/config/game/equipments.csv?raw';
 
 type QualityConfigItem = { stats: number; price: number; color: string; iconName: string };
 type SlotItem = { id: string; name: string; icon: string };

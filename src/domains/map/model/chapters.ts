@@ -1,4 +1,4 @@
-import chapterData from '../../../config/map/ChapterData.json';
+import chapterData from '@data/config/map/ChapterData.json';
 import { MapEncounterType, ChapterTheme } from '../../../config/map/mapNode';
 
 interface RawNodeWave {

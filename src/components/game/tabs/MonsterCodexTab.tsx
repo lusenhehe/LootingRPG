@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../domains/monster/catalog';
+import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../domains/monster/services/monsterCatalog';
 import { UI_DIMENSIONS } from '../../../config/ui/tokens';
-import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/monsterStrategyConfig';
+import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/game/monsterSchema';
 import type { Monster, MonsterTrait, ThreatType } from '../../../types/game';
 const traitColorMap: Record<MonsterTrait, string> = {
   thorns: 'border-rose-400/30 bg-rose-500/10 text-rose-200',
@@ -71,7 +71,7 @@ const getStrategyTags = (monster: Monster): StrategyTag[] => {
     const traitScores = traitScoreMap[trait];
     if (traitScores) {
       Object.entries(traitScores).forEach(([key, value]) => {
-        score[key as StrategyTag] += value;
+        score[key as StrategyTag] += value ?? 0;
       });
     }
   });

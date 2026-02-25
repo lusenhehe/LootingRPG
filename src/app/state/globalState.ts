@@ -1,4 +1,4 @@
-import { INITIAL_STATE } from '../../config/gameConfig';
+import { INITIAL_STATE } from '../../config/game/gameConfig';
 import type { GameState } from '../../types/game';
 
 /**

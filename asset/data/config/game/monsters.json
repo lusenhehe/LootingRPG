@@ -15,7 +15,6 @@
        "defense": 1
       },
       "scalingProfile": "normal",
-      "tags": [],
       "skillSet": []
     },
     {
@@ -31,7 +30,6 @@
         "defense": 0.88
       },
       "scalingProfile": "normal",
-      "tags": [],
       "skillSet": []
     },
     {
@@ -47,7 +45,6 @@
         "defense": 0.95
       },
       "scalingProfile": "normal",
-      "tags": [],
       "skillSet": []
     }
   ],
@@ -99,43 +96,10 @@
         "defense": 2.86
       },
       "scalingProfile": "boss",
-      "tags": [
-        "rage_on_low_hp",
-        "boss"
-      ],
       "skillSet": [
         "rageMode"
       ]
     }
-  ],
-  "regionIds": {
-    "forest": [
-      "giant_rat",
-      "harpy",
-      "forest_satyr",
-      "blood_bat",
-      "poison_spider",
-      "moon_huntress",
-      "thorn_beast"
-    ],
-    "dungeon": [
-      "skeleton",
-      "zombie",
-      "stone_golem",
-      "iron_knight",
-      "grave_keeper",
-      "mimic",
-      "abyss_guard"
-    ],
-    "volcano": [
-      "lava_hound",
-      "ashen_warlock",
-      "storm_elemental",
-      "rot_brute",
-      "arcane_construct",
-      "frost_mage",
-      "void_eye"
-    ]
-  }
+  ]
 }
 

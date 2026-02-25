@@ -1,4 +1,4 @@
-import nodeShapes from '../../../config/map/nodeShapes.json';
+import nodeShapes from '@data/config/map/nodeShapes.json';
 import type { ChapterTheme } from '../../../config/map/mapNode';
 import { MAP_CHAPTERS } from '../../../config/map/ChapterData';
 

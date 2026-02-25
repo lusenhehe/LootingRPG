@@ -14,6 +14,10 @@
 
 ## 架构规则自检（必勾）
 
+- 本次变更涉及的域（battle/inventory/map/player/app/infra等）：
+- 是否新增跨层耦合（如 domain 引入 UI、域依赖 app 等）：是/否
+- 是否删除了旧代码或兼容导出？请列出文件路径
+
 - [ ] 未新增 `runtime -> game-balance/content` 逆向依赖
 - [ ] 未新增 `game-balance <-> content` 双向循环
 - [ ] 配置文件未混入 UI 组件逻辑

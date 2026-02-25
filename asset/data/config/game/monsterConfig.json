@@ -1,0 +1,23 @@
+﻿{
+  "counterStatKeys": [ "attack" , "defense" , "hp" , "elemental" , "lifesteal" , "thorns" , "attackSpeed"],
+  "traits": [ "thorns" , "lifesteal" , "double_attack" , "shield_on_start" , "rage_on_low_hp"],
+  "strategy": {
+    "tag": [ "offense" , "defense" , "sustain"],
+    "traitScoreMap": {
+      "thorns": { "defense": 2, "sustain": 1 },
+      "lifesteal": { "offense": 1, "sustain": 2 },
+      "double_attack": { "defense": 1, "offense": 2 },
+      "shield_on_start": { "offense": 2, "defense": 1 },
+      "rage_on_low_hp": { "defense": 2, "sustain": 1 }
+    },
+    "counterGoalScoreMap": {
+      "attack": "offense",
+      "elemental": "offense",
+      "attackSpeed": "offense",
+      "defense": "defense",
+      "hp": "defense",
+      "lifesteal": "sustain",
+      "thorns": "sustain"
+    }
+  }
+}

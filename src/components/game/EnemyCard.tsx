@@ -8,9 +8,8 @@ const percent = (value: number, max: number) => {
 
 interface EnemyCardProps {
   enemy: BattleEnemySnapshot;
-  label?: string;
 }
-export function EnemyCard({ enemy, label }: EnemyCardProps) {
+export function EnemyCard({ enemy }: EnemyCardProps) {
   return (
     <BattleUnitCardBase className="w-full p-0">
       <div className="relative w-full h-full">

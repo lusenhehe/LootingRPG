@@ -10,7 +10,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit",
+    "lint": "tsc --noEmit && eslint \"src/**/*.{ts,tsx}\" && npm run check:arch",
+    "check:arch": "node scripts/checkArchitecture.js",
+    "check:orphan": "node scripts/checkOrphans.js",
     "electron:serve": "electron .",
     "electron:build": "npm run build && electron-builder --win"
   },
@@ -20,6 +22,7 @@
     "@capacitor/core": "^8.1.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
+    "glob": "^8.1.0",
     "i18next": "^25.8.13",
     "lucide-react": "^0.546.0",
     "motion": "^12.34.3",
@@ -36,7 +39,10 @@
     "electron-builder": "^24.0.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.2",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0"
   },
   "build": {
     "appId": "com.lootingrpg.app",

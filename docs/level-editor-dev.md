@@ -4,8 +4,8 @@
 
 ## 功能
 
-- 自动导入怪物配置：`src/config/content/monsters.json`
-- 自动导入关卡配置：`src/config/map/mapdata.json` 中的 `MAP_CHAPTERS` 数组
+- 自动导入怪物配置：`asset/data/config/content/monsters.json`
+- 自动导入关卡配置：`asset/data/config/map/mapdata.json` 中的 `MAP_CHAPTERS` 数组
 - 编辑章节与节点（ID、名称、推荐等级、遭遇类型、奖励、坐标）
 - 编辑节点波次（`waves`）JSON
 - 一键保存回 `mapChapterAdapter.ts`
@@ -28,7 +28,7 @@ npm run level-editor
 2. 中间选择节点。
 3. 右侧编辑区修改章节/节点字段。
 4. 若需要编辑波次，修改 `Waves(JSON)` 文本框（必须是合法 JSON 数组）。
-5. 点击“保存到 mapdata.json”。
+5. 点击“保存到 asset/data/config/map/mapdata.json”。
 
 ## 文件结构
 
@@ -38,6 +38,6 @@ npm run level-editor
 
 ## 注意事项
 
-- 保存会直接改写 `src/config/map/mapdata.json` 中的 `MAP_CHAPTERS` 数组内容。
+- 保存会直接改写 `asset/data/config/map/mapdata.json` 中的 `MAP_CHAPTERS` 数组内容。
 - 建议在使用前先提交一次 Git，便于回滚。
 - `Waves(JSON)` 输入格式错误时不会应用到数据。
