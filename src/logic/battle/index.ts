@@ -2,7 +2,7 @@ import type { BattleEnemySnapshot, BattleResult, BattleSession, GameState, MapPr
 import type { MapChapterDef, MapNodeDef, NodeWave } from '../../config/map/ChapterData';
 import { getFinalPlayerStats } from '../stats/playerStats';
 import { getFinalMonsterStats } from '../stats/monsterStats';
-import { getMonsterById } from '../monsters/config';
+import { getMonsterById } from '../../domains/monster/config';
 import { applyMapNodeResult } from '../mapProgress';
 import { PLAYER_GROWTH } from '../../config/game/progression';
 import { recalculatePlayerStats } from '../playerStats';
