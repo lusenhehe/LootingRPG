@@ -1,5 +1,5 @@
 import type { Monster, MonsterBaseStats, MonsterScalingProfile, MonsterTrait } from '../../types/game';
-import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../stats/monsterScaling';
+import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../../logic/stats/monsterScaling';
 import { t } from 'i18next';
 import monsterConfig from '../../config/content/monsters.json';
 import { getEquipmentTemplates } from '../../config/game/equipment';

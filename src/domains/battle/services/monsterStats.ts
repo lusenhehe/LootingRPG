@@ -1,8 +1,8 @@
-import type { CounterStatKey, Monster } from '../../types/game';
-import type { FinalPlayerCombatStats } from './playerStats';
-import { getCombatProfile } from './playerStats';
-import i18n from '../../i18n';
-import { getMapNodeById } from '../../domains/map/services/nodeLookup';
+import type { CounterStatKey, Monster } from '../../../types/game';
+import type { FinalPlayerCombatStats } from '../../player/model/combat';
+import { getCombatProfile } from '../../player/model/combat';
+import i18n from '../../../i18n';
+import { getMapNodeById } from '../../map/services/nodeLookup';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
 export interface FinalMonsterCombatStats {
