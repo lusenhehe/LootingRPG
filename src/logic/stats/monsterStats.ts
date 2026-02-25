@@ -2,7 +2,7 @@ import type { CounterStatKey, Monster } from '../../types/game';
 import type { FinalPlayerCombatStats } from './playerStats';
 import { getCombatProfile } from './playerStats';
 import i18n from '../../i18n';
-import { getMapNodeById } from '../mapUtils';
+import { getMapNodeById } from '../../domains/map/services/nodeLookup';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from './monsterScaling';
 
 export interface FinalMonsterCombatStats {
