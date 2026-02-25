@@ -1,0 +1,25 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+release/win-unpacked/
+# 排除 Windows 打包产物
+release/
+dist/
+*.exe
+*.asar
+
+# 排除 Android 打包产物
+android/app/build/
+*.apk
+*.aab
+
+# 排除其他无用文件
+node_modules/
+.DS_Store
+.idea/

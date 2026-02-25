@@ -1,0 +1,23 @@
+{
+  "id": "arcane-mystic",
+  "name": "奥术神秘",
+  "description": "神秘紫罗兰风格 - 魔法氛围",
+  "colors": {
+    "gameBg": "#0F0A1A",
+    "gameCard": "#1A1425",
+    "gameBorder": "#2D2340",
+    "gameAccent": "#8B5CF6",
+    "gameCta": "#7C3AED",
+    "quality": {
+      "common": "#9CA3AF",
+      "uncommon": "#10B981",
+      "rare": "#3B82F6",
+      "epic": "#8B5CF6",
+      "legendary": "#F59E0B",
+      "mythic": "#EC4899"
+    }
+  },
+  "gradients": {
+    "body": "radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(236, 72, 153, 0.08) 0%, transparent 40%), linear-gradient(180deg, #0F0A1A 0%, #1A1425 100%)"
+  }
+}

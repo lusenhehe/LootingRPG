@@ -1,0 +1,22 @@
+{
+  "林地": {
+    "normal": "rounded-lg clip-path-forest",
+    "elite": "rotate-45 rounded-sm clip-path-forest-elite",
+    "boss": "rounded-2xl clip-path-forest-boss"
+  },
+  "地牢": {
+    "normal": "rounded-sm clip-path-dungeon",
+    "elite": "clip-path-dungeon-elite",
+    "boss": "clip-path-dungeon-boss"
+  },
+  "火山": {
+    "normal": "rounded-tl-3xl rounded-br-3xl clip-path-volcano",
+    "elite": "clip-path-volcano-elite",
+    "boss": "clip-path-volcano-boss"
+  },
+  "亡灵": {
+    "normal": "rounded-xl clip-path-undead",
+    "elite": "clip-path-undead-elite",
+    "boss": "clip-path-undead-boss"
+  }
+}

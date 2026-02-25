@@ -1,0 +1,141 @@
+{
+  "normal": [
+    {
+      "id": "skeleton",
+      "icon": "💀",
+      "background": "monster.background.skeleton",
+      "monsterType": "normal",
+      "threatTypes": [ "tank_breaker" ],
+      "dropdict": {
+        "u001_ashen_blade": 1
+      },
+      "baseStats": { 
+        "hp": 1.08, 
+       "attack": 1, 
+       "defense": 1
+      },
+      "scalingProfile": "normal",
+      "tags": [],
+      "skillSet": []
+    },
+    {
+      "id": "goblin",
+      "icon": "👺",
+      "background": "monster.background.goblin",
+      "monsterType": "normal",
+      "threatTypes": [ "burst_punish" ],
+      "dropdict": { "u001_ashen_blade": 1 },
+      "baseStats": {
+        "hp": 0.92,
+        "attack": 1.12,
+        "defense": 0.88
+      },
+      "scalingProfile": "normal",
+      "tags": [],
+      "skillSet": []
+    },
+    {
+      "id": "wolf",
+      "icon": "🐺",
+      "background": "monster.background.wolf",
+      "monsterType": "normal",
+      "threatTypes": ["sustain_pressure"],
+      "dropdict": { "u001_ashen_blade": 1 },
+      "baseStats": {
+        "hp": 1.0,
+        "attack": 1.05,
+        "defense": 0.95
+      },
+      "scalingProfile": "normal",
+      "tags": [],
+      "skillSet": []
+    }
+  ],
+  "boss": [
+    {
+      "id": "abyss_demon",
+      "icon": "👹",
+      "background": "monster.background.abyss_demon",
+      "bossIdentity": {
+        "theme": "abyss",
+        "introLineKey": "boss.abyss_demon.introLine",
+        "battleLogLineKey": "boss.abyss_demon.battleLogLine",
+        "phasePrompts": {
+          "entering": "boss.abyss_demon.phase.entering",
+          "fighting": "boss.abyss_demon.phase.fighting",
+          "dying": "boss.abyss_demon.phase.dying",
+          "dropping": "boss.abyss_demon.phase.dropping"
+        }
+      },
+      "monsterType": "boss",
+      "traits": [
+        "rage_on_low_hp"
+      ],
+      "uniqueTraits": [
+        "rage_on_low_hp"
+      ],
+      "phases": [
+        {
+          "id": "abyss-annihilation",
+          "labelKey": "bossPhase.abyss_annihilation",
+          "interval": 3,
+          "action": "annihilation"
+        }
+      ],
+      "threatTypes": [
+        "sustain_pressure",
+        "attrition"
+      ],
+      "counterGoal": {
+        "titleKey": "counter.abyss_demon",
+        "stat": "defense",
+        "threshold": 110,
+        "successText": "counterSuccess.abyss_demon",
+        "failText": "counterFail.abyss_demon"
+      },
+      "baseStats": {
+        "hp": 3.58,
+        "attack": 2.44,
+        "defense": 2.86
+      },
+      "scalingProfile": "boss",
+      "tags": [
+        "rage_on_low_hp",
+        "boss"
+      ],
+      "skillSet": [
+        "rageMode"
+      ]
+    }
+  ],
+  "regionIds": {
+    "forest": [
+      "giant_rat",
+      "harpy",
+      "forest_satyr",
+      "blood_bat",
+      "poison_spider",
+      "moon_huntress",
+      "thorn_beast"
+    ],
+    "dungeon": [
+      "skeleton",
+      "zombie",
+      "stone_golem",
+      "iron_knight",
+      "grave_keeper",
+      "mimic",
+      "abyss_guard"
+    ],
+    "volcano": [
+      "lava_hound",
+      "ashen_warlock",
+      "storm_elemental",
+      "rot_brute",
+      "arcane_construct",
+      "frost_mage",
+      "void_eye"
+    ]
+  }
+}
+

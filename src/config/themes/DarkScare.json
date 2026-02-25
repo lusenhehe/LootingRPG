@@ -1,0 +1,23 @@
+{
+  "id": "dark-scare",
+  "name": "暗黑恐惧",
+  "description": "暗黑西幻恐怖风格 - 血红色调",
+  "colors": {
+    "gameBg": "#0A0908",
+    "gameCard": "#1C1917",
+    "gameBorder": "#292524",
+    "gameAccent": "#B45309",
+    "gameCta": "#991B1B",
+    "quality": {
+      "common": "#A8A29E",
+      "uncommon": "#22C55E",
+      "rare": "#3B82F6",
+      "epic": "#991B1B",
+      "legendary": "#F59E0B",
+      "mythic": "#DC2626"
+    }
+  },
+  "gradients": {
+    "body": "radial-gradient(ellipse at 50% 0%, rgba(180, 83, 9, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(34, 197, 94, 0.05) 0%, transparent 40%), linear-gradient(180deg, #0A0908 0%, #1C1917 100%)"
+  }
+}
