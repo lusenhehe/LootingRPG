@@ -28,6 +28,8 @@ interface UseMapActionsParams {
   onSetTab?: React.Dispatch<React.SetStateAction<ActiveTab>>;
 }
 
+const BATTLE_VIEW_TAB: ActiveTab = 'map';
+
 export const useMapActions = ({
   gameState, battleState, loading, mapProgress,
   hookStartBattleSequence, scheduleBattleStep,
@@ -101,8 +103,8 @@ export const useMapActions = ({
     addLog(`[地图] 进入 ${chapter.name} - ${node.name}（${node.encounterType}，推荐Lv.${node.recommendedLevel}）`);
     pendingMapChallengeRef.current = { node, chapter };
 
-    // 自动切换到战斗场景
-    onSetTab?.('status');
+    // 自动切换到可见战斗区域（旧版 'status' 标签页已移除）
+    onSetTab?.(BATTLE_VIEW_TAB);
 
     if (node.encounterType === 'boss') {
       setBattleState((prev: any) => ({ ...prev, waveContext: undefined }));
