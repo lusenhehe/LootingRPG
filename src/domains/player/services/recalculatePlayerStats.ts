@@ -1,7 +1,7 @@
 import { INITIAL_STATE } from '../../../config/gameConfig';
 import { PLAYER_GROWTH } from '../../../config/game/progression';
 import type { GameState } from '../../../types/game';
-import { getEquipmentTotals } from '../../../logic/equipmentUtils';
+import { getEquipmentTotals } from '../../inventory/services/equipmentTotals';
 
 export const recalculatePlayerStats = (state: GameState): GameState => {
   const next = structuredClone(state);
