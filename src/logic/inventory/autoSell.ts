@@ -1,8 +1,4 @@
-import { QUALITIES } from '../../config/game/equipment';
-
-export const createAutoSellQualityMap = (): Record<string, boolean> => {
-  return QUALITIES.reduce((acc, quality) => {
-    acc[quality] = false;
-    return acc;
-  }, {} as Record<string, boolean>);
-};
+/**
+ * @deprecated 迁移过渡层：请优先从 `src/domains/inventory/services/autoSell.ts` 引用。
+ */
+export { createAutoSellQualityMap } from '../../domains/inventory/services/autoSell';
