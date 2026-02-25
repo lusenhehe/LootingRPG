@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { QUALITIES, SLOTS } from '../../config/game/equipment';
 import type { Equipment } from '../../types/game';
-import { createCustomEquipment } from '../../logic/equipment';
+import { createCustomEquipment } from '../../domains/inventory/services/equipment';
 interface DebugPanelProps { onAddItems: (items: Equipment[]) => void;}
 export function DebugPanel({ onAddItems }: DebugPanelProps) {
   const [open, setOpen] = useState(false);

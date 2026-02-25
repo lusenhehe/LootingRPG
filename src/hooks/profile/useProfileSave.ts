@@ -1,9 +1,9 @@
 import type { GameState, MapProgressState, SavePayload, SaveProfile } from '../../types/game';
-import { createInitialMapProgress, normalizeMapProgress } from '../../logic/mapProgress';
+import { createInitialMapProgress, normalizeMapProgress } from '../../domains/map/services/progress';
 import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, STORAGE_KEY } from '../../config/runtime/storage';
-import { createFreshInitialState, normalizeGameState } from '../../logic/gameState';
-import { createAutoSellQualityMap } from '../../logic/inventory/autoSell';
-import { recalculatePlayerStats } from '../../logic/playerStats';
+import { createFreshInitialState, normalizeGameState } from '../../app/state';
+import { createAutoSellQualityMap } from '../../domains/inventory/services/autoSell';
+import { recalculatePlayerStats } from '../../domains/player/services/recalculatePlayerStats';
 import { MAP_CHAPTERS } from '../../config/map/ChapterData';
 import { useState, useEffect } from 'react';
 /// 个人存档管理逻辑，包含创建/加载/保存/删除存档，以及导入导出功能
