@@ -1,5 +1,4 @@
-import { t } from 'i18next';
-
-export const getQualityLabel = (qualityKey: string): string => t(`quality.${qualityKey}`);
-export const getSlotLabel = (slotKey: string): string => t(`slot.${slotKey}`);
-export const getStatLabel = (statKey: string): string => t(`stat.${statKey}`);
+/**
+ * @deprecated 迁移过渡层：请优先从 `src/infra/i18n/labels.ts` 引用。
+ */
+export * from '../../infra/i18n/labels';

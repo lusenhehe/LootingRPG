@@ -1,7 +1,7 @@
 import { Coins, Trash2, Shield, Zap, Gem, Crown, Star, Hexagon, Sword, User, Package } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { QUALITY_CONFIG, SLOT_CONFIG } from '../../config/game/equipment';
-import { getQualityLabel, getStatLabel } from '../../logic/i18n/labels';
+import { getQualityLabel, getStatLabel } from '../../infra/i18n/labels';
 import type { Equipment } from '../../types/game';
 import { useTranslation } from 'react-i18next';
 

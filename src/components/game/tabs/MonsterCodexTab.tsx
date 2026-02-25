@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../logic/monsters/catalog';
+import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../domains/monster/catalog';
 import { UI_DIMENSIONS } from '../../../config/ui/tokens';
 import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/monsterStrategyConfig';
 import type { Monster, MonsterTrait, ThreatType } from '../../../types/game';

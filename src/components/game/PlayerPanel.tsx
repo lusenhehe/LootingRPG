@@ -1,6 +1,6 @@
 import { ArrowUpCircle, Shield, Sword, User, Star, Gem, Package, Flame, Droplets, ShieldAlert, Sparkles, Gauge, Coins } from 'lucide-react';
-import { getSlotLabel, getQualityLabel, getStatLabel } from '../../logic/i18n/labels';
-import { getDerivedStats } from '../../logic/uiHelpers';
+import { getSlotLabel, getQualityLabel, getStatLabel } from '../../infra/i18n/labels';
+import { getDerivedStats } from '../../domains/player/services/derivedStats';
 import { QUALITY_CONFIG, SLOT_CONFIG, SLOTS } from '../../config/game/equipment';
 import type { Equipment, GameState } from '../../types/game';
 import { useTranslation } from 'react-i18next';

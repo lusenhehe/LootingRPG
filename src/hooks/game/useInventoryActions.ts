@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import type { GameState } from '../../types/game';
-import { quickSellByQualityRange as quickSellBackpackByRange } from '../../logic/inventory';
-import { applyInventoryAction, type InventoryAction } from '../../logic/inventory/actions';
-import { recalculatePlayerStats } from '../../logic/playerStats';
+import { quickSellByQualityRange as quickSellBackpackByRange } from '../../domains/inventory/services/quickSell';
+import { applyInventoryAction, type InventoryAction } from '../../domains/inventory/services/actions';
+import { recalculatePlayerStats } from '../../domains/player/services/recalculatePlayerStats';
 
 interface UseInventoryActionsParams {
   gameState: GameState;

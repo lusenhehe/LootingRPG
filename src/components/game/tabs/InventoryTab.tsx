@@ -1,6 +1,6 @@
 import { Package, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
 import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
-import { getQualityLabel } from '../../../logic/i18n/labels';
+import { getQualityLabel } from '../../../infra/i18n/labels';
 import { useMemo, useState, useCallback } from 'react';
 import type { Equipment } from '../../../types/game';
 import { useTranslation } from 'react-i18next';
