@@ -12,7 +12,8 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "electron:serve": "electron .",
-    "electron:build": "npm run build && electron-builder --win"
+    "electron:build": "npm run build && electron-builder --win",
+    "check:orphan": "node scripts/orphan-import-check.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
