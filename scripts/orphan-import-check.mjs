@@ -28,10 +28,14 @@ function walk(dir) {
 }
 
 function parseImports(content) {
-  const regex = /(?:import|export)\s+(?:type\s+)?(?:[^'";]+?\s+from\s+)?["']([^"']+)["']/g;
   const specs = [];
+  const importExportRegex = /(?:import|export)\s+(?:type\s+)?(?:[^'\";]+?\s+from\s+)?[\"']([^\"']+)[\"']/g;
+  const dynamicImportRegex = /import\(\s*[\"']([^\"']+)[\"']\s*\)/g;
+
   let m;
-  while ((m = regex.exec(content)) !== null) specs.push(m[1]);
+  while ((m = importExportRegex.exec(content)) !== null) specs.push(m[1]);
+  while ((m = dynamicImportRegex.exec(content)) !== null) specs.push(m[1]);
+
   return specs;
 }
 
