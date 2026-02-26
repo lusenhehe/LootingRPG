@@ -1,5 +1,6 @@
 import BattleUnitCardBase from './BattleUnitCardBase';
 import type { BattleUnitInstance } from '../../types/battle/BattleUnit';
+import { memo } from 'react';
 
 const percent = (value: number, max: number) => {
   if (max <= 0) return 0;
@@ -9,7 +10,7 @@ const percent = (value: number, max: number) => {
 interface EnemyCardProps {
   enemy: BattleUnitInstance;
 }
-export function EnemyCard({ enemy }: EnemyCardProps) {
+function EnemyCardInner({ enemy }: EnemyCardProps) {
   const icon = typeof enemy.meta?.icon === 'string' ? enemy.meta.icon : '👾';
 
   return (
@@ -28,5 +29,7 @@ export function EnemyCard({ enemy }: EnemyCardProps) {
     </BattleUnitCardBase>
   );
 }
+
+export const EnemyCard = memo(EnemyCardInner);
 
 export default EnemyCard;

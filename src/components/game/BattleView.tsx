@@ -3,6 +3,7 @@ import type { BattleSession } from '../../shared/types/game';
 import PlayerCard from './PlayerCard';
 import EnemyCard from './EnemyCard';
 import BattleUnitCardBase from './BattleUnitCardBase';
+import { memo } from 'react';
 
 interface BattleViewProps {
   session: BattleSession;
@@ -11,7 +12,7 @@ interface BattleViewProps {
 }
 
 
-export function BattleView({ session, onAttack, onRetreat }: BattleViewProps) {
+function BattleViewInner({ session, onAttack, onRetreat }: BattleViewProps) {
   const { t } = useTranslation();
   const fallbackWaveOrder = Array.from(new Set((session.enemies ?? []).map((enemy) => {
     const waveId = enemy.meta?.waveId;
@@ -179,3 +180,5 @@ export function BattleView({ session, onAttack, onRetreat }: BattleViewProps) {
     </div>
   );
 }
+
+export const BattleView = memo(BattleViewInner);

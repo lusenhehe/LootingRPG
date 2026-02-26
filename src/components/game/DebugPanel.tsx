@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import { QUALITIES, SLOTS } from '../../config/game/equipment';
 import type { Equipment } from '../../types/game';
 import { createCustomEquipment } from '../../domains/inventory/services/equipment';
 interface DebugPanelProps { onAddItems: (items: Equipment[]) => void;}
-export function DebugPanel({ onAddItems }: DebugPanelProps) {
+function DebugPanelInner({ onAddItems }: DebugPanelProps) {
   const [open, setOpen] = useState(false);
   const [quality, setQuality] = useState(QUALITIES[0] || 'common');
   const [slot, setSlot] = useState(SLOTS[0] || 'weapon');
@@ -72,5 +72,7 @@ export function DebugPanel({ onAddItems }: DebugPanelProps) {
     </div>
   );
 }
+
+export const DebugPanel = memo(DebugPanelInner);
 
 export default DebugPanel;

@@ -1,5 +1,5 @@
 import { LogIn, Plus, Trash2, User } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import type { SaveProfile } from '../../types/game';
@@ -11,7 +11,7 @@ interface LoginScreenProps {
   onDelete: (profileId: string) => void;
 }
 
-export function LoginScreen({ profiles, onLogin, onCreate, onDelete }: LoginScreenProps) {
+function LoginScreenInner({ profiles, onLogin, onCreate, onDelete }: LoginScreenProps) {
   const { t } = useTranslation();
   const [name, setName] = useState('');
   return (
@@ -128,3 +128,5 @@ export function LoginScreen({ profiles, onLogin, onCreate, onDelete }: LoginScre
     </div>
   );
 }
+
+export const LoginScreen = memo(LoginScreenInner);

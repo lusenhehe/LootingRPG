@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, memo } from 'react';
 import { Trophy } from 'lucide-react';
 import type { ActiveTab, GameState, MapProgressState } from '../../types/game';
 import { TabButton } from '../ui/TabButton';
@@ -32,7 +32,7 @@ interface GamePanelProps {
   onSelectForgeItem: (id: string) => void;
 }
 
-export function GamePanel({
+function GamePanelInner({
   gameState,
   activeTab,
   loading,
@@ -201,3 +201,5 @@ export function GamePanel({
     </div>
   );
 }
+
+export const GamePanel = memo(GamePanelInner);

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
+import { memo } from 'react';
 
 const slotTypeIconMap: Record<string, ReactNode> = {
   sword:   <Sword   size={14} className="text-amber-400" />,
@@ -22,7 +23,7 @@ interface PlayerPanelProps {
   onUnequip: (slot: string) => void;
 }
 
-export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
+function PlayerPanelInner({ gameState, onUnequip }: PlayerPanelProps) {
   const { t, i18n } = useTranslation();
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   
@@ -254,3 +255,5 @@ export function PlayerPanel({ gameState, onUnequip }: PlayerPanelProps) {
     </div>
   );
 }
+
+export const PlayerPanel = memo(PlayerPanelInner);

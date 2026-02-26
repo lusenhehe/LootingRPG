@@ -7,7 +7,7 @@ import { themeColors } from '../../../config/map/mapNode';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import MapViewport from '../map/MapViewport';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 interface MapTabProps {
   playerLevel: number;
   loading: boolean;
@@ -18,7 +18,7 @@ interface MapTabProps {
   onClearFocus?: () => void;
 }
 
-export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnterNode, focusNodeId, onClearFocus }: MapTabProps) {
+function MapTabInner({ playerLevel, loading, progress, onSelectChapter, onEnterNode, focusNodeId, onClearFocus }: MapTabProps) {
   const { t } = useTranslation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const normalizedProgress = useMemo(() => normalizeMapProgress(progress, MAP_CHAPTERS), [progress]);
@@ -133,3 +133,5 @@ export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnte
     </motion.div>
   );
 }
+
+export const MapTab = memo(MapTabInner);

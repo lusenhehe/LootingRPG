@@ -6,6 +6,7 @@ import { GamePanel } from './GamePanel';
 import { PlayerPanel } from './PlayerPanel';
 import { BattleView } from './BattleView';
 import DebugPanel from './DebugPanel';
+import { memo } from 'react';
 
 interface GameScreenProps {
   gameState: GameState;
@@ -40,7 +41,7 @@ interface GameScreenProps {
   onDebugAddItems?: (quality: string, slot: string, count: number, level?: number) => void;
 }
 
-export function GameScreen({
+function GameScreenInner({
   gameState,
   activeTab,
   loading,
@@ -133,3 +134,5 @@ export function GameScreen({
     </div>
   );
 }
+
+export const GameScreen = memo(GameScreenInner);

@@ -9,11 +9,11 @@
         {
           "id": "1-1", "name": "侦查营地", "recommendedLevel": 2, "encounterType": "normal", "firstClearRewardGold": 120,
           "waves": [
-            { "id": "1-1-a", "label": "第一波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "goblin" } ] },
-            { "id": "1-1-b", "label": "第二波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "wolf" }, { "monsterId": "wolf" }, { "monsterId": "wolf" } ] },
-            { "id": "1-1-c", "label": "第三波", "monsters": [ { "monsterId": "goblin" }, { "monsterId": "goblin" } ] },
-            { "id": "1-1-d", "label": "第四波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "goblin" }, { "monsterId": "goblin" } ] },
-            { "id": "1-1-e", "label": "第五波", "monsters": [ { "monsterId": "wolf" }, { "monsterId": "wolf" }, { "monsterId": "goblin" } ] }
+            { "id": "1-1-a", "label": "第一波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" } ] },
+            { "id": "1-1-b", "label": "第二波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" } ] },
+            { "id": "1-1-c", "label": "第三波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" } ] },
+            { "id": "1-1-d", "label": "第四波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" } ] },
+            { "id": "1-1-e", "label": "第五波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" } ] }
           ]
         },
         { "id": "1-2", "name": "苔石峡谷", "recommendedLevel": 4, "encounterType": "elite", "firstClearRewardGold": 160 },

@@ -1,6 +1,6 @@
 import { Coins, Download, LogOut, RefreshCw, Sword, Upload, Settings2, ChevronDown, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
 import type { PlayerStats } from '../../types/game';
 import { useTheme } from '../../config/themes/ThemeContext';
@@ -15,7 +15,7 @@ interface AppHeaderProps {
   onImportSave: () => void;
 }
 
-export function AppHeader({
+function AppHeaderInner({
   gold,
   playerName,
   playerStats,
@@ -124,6 +124,8 @@ export function AppHeader({
     </header>
   );
 }
+
+export const AppHeader = memo(AppHeaderInner);
 
 import type { Theme } from '../../config/themes/types';
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, Crown, Skull, Heart, Swords, Shield, Flame, Zap, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -367,7 +367,7 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: CodexTranslat
   );
 }
 
-export function MonsterCodexTab() {
+function MonsterCodexTabInner() {
   const { t } = useTranslation();
   const [selectedMonsterId, setSelectedMonsterId] = useState<string | null>(NORMAL_MONSTERS[0]?.id || null);
   const [activeTab, setActiveTab] = useState<'normal' | 'boss'>('normal');
@@ -499,3 +499,5 @@ export function MonsterCodexTab() {
     </motion.div>
   );
 }
+
+export const MonsterCodexTab = memo(MonsterCodexTabInner);

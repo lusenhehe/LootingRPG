@@ -1,7 +1,7 @@
 import { Package, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-react';
 import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
 import { getQualityLabel } from '../../../infra/i18n/labels';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, memo } from 'react';
 import type { Equipment } from '../../../types/game';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
@@ -31,7 +31,7 @@ interface InventoryTabProps {
 type SortField = 'quality' | 'price' | 'name' | 'enchantment';
 type SortOrder = 'asc' | 'desc';
 
-export function InventoryTab({
+function InventoryTabInner({
   items,
   loading,
   onEquip,
@@ -180,3 +180,5 @@ export function InventoryTab({
     </motion.div>
   );
 }
+
+export const InventoryTab = memo(InventoryTabInner);

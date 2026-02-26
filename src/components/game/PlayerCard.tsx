@@ -1,5 +1,6 @@
 import BattleUnitCardBase from './BattleUnitCardBase';
 import type { BattleSession } from '../../shared/types/game';
+import { memo } from 'react';
 
 const percent = (value: number, max: number) => {
   if (max <= 0) return 0;
@@ -10,7 +11,7 @@ interface PlayerCardProps {
   session: BattleSession;
 }
 
-export function PlayerCard({ session }: PlayerCardProps) {
+function PlayerCardInner({ session }: PlayerCardProps) {
   const hpRatio = percent(session.player.currentHp, session.player.baseStats.hp);
 
   return (
@@ -30,5 +31,7 @@ export function PlayerCard({ session }: PlayerCardProps) {
     </BattleUnitCardBase>
   );
 }
+
+export const PlayerCard = memo(PlayerCardInner);
 
 export default PlayerCard;
