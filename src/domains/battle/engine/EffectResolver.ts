@@ -14,7 +14,10 @@ const findUnit = (session: BattleSession, unitId: string): BattleUnitInstance | 
   return session.enemies.find((enemy) => enemy.id === unitId);
 };
 
-function handleApplyDamage(session: BattleSession, event: ApplyDamageEvent): void {
+function handleApplyDamage(
+  session: BattleSession,
+  event: ApplyDamageEvent,
+): UnitDiedEvent | undefined {
   const target = findUnit(session, event.targetId);
   if (!target) {
     return;
@@ -24,13 +27,13 @@ function handleApplyDamage(session: BattleSession, event: ApplyDamageEvent): voi
 
   if (target.currentHp <= 0) {
     target.currentHp = 0;
-    const deathEvent: UnitDiedEvent = {
+    return {
       type: 'unit_died',
       unitId: target.id,
     };
-    session.events.push(deathEvent);
-    handleUnitDied(session, deathEvent);
   }
+
+  return;
 }
 
 function handleApplyHeal(session: BattleSession, event: ApplyHealEvent): void {
@@ -57,13 +60,24 @@ export function resolveEffects(
   session: BattleSession,
   events: BattleEvent[],
 ): BattleSession {
-  for (const event of events) {
+  const pendingEvents: BattleEvent[] = [...events];
+
+  while (pendingEvents.length > 0) {
+    const event = pendingEvents.shift();
+    if (!event) {
+      break;
+    }
+
     session.events.push(event);
 
     switch (event.type) {
-      case 'apply_damage':
-        handleApplyDamage(session, event);
+      case 'apply_damage': {
+        const deathEvent = handleApplyDamage(session, event);
+        if (deathEvent) {
+          pendingEvents.push(deathEvent);
+        }
         break;
+      }
       case 'apply_heal':
         handleApplyHeal(session, event);
         break;
