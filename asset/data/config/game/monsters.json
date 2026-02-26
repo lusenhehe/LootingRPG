@@ -1,18 +1,31 @@
 {
   "normal": [
     {
-      "id": "forest_slime",
-      "icon": "🟢",
-      "background": "monster.background.forest_slime",
-      "monsterType": "normal",
-      "threatTypes": ["attrition"],
-      "traits": ["lifesteal"],
-      "baseStats": {
-        "hp": 1.15,
-        "attack": 0.9,
-        "defense": 1.05
-      },
-      "scalingProfile": "tank"
+    "id": "slime_basic",
+    "name": "Slime",
+    "faction": "monster",
+    "baseStats": {
+      "hp": 100,
+      "attack": 12,
+      "defense": 6,
+      "speed": 8
+    },
+    "growthProfile": "normal",
+    "elements": ["poison"],
+    "tags": ["slime"],
+    "positionPreference": "front",
+    "skills": ["basic_attack"],
+    "passives": [],
+    "aiProfile": "simple_aggressive",
+    "lootTable": "slime_loot_t1",
+    "difficultyWeight": 1,
+    
+"icon": "🟢",
+"background": "monster.background.forest_slime",
+"monsterType": "normal",
+"threatTypes": ["attrition"],
+"traits": ["lifesteal"],
+"scalingProfile": "tank"
     },
     {
       "id": "skeleton",

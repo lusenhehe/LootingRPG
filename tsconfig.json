@@ -22,6 +22,9 @@
       ],
       "@data/*": [
         "./asset/data/*"
+      ],
+      "@src/*": [
+        "./src/*"
       ]
     },
     "allowImportingTsExtensions": true,
