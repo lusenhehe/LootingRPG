@@ -6,7 +6,8 @@ import type { TFunction } from 'i18next';
 import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../domains/monster/services/monsterCatalog';
 import { UI_DIMENSIONS } from '../../../config/ui/tokens';
 import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/game/monsterSchema';
-import type { Monster, MonsterTrait, ThreatType } from '../../../types/game';
+import type {MonsterTrait, ThreatType } from '../../../shared/types/game';
+import type { Monster } from '../../../shared/types/game';
 const traitColorMap: Record<MonsterTrait, string> = {
   thorns: 'border-rose-400/30 bg-rose-500/10 text-rose-200',
   lifesteal: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
@@ -178,7 +179,7 @@ function MonsterListItem({
         style={{ width: `${UI_DIMENSIONS.codexIconSize}px`, height: `${UI_DIMENSIONS.codexIconSize}px` }}
         className={`rounded-md flex items-center justify-center text-lg flex-shrink-0 ${isBoss ? 'bg-rose-500/20' : 'bg-game-card/40'}`}
       >
-        {monster.icons.map((ic, i) => (
+        {monster.icons.map((ic: string, i: number) => (
           <span key={i}>{ic}</span>
         ))}
       </div>
@@ -221,7 +222,7 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: CodexTranslat
               whileHover={{ scale: 1.05 }}
               className={`w-12 h-12 rounded-lg flex items-center justify-center text-3xl ${isBoss ? 'bg-gradient-to-br from-rose-600/30 to-red-600/20 shadow-lg shadow-rose-500/15' : 'bg-game-card/60 shadow'}`}
             >
-              {monster.icons.map((ic, i) => (<span key={i}>{ic}</span>))}
+              {monster.icons.map((ic: string, i: number) => (<span key={i}>{ic}</span>))}
             </motion.div>
             <div className="flex-1 min-w-0">
               <h3 className={`text-sm font-display font-bold truncate ${isBoss ? 'text-rose-200 drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]' : 'text-gray-100'}`}>

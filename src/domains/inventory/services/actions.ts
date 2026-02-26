@@ -1,4 +1,4 @@
-import type { Equipment, GameState } from '../../../types/game';
+import type { Equipment, GameState } from '../../../shared/types/game';
 import { QUALITY_CONFIG, LOCK_COST, REROLL_BASE_COST } from '../../../config/game/equipment';
 import { attemptEnhancement } from './enhancement';
 import { rerollAffixes } from './equipment';

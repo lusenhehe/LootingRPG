@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mountain} from 'lucide-react';
 import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData';
-import type { MapProgressState } from '../../../types/game';
+import type { MapProgressState } from '../../../shared/types/game';
 import { isNodeCleared, isNodeUnlocked,} from '../../../domains/map/services/progress';
 import { clampMapOffset, getZigzagNodePosition, chapterThemeStyles,} from './mapConfig';
 import { themeHeaderColors} from '../../../config/map/mapNode';
@@ -38,7 +38,7 @@ export default function MapViewport({
   const themeColors = themeHeaderColors[selectedChapter.theme];
 
   const onWheel = (event: React.WheelEvent) => {
-    event.preventDefault();
+    // logic lives in the effect listener; kept here for typing but not attached directly
     const deltaX = event.deltaY || event.deltaX;
     setOffset((prev) => {
       const viewport = mapViewportRef.current?.getBoundingClientRect() ?? null;
@@ -46,6 +46,22 @@ export default function MapViewport({
       return clampMapOffset(next, viewport, selectedChapter.nodes.length);
     });
   };
+
+  // React attaches wheel as a passive listener by default which prevents us from
+  // calling preventDefault.  Patch the element directly with a non-passive
+  // handler so we can cancel scrolling when over the map.
+  useEffect(() => {
+    const el = mapViewportRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      onWheel(e as unknown as React.WheelEvent);
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', handler);
+    };
+  }, [onWheel]);
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
@@ -114,7 +130,7 @@ export default function MapViewport({
           </div>
           <div>
             <h3 className="text-base font-display font-bold" style={{ color: themeColors.text === 'stone' ? '#e7e5e4' : `var(--color-${themeColors.primary}-200)` }}>
-              {t(selectedChapter.name)}
+              {t(`map.${selectedChapter.id}`)}
             </h3>
           </div>
         </div>
@@ -165,7 +181,6 @@ export default function MapViewport({
           background: chapterThemeStyles[selectedChapter.theme]?.background,
           borderColor: themeColors.border.replace('/30', ''),
         }}
-        onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

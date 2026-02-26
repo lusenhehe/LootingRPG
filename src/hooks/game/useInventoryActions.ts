@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { GameState } from '../../types/game';
+import type { GameState } from '../../shared/types/game';
 import { quickSellByQualityRange as quickSellBackpackByRange } from '../../domains/inventory/services/quickSell';
 import { applyInventoryAction, type InventoryAction } from '../../domains/inventory/services/actions';
 import { recalculatePlayerStats } from '../../domains/player/services/recalculatePlayerStats';
@@ -45,7 +45,7 @@ export const useInventoryActions = ({
       } finally {
         setLoading(false);
       }
-    }, 500);
+    });
   }, [setLoading, setGameState, addLog, reportError]);
 
   return {

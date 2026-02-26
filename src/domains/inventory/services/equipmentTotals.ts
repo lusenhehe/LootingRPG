@@ -1,4 +1,4 @@
-import type { Equipment, EquipmentAffixValue } from '../../../types/game';
+import type { Equipment, EquipmentAffixValue } from '../../../shared/types/game';
 
 export interface EquipmentTotals {
   attributes: Record<string, number>;

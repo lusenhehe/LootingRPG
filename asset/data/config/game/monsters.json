@@ -1,6 +1,20 @@
 {
   "normal": [
     {
+      "id": "forest_slime",
+      "icon": "🟢",
+      "background": "monster.background.forest_slime",
+      "monsterType": "normal",
+      "threatTypes": ["attrition"],
+      "traits": ["lifesteal"],
+      "baseStats": {
+        "hp": 1.15,
+        "attack": 0.9,
+        "defense": 1.05
+      },
+      "scalingProfile": "tank"
+    },
+    {
       "id": "skeleton",
       "icon": "💀",
       "background": "monster.background.skeleton",
@@ -10,7 +24,7 @@
         "u001_ashen_blade": 1
       },
       "baseStats": { 
-        "hp": 1.08, 
+       "hp": 1.08, 
        "attack": 1, 
        "defense": 1
       },
@@ -67,17 +81,6 @@
       "monsterType": "boss",
       "traits": [
         "rage_on_low_hp"
-      ],
-      "uniqueTraits": [
-        "rage_on_low_hp"
-      ],
-      "phases": [
-        {
-          "id": "abyss-annihilation",
-          "labelKey": "bossPhase.abyss_annihilation",
-          "interval": 3,
-          "action": "annihilation"
-        }
       ],
       "threatTypes": [
         "sustain_pressure",

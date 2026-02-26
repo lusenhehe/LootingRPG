@@ -1,4 +1,4 @@
-import type { BattleEnemySnapshot, BattleResult, BattleSession, GameState, MapProgressState} from '../../../types/game';
+import type { BattleEnemySnapshot, BattleResult, BattleSession, GameState, MapProgressState} from '../../../shared/types/game';
 import type { MapChapterDef, MapNodeDef, NodeWave } from '../../map/model/chapters';
 import { getFinalPlayerStats } from '../../player/model/combat';
 import { getFinalMonsterStats } from './monsterStats';
@@ -7,7 +7,8 @@ import { applyMapNodeResult } from '../../map/services/progress';
 import { PLAYER_GROWTH } from '../../game/config/progression';
 import { recalculatePlayerStats } from '../../player/services/recalculatePlayerStats';
 import { generateEquipment } from '../../inventory/services/equipment';
-
+import {computeDamage,computeCritMultiplier,computeEffectiveDefense,computeEffectiveLifesteal,clamp,} from '../battleMaths';
+import i18n from '../../../i18n';
 interface BattleTransition {
   nextGameState: GameState;
   nextMapProgress: MapProgressState;
@@ -24,7 +25,6 @@ const ensureNodeWaves = (node: MapNodeDef): NodeWave[] => {
   }
   return node.waves;
 };
-/// > 正常化战斗会话中的波次和敌人数据，确保每个敌人都有 waveId，并且 currentWaveIndex 在有效范围内
 const normalizeSessionWaves = (session: BattleSession): BattleSession => {
   const enemies = (session.enemies ?? []).map((enemy, index) => ({
     ...enemy,
@@ -49,7 +49,6 @@ const normalizeSessionWaves = (session: BattleSession): BattleSession => {
     currentWaveIndex,
   };
 };
-///> 根据地图节点、波次和怪物配置构建战斗敌人快照，计算最终属性并生成唯一 ID
 const buildEnemySnapshot = (
   node: MapNodeDef,
   wave: NodeWave,
@@ -77,12 +76,12 @@ const buildEnemySnapshot = (
     maxHp: finalMonster.maxHp,
     hp: finalMonster.maxHp,
     attack: finalMonster.attack,
+    defense: finalMonster.defense,
     damageReduction: finalMonster.damageReduction,
     isBoss,
     dropdict: monster.dropdict,
   };
 };
-
 const resolveBattleResult = (
   gameState: GameState,
   mapProgress: MapProgressState,
@@ -206,23 +205,26 @@ const resolveBattleResult = (
     focusNodeId: won ? mapResult.unlockedNodeId : session.nodeId,
   };
 };
-
 export const startBattleSession = (
   gameState: GameState,
   chapter: MapChapterDef,
   node: MapNodeDef,
 ): { nextGameState: GameState; logs: string[]; error?: string } => {
   try {
+    /// 1. 验证节点配置
+    // 确保节点有波次配置，并且每个波次至少有一个怪物
     const nodeWaves = ensureNodeWaves(node);
+    //  2. 计算玩家最终属性
     const playerFinal = getFinalPlayerStats(gameState.playerStats, gameState.battle.history.length);
-
+    //  3. 合法波次过滤：只保留那些配置了怪物的波次，并为每个怪物生成一个唯一的敌人ID（格式：waveId-monsterId-index）
     const validWaves = nodeWaves
       .map((wave, index) => ({ wave, waveId: wave.id || `wave-${index + 1}` }))
       .filter(({ wave }) => Array.isArray(wave.monsters) && wave.monsters.length > 0);
-
+    //  4. 构建敌人快照：根据玩家等级和怪物配置计算每个敌人的最终属性，并生成战斗快照对象
     const enemies: BattleEnemySnapshot[] = [];
     let enemyIndex = 0;
-
+    //  5. 战斗会话构建：将所有信息整合到一个 BattleSession 对象中，
+    //     包含玩家属性、敌人列表、当前波次状态等
     for (const { wave, waveId } of validWaves) {
       for (const waveMonster of wave.monsters) {
         enemies.push(
@@ -235,11 +237,12 @@ export const startBattleSession = (
     if (enemies.length === 0) {
       throw new Error(`Node ${node.id} has no valid monsters in waves.`);
     }
-
+    // 6. 错误处理：如果在任何步骤中发生错误（例如配置缺失、数据异常等），
+    // 捕获错误并返回一个包含错误信息的结果对象，确保调用方能够正确处理异常情况。
     const session: BattleSession = {
       id: `battle_${Date.now()}`,
       chapterId: chapter.id,
-      chapterName: chapter.name,
+        chapterName: i18n.t(`map.${chapter.id}`),
       nodeId: node.id,
       nodeName: node.name,
       encounterType: node.encounterType,
@@ -258,9 +261,9 @@ export const startBattleSession = (
       waveOrder: validWaves.map((entry) => entry.waveId),
       currentWaveIndex: 0,
       status: 'fighting',
-      logs: [toBattleLog(`Entered ${chapter.name} - ${node.name}.`)],
+      logs: [toBattleLog(`Entered ${i18n.t(`map.${chapter.id}`)} - ${node.name}.`)],
     };
-
+    // 7. 返回结果对象：包含更新后的游戏状态、日志信息以及可能的错误信息
     return {
       nextGameState: {
         ...gameState,
@@ -269,7 +272,7 @@ export const startBattleSession = (
           activeSession: session,
         },
       },
-      logs: [toBattleLog(`Challenge started: ${chapter.name} / ${node.name}.`)],
+      logs: [toBattleLog(`Challenge started: ${i18n.t(`map.${chapter.id}`)} / ${node.name}.`)],
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -297,7 +300,6 @@ export const runBattlePlayerAttack = (
   }
 
   const session = normalizeSessionWaves(sessionRaw);
-
   const currentWaveId = session.waveOrder[session.currentWaveIndex];
   if (!currentWaveId) {
     return resolveBattleResult(gameState, mapProgress, chapters, session, true);
@@ -307,86 +309,97 @@ export const runBattlePlayerAttack = (
     ...session,
     turn: session.turn + 1,
     logs: [...session.logs],
-    enemies: session.enemies.map((entry) => ({ ...entry })),
+    enemies: session.enemies.map((e) => ({ ...e })),
   };
 
-  const waveEnemies = nextSession.enemies.filter((entry) => entry.waveId === currentWaveId && entry.hp > 0);
+  const waveEnemies = nextSession.enemies.filter(
+    (e) => e.waveId === currentWaveId && e.hp > 0,
+  );
+
   if (waveEnemies.length === 0) {
     nextSession.currentWaveIndex += 1;
-    if (nextSession.currentWaveIndex >= nextSession.waveOrder.length) {
-      nextSession.status = 'victory';
-      return resolveBattleResult(
-        {
-          ...gameState,
-          battle: {
-            ...gameState.battle,
-            activeSession: nextSession,
-          },
-        },
-        mapProgress,
-        chapters,
-        nextSession,
-        true,
-      );
-    }
-
-    const nextWaveId = nextSession.waveOrder[nextSession.currentWaveIndex];
-    const nextWaveLabel = nextSession.enemies.find((entry) => entry.waveId === nextWaveId)?.waveLabel;
-    nextSession.logs.push(toBattleLog(`Wave cleared. ${nextWaveLabel ?? nextWaveId} is now incoming.`));
-
     return {
       nextGameState: {
         ...gameState,
-        battle: {
-          ...gameState.battle,
-          activeSession: nextSession,
-        },
+        battle: { ...gameState.battle, activeSession: nextSession },
       },
       nextMapProgress: mapProgress,
-      logs: nextSession.logs.slice(-2),
+      logs: nextSession.logs,
     };
   }
 
-  const nextEnemy = waveEnemies[0];
+  const target = waveEnemies[0];
+
+  // ====== 玩家攻击阶段 ======
   const didCrit = Math.random() < nextSession.player.critRate;
-  const critMultiplier = didCrit ? 1.6 : 1;
-  const rawPlayerDamage = nextSession.player.attack * critMultiplier + nextSession.player.elementalBonus;
-  const dealtDamage = Math.max(1, Math.floor(rawPlayerDamage * (1 - nextEnemy.damageReduction)));
-  nextEnemy.hp = Math.max(0, nextEnemy.hp - dealtDamage);
+  const critMultiplier = computeCritMultiplier(
+    didCrit,
+    0.6, // 可替换为 player.critDamage
+  );
 
-  if (nextSession.player.lifestealRate > 0) {
-    const heal = Math.floor(dealtDamage * nextSession.player.lifestealRate);
-    nextSession.playerHp = Math.min(nextSession.playerMaxHp, nextSession.playerHp + heal);
+  const effectiveDefense = computeEffectiveDefense(
+    target.damageReduction > 0
+      ? target.attack // 这里不再用 reduction，而建议你未来改 snapshot 传 defense
+      : 0,
+    nextSession.player.elementalBonus,
+  );
+
+  const damage = computeDamage(
+    nextSession.player.attack,
+    effectiveDefense,
+    critMultiplier,
+  );
+
+  target.hp = Math.max(0, target.hp - damage);
+
+  // 吸血
+  const effectiveLifesteal = computeEffectiveLifesteal(
+    nextSession.player.lifestealRate,
+  );
+
+  if (effectiveLifesteal > 0) {
+    const heal = Math.floor(damage * effectiveLifesteal);
+    nextSession.playerHp = Math.min(
+      nextSession.playerMaxHp,
+      nextSession.playerHp + heal,
+    );
   }
 
-  nextSession.logs.push(toBattleLog(`Turn ${nextSession.turn}: dealt ${dealtDamage}${didCrit ? ' (CRIT)' : ''} to ${nextEnemy.name}.`));
+  nextSession.logs.push(
+    `[Battle] Turn ${nextSession.turn}: dealt ${damage}${
+      didCrit ? ' (CRIT)' : ''
+    } to ${target.name}.`,
+  );
 
-  if (nextEnemy.hp <= 0) {
-    nextSession.logs.push(toBattleLog(`${nextEnemy.name} defeated.`));
+  if (target.hp <= 0) {
+    nextSession.logs.push(`[Battle] ${target.name} defeated.`);
   }
 
-  const aliveWaveEnemies = nextSession.enemies.filter((entry) => entry.waveId === currentWaveId && entry.hp > 0);
+  // ====== 怪物反击阶段 ======
+  const aliveEnemies = nextSession.enemies.filter(
+    (e) => e.waveId === currentWaveId && e.hp > 0,
+  );
 
-  if (aliveWaveEnemies.length > 0) {
-    let totalIncomingDamage = 0;
-    for (const attacker of aliveWaveEnemies) {
-      const incomingDamage = Math.max(1, Math.floor(attacker.attack * (1 - nextSession.player.damageReduction)));
-      totalIncomingDamage += incomingDamage;
-      nextSession.playerHp = Math.max(0, nextSession.playerHp - incomingDamage);
+  for (const attacker of aliveEnemies) {
+    const incomingDamage = computeDamage(
+      attacker.attack,
+      nextSession.player.damageReduction * 100,
+      1,
+    );
 
-      if (nextSession.player.thornsRate > 0) {
-        const reflected = Math.max(0, Math.floor(incomingDamage * nextSession.player.thornsRate));
-        attacker.hp = Math.max(0, attacker.hp - reflected);
-        if (reflected > 0) {
-          nextSession.logs.push(toBattleLog(`Reflected ${reflected} damage to ${attacker.name}.`));
-        }
-      }
+    nextSession.playerHp = Math.max(
+      0,
+      nextSession.playerHp - incomingDamage,
+    );
 
-      if (attacker.hp <= 0) {
-        nextSession.logs.push(toBattleLog(`${attacker.name} was defeated by thorns.`));
-      }
+    // 反伤
+    if (nextSession.player.thornsRate > 0) {
+      const reflect = Math.floor(
+        incomingDamage *
+          clamp(nextSession.player.thornsRate, 0, 0.4),
+      );
+      attacker.hp = Math.max(0, attacker.hp - reflect);
     }
-    nextSession.logs.push(toBattleLog(`${aliveWaveEnemies.length} enemies dealt ${totalIncomingDamage} total damage to you.`));
   }
 
   if (nextSession.playerHp <= 0) {
@@ -394,10 +407,7 @@ export const runBattlePlayerAttack = (
     return resolveBattleResult(
       {
         ...gameState,
-        battle: {
-          ...gameState.battle,
-          activeSession: nextSession,
-        },
+        battle: { ...gameState.battle, activeSession: nextSession },
       },
       mapProgress,
       chapters,
@@ -406,38 +416,10 @@ export const runBattlePlayerAttack = (
     );
   }
 
-  const remainingWaveEnemies = nextSession.enemies.filter((entry) => entry.waveId === currentWaveId && entry.hp > 0);
-  if (remainingWaveEnemies.length === 0) {
-    nextSession.currentWaveIndex += 1;
-    if (nextSession.currentWaveIndex >= nextSession.waveOrder.length) {
-      nextSession.status = 'victory';
-      return resolveBattleResult(
-        {
-          ...gameState,
-          battle: {
-            ...gameState.battle,
-            activeSession: nextSession,
-          },
-        },
-        mapProgress,
-        chapters,
-        nextSession,
-        true,
-      );
-    }
-
-    const nextWaveId = nextSession.waveOrder[nextSession.currentWaveIndex];
-    const nextWaveLabel = nextSession.enemies.find((entry) => entry.waveId === nextWaveId)?.waveLabel;
-    nextSession.logs.push(toBattleLog(`Wave cleared. ${nextWaveLabel ?? nextWaveId} is now incoming.`));
-  }
-
   return {
     nextGameState: {
       ...gameState,
-      battle: {
-        ...gameState.battle,
-        activeSession: nextSession,
-      },
+      battle: { ...gameState.battle, activeSession: nextSession },
     },
     nextMapProgress: mapProgress,
     logs: nextSession.logs.slice(-3),

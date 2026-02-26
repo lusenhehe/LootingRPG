@@ -1,11 +1,10 @@
-import type { Monster, MonsterBaseStats, MonsterScalingProfile, MonsterTrait } from '../../types/game';
-import { type RawMonsterData, type RawBossData, type RawMonsterPhase, validateMonsterConfigData} from '../../config/game/monsterSchema';
+import type { Monster, MonsterScalingProfile, MonsterTrait } from '../../shared/types/game';
+import { type RawMonsterData, type RawBossData } from '../../config/game/monsterSchema';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../battle/services/monsterScaling';
-import { getEquipmentTemplates } from '../../config/game/equipment';
 import monsterConfig from '@data/config/game/monsters.json';
 import { t } from 'i18next';
 
-const { normal: rawNormal, boss: rawBoss } = validateMonsterConfigData(monsterConfig);
+const { normal: rawNormal, boss: rawBoss } = monsterConfig;
 const isBossData = (m: RawMonsterData | RawBossData): m is RawBossData => {
   return 'counterGoal' in m || 'bossIdentity' in m;
 };
@@ -14,14 +13,6 @@ const localizeAdditionalFields = (
   monster: RawMonsterData | RawBossData,
 ): RawMonsterData | RawBossData => {
   const result = { ...monster } as typeof monster;
-
-  if (monster.phases) {
-    result.phases = monster.phases.map((phase: RawMonsterPhase) => ({
-      ...phase,
-      label: phase.labelKey ? t(phase.labelKey) : phase.label || '',
-    })) as RawMonsterPhase[];
-  }
-
   if (isBossData(monster) && monster.counterGoal) {
     (result as RawBossData).counterGoal = {
       ...monster.counterGoal,
@@ -98,25 +89,7 @@ const toMonster = (monster: RawMonsterData | RawBossData): Monster => {
 };
 
 export const NORMAL_MONSTERS_DATA: Monster[] = rawNormal.map(toMonster);
-export const BOSS_MONSTERS_DATA: Monster[]   = rawBoss.map(toMonster);
-
-const validateDropItemIds = (
-  monsters: (RawMonsterData | RawBossData)[],
-) => {
-  const templateIds = new Set(getEquipmentTemplates().map((template) => template.id));
-  const invalidEntries: string[] = [];
-
-  monsters.forEach((monster) => {
-    Object.keys(monster.dropdict ?? {}).forEach((itemId) => {
-      if (!templateIds.has(itemId)) {
-        invalidEntries.push(`${monster.id ?? 'unknown'} -> ${itemId}`);
-      }
-    });
-  });
-};
-
-validateDropItemIds([...rawNormal, ...rawBoss]);
-
+export const BOSS_MONSTERS_DATA:   Monster[] = rawBoss.map(toMonster);
 const ALL_MONSTERS_DATA: Monster[] = [...NORMAL_MONSTERS_DATA, ...BOSS_MONSTERS_DATA];
 
 export const getMonsterById = (id: string): Monster | undefined => {

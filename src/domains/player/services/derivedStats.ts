@@ -1,4 +1,4 @@
-import type { GameState } from '../../../types/game';
+import type { GameState } from '../../../shared/types/game';
 
 export interface DerivedStatItem {
   key: string;

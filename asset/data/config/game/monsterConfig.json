@@ -1,4 +1,14 @@
 ﻿{
+  "monsterTypes": [ "normal", "elite", "boss" ],
+  "scalingProfileStats": {
+    "normal":  { "hp": 1.0, "attack": 1.0, "defense": 1.0 },
+    "tank":    { "hp": 1.4, "attack": 0.8, "defense": 1.2 },
+    "glass":   { "hp": 0.7, "attack": 1.5, "defense": 0.6 },
+    "bruiser": { "hp": 1.2, "attack": 1.2, "defense": 0.9 },
+    "striker": { "hp": 0.9, "attack": 1.3, "defense": 0.8 },
+    "boss":    { "hp": 1.8, "attack": 1.3, "defense": 1.25 }
+  },
+  "threatTypes":  [ "burst_punish", "sustain_pressure", "tank_breaker", "attrition" ],
   "counterStatKeys": [ "attack" , "defense" , "hp" , "elemental" , "lifesteal" , "thorns" , "attackSpeed"],
   "traits": [ "thorns" , "lifesteal" , "double_attack" , "shield_on_start" , "rage_on_low_hp"],
   "strategy": {

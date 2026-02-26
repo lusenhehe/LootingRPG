@@ -1,4 +1,4 @@
-import type { PlayerStats } from '../../../types/game';
+import type { PlayerStats } from '../../../shared/types/game';
 
 export interface CombatProfile {
   playerDamageMultiplier: number;

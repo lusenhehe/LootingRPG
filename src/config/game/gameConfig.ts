@@ -1,4 +1,4 @@
-import type { GameState, PlayerStats, Equipment } from '../../types/game';
+import type { GameState, PlayerStats, Equipment } from '../../shared/types/game';
 import { PLAYER_GROWTH } from './progression';
 /**
  * 游戏全局配置对象

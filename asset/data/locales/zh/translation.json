@@ -1,11 +1,12 @@
 {
-  "quality.common": "普通",
-  "quality.uncommon": "优秀",
-  "quality.rare": "稀有",
-  "quality.epic": "史诗",
-  "quality.legendary": "传说",
-  "quality.mythic": "神话",
-
+  "quality":{
+    "common": "普通",
+    "uncommon": "优秀",
+    "rare": "稀有",
+    "epic": "史诗",
+    "legendary": "传说",
+    "mythic": "神话"
+  },
   "map.lockedPrereq": "完成前置章节解锁",
   "map.totalStars": "总星数",
   "map.progress": "进度",
@@ -25,36 +26,14 @@
   "map.title": "稀土探索",
   "map.chapters": "章节",
   "map.explore": "地图探索",
-  "新手林地": "新手林地",
-  "废弃地牢": "废弃地牢",
-  "熔岩深渊": "熔岩深渊",
-  "永夜墓园": "永夜墓园",
-  "风暴海岸": "风暴海岸",
-  "机械荒城": "机械荒城",
-  "晶簇高原": "晶簇高原",
-  "虚空边境": "虚空边境",
-  "星渊回廊": "星渊回廊",
-  "终焉王座": "终焉王座",
-  "侦查营地": "侦查营地",
-  "破碎回廊": "破碎回廊",
-  "熔火桥": "熔火桥",
-  "枯骨庭院": "枯骨庭院",
-  "断潮码头": "断潮码头",
-  "锈蚀车站": "锈蚀车站",
-  "蓝晶台地": "蓝晶台地",
-  "失序前哨": "失序前哨",
-  "陨星阶梯": "陨星阶梯",
-  "终焉前庭": "终焉前庭",
+  "map.chapter-1": "新手林地",
+  "map.chapter-2": "废弃地牢",
+  "map.chapter-3": "熔岩深渊",
+  "map.chapter-4": "永夜墓园",
   "map.theme.林地": "林地",
   "map.theme.地牢": "地牢",
   "map.theme.火山": "火山",
   "map.theme.亡灵": "亡灵",
-  "map.theme.风暴": "风暴",
-  "map.theme.机械": "机械",
-  "map.theme.晶体": "晶体",
-  "map.theme.虚空": "虚空",
-  "map.theme.星空": "星空",
-  "map.theme.终焉": "终焉",
 
   "slot.weapon": "武器",
   "slot.helmet": "头盔",
@@ -75,44 +54,7 @@
 
   "monster.skeleton": "骷髅战士",
   "monster.zombie": "腐烂僵尸",
-  "monster.goblin": "地穴哥布林",
-  "monster.wolf": "野狼",
-  "monster.wraith": "幽影亡灵",
-  "monster.slime": "史莱姆",
-  "monster.bandit": "盗贼",
-  "monster.cultist": "邪教徒",
-  "monster.giant_rat": "巨型老鼠",
-  "monster.stone_golem": "岩甲魔像",
-  "monster.lava_hound": "熔火猎犬",
-  "monster.poison_spider": "毒牙蛛后",
-  "monster.frost_mage": "寒霜法徒",
-  "monster.harpy": "裂空鹰妖",
-  "monster.mimic": "噬财宝箱怪",
-  "monster.void_eye": "虚空之眼",
-  "monster.forest_satyr": "荒林萨堤",
-  "monster.shadow_assassin": "暗影刺客",
-  "monster.bone_shaman": "白骨祭司",
-  "monster.iron_knight": "铁誓骑士",
-  "monster.plague_doctor": "疫病医师",
-  "monster.storm_elemental": "风暴元素",
-  "monster.blood_bat": "嗜血蝠王",
-  "monster.sand_wraith": "流沙怨灵",
-  "monster.abyss_guard": "深渊守卫",
-  "monster.thorn_beast": "荆棘兽",
-  "monster.arcane_construct": "奥术构装体",
-  "monster.grave_keeper": "守墓人",
-  "monster.ashen_warlock": "灰烬术士",
-  "monster.crystal_lurker": "晶壳潜伏者",
-  "monster.moon_huntress": "逐月女猎",
-  "monster.rot_brute": "腐败巨徒",
-  "monster.abyss_demon": "深渊恶魔",
-  "monster.ancient_dragon": "远古巨龙",
-  "monster.dark_knight": "黑暗骑士",
-  "monster.necromancer": "死灵法师",
-  "monster.storm_titan": "风暴泰坦",
-  "monster.scarlet_queen": "猩红女王",
-  "monster.void_reaper": "虚空收割者",
-  "monster.clockwork_core": "失控核心",
+  "monster.forest_slime": "森林史莱姆",
 
   "label.boss": "BOSS",
   "label.monster": "怪物",
@@ -174,9 +116,9 @@
     "attrition": "消耗蚕食型"
   },
   "codex.strategy": {
-    "偏进攻": "偏进攻",
-    "偏防守": "偏防守",
-    "偏续航": "偏续航"
+    "offense": "偏进攻",
+    "defense": "偏防守",
+    "sustain": "偏续航"
   },
   "player": {
     "affixBonuses": "词条加成",
@@ -290,49 +232,13 @@
   },
   "monster": {
     "background": {
-      "skeleton": "灰烬原野上埋骨无数，这些骷髅曾是守城的民兵，王国覆灭后仍握着断刃徘徊在夜风里。",
-      "zombie": "瘟疫钟声响起那年，修道院拒绝焚尸，腐烂僵尸便在祷告声中慢慢学会了仇恨。",
-      "goblin": "地穴哥布林生于塌陷矿道，他们偷走的不只是金币，还有被贵族剥夺的冬日火种。",
-      "wolf": "林间游荡的野狼群体，嗅觉敏锐且行动迅捷，是新手林地的常见威胁。",
-      "wraith": "幽影亡灵是被遗忘姓名的战士，誓言未尽，灵魂便被寒雾钉在旧战场。",
-      "slime": "史莱姆看似愚钝，却在地底吞噬了无数失落药剂，体内翻涌着炼金时代的余烬。",
-      "bandit": "盗贼并非天生邪恶，多数人只是被税吏与饥荒逼上山道，最后学会了先下手为强。",
-      "cultist": "邪教徒在黑月下宣誓，他们相信只要献祭善良，便能换来不会再饥饿的黎明。",
-      "giant_rat": "巨型老鼠出没于下水古渠，那里曾是王都最繁华的粮仓，如今只剩潮湿与啃咬声。",
-      "stone_golem": "岩甲魔像由矮人王打造守门，王朝毁灭后它仍在履行命令，不再分辨敌我。",
-      "lava_hound": "熔火猎犬诞生于火山裂缝，传说它们追逐的是失踪锻造之神遗落的心脏。",
-      "poison_spider": "毒牙蛛后在废弃神殿织网，祭坛上的每一具白骨都曾是求赎的朝圣者。",
-      "frost_mage": "寒霜法徒来自北境学院，城门沦陷那夜，她把最后一课写成了永冬咒文。",
-      "harpy": "裂空鹰妖守着悬崖孤巢，羽翼下藏着被猎人夺走幼崽后再未熄灭的悲鸣。",
-      "mimic": "噬财宝箱怪会模仿最诱人的宝藏，它吞下的不只是手指，还有贪婪者最后的祈祷。",
-      "void_eye": "虚空之眼来自星坠深井，它凝视凡人时，梦境会先一步碎裂成黑色尘埃。",
-      "forest_satyr": "荒林萨堤曾是林地守卫，帝国伐木后他改以角笛召来报复的夜兽。",
-      "shadow_assassin": "暗影刺客曾受封为王庭之刃，直到他发现王命只会落在无辜者颈间。",
-      "bone_shaman": "白骨祭司在坟场点灯，以亡者姓名换取法术，每次施咒都更不像活人。",
-      "iron_knight": "铁誓骑士发誓护国终身，国王背弃誓言后，他把忠诚献给了盔甲本身。",
-      "plague_doctor": "疫病医师背着空药箱行医多年，救不回的人越多，他越相信痛苦才是真理。",
-      "storm_elemental": "风暴元素缠绕在旧灯塔顶端，它记得曾有航海者在那里点燃归乡的火。",
-      "blood_bat": "嗜血蝠王盘踞钟楼残塔，传说它曾是守钟童子，被诅咒改写了夜晚的形状。",
-      "sand_wraith": "流沙怨灵守着埋没城邦，黄沙掩住王冠，也掩不住亡国者的哭声。",
-      "abyss_guard": "深渊守卫由禁军改造而成，他们的灵魂被铁钉缝在深井边缘，永不离岗。",
-      "thorn_beast": "荆棘兽在荒原徘徊，背刺上缠着村庄旧旗，它仍在找那个没能守住的家。",
-      "arcane_construct": "奥术构装体由法师议会制造，议会覆灭后它只剩“清除异端”这一条指令。",
-      "grave_keeper": "守墓人替无名者刻碑百年，直到战争让墓地住满熟人，他便拒绝再说温柔话。",
-      "ashen_warlock": "灰烬术士曾焚尽侵军救下故乡，却在欢呼中发现自己再也回不到人群。",
-      "crystal_lurker": "晶壳潜伏者沉睡于水晶矿腹地，它梦里反复回放矮人王朝最后一次坍塌。",
-      "moon_huntress": "逐月女猎沿银林追猎罪人，她的箭从不落空，却再也找不到失踪的妹妹。",
-      "rot_brute": "腐败巨徒原是神殿卫士，黑泥侵蚀后仍站在门前，像一尊不肯倒下的悔恨。",
-      "abyss_demon": "深渊恶魔阿兹拉尔曾是审判庭主教，堕落后他仍执迷于衡量每个人的罪。",
-      "ancient_dragon": "远古巨龙伊格纳斯守着破碎王都，它记得人类曾与龙共饮，如今只剩灰烬契约。",
-      "dark_knight": "黑暗骑士莫尔德雷克是被流放的守护者，他的盔甲里装着从未被赦免的忠诚。",
-      "necromancer": "死灵法师薇拉本想复活瘟疫中的孩童，最终却在万千亡魂里迷失了自己。",
-      "storm_titan": "风暴泰坦欧洛斯由诸神铸造用以裁决凡世，如今只记得雷霆，不记得怜悯。",
-      "scarlet_queen": "猩红女王赛琳娜在宫变夜吞下血誓，她把王座与诅咒一同刻进了脉搏。",
-      "void_reaper": "虚空收割者奈维尔行走于星隙，他收割的不止生命，还有被遗忘的希望。",
-      "clockwork_core": "失控核心曾是王都供能心脏，政变断电后它把整座城市认作需要清除的故障。"
+      "skeleton":"灰烬原野上埋骨无数，这些骷髅曾是守城的民兵，王国覆灭后仍握着断刃徘徊在夜风里。",
+      "zombie":  "瘟疫钟声响起那年，修道院拒绝焚尸，腐烂僵尸便在祷告声中慢慢学会了仇恨。",
+      "forest_slime": "森林史莱姆在潮湿的林地中游荡，吸收了大量的腐殖质和魔法残渣，体型逐渐膨胀。",
+      "wolf" : "狼群曾是这片土地的守护者，直到人类的猎杀和栖息侵占让它们变得凶猛而绝望。" ,
+      "goblin": "哥布林是地底洞穴的常住居民，狡猾而好战，喜欢收集冒险者遗落的装备残骸。"
     }
   },
-
   "boss": {
     "abyss_demon": {
       "introLine": "阿兹拉尔开始审判你的贪婪。",
@@ -342,76 +248,6 @@
         "fighting": "阿兹拉尔举起黑焰圣印。",
         "dying": "审判词正在崩裂成灰。",
         "dropping": "审判天平终于失衡。"
-      }
-    },
-    "ancient_dragon": {
-      "introLine": "伊格纳斯在残垣上展开龙翼。",
-      "battleLogLine": "龙焰掠过天穹，空气像铁一样发烫。",
-      "phase": {
-        "entering": "古老鳞片反射着末日火光。",
-        "fighting": "龙息正在吞没战场边界。",
-        "dying": "巨龙的咆哮逐渐远去。",
-        "dropping": "灰烬中留下炽热龙核。"
-      }
-    },
-    "dark_knight": {
-      "introLine": "莫尔德雷克以沉默回应你的挑战。",
-      "battleLogLine": "铁靴踏地如雷，每一步都像判决。",
-      "phase": {
-        "entering": "破誓骑士竖起黯铁巨盾。",
-        "fighting": "重甲回响压得人喘不过气。",
-        "dying": "盔甲裂缝里渗出旧誓言。",
-        "dropping": "一枚旧徽章滚落在地。"
-      }
-    },
-    "necromancer": {
-      "introLine": "薇拉低声呼唤亡者的名字。",
-      "battleLogLine": "墓园的风吹来潮湿祷词，灵魂在回应她。",
-      "phase": {
-        "entering": "骨灯一盏盏被点亮。",
-        "fighting": "亡魂正替她分担痛苦。",
-        "dying": "咒文断裂，灵火黯淡。",
-        "dropping": "遗失的灵签落入你手中。"
-      }
-    },
-    "storm_titan": {
-      "introLine": "欧洛斯以雷霆回应凡人的傲慢。",
-      "battleLogLine": "云层被撕开，电光在你头顶织成王冠。",
-      "phase": {
-        "entering": "雷柱将战场分割成审判庭。",
-        "fighting": "风暴泰坦抬臂引落天罚。",
-        "dying": "雷鸣由怒吼转为哀歌。",
-        "dropping": "风暴之核在地面震颤。"
-      }
-    },
-    "scarlet_queen": {
-      "introLine": "赛琳娜女王在血色帷幕后微笑。",
-      "battleLogLine": "猩红礼乐响起，王座下的血池开始翻涌。",
-      "phase": {
-        "entering": "女王的血誓封锁了退路。",
-        "fighting": "她的每次挥刃都在召唤欢呼。",
-        "dying": "王冠跌落，血色仍未褪去。",
-        "dropping": "残破王印在掌心发烫。"
-      }
-    },
-    "void_reaper": {
-      "introLine": "奈维尔从星隙中收割你的名字。",
-      "battleLogLine": "光线被拉成长线，虚空在你周围合拢。",
-      "phase": {
-        "entering": "收割者的镰影掠过现实。",
-        "fighting": "每次挥镰都带走一段记忆。",
-        "dying": "虚空裂口正在缓慢闭合。",
-        "dropping": "一片星屑镰刃坠落尘世。"
-      }
-    },
-    "clockwork_core": {
-      "introLine": "失控核心将你标记为需清除的误差。",
-      "battleLogLine": "齿轮群鸣像祈祷，钢铁在重构秩序。",
-      "phase": {
-        "entering": "古老机括正在全面苏醒。",
-        "fighting": "核心重构环开始加速。",
-        "dying": "齿轮终于发出最后一声卡顿。",
-        "dropping": "熄火的核心仍残留余温。"
       }
     }
   },

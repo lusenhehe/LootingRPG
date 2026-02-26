@@ -1,4 +1,4 @@
-import type { CounterStatKey, Monster } from '../../../types/game';
+import type { CounterStatKey, Monster } from '../../../shared/types/game';
 import type { FinalPlayerCombatStats } from '../../player/model/combat';
 import { getCombatProfile } from '../../player/model/combat';
 import i18n from '../../../i18n';

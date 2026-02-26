@@ -1,5 +1,5 @@
 import type { MapChapterDef } from '../model/chapters';
-import type { MapProgressState } from '../../../types/game';
+import type { MapProgressState } from '../../../shared/types/game';
 
 export const createInitialMapProgress = (chapters: MapChapterDef[]): MapProgressState => {
   const firstChapter = chapters[0];

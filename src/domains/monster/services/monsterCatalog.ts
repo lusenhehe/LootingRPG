@@ -1,8 +1,7 @@
-import type { Monster } from '../../../types/game';
+import type { Monster } from '../../../shared/types/game';
 import { BOSS_MONSTERS_DATA, NORMAL_MONSTERS_DATA } from '../config';
 import i18n from '../../../i18n';
 
-// attach lore / localization text to a monster object
 export const attachMonsterLore = (monster: Monster): Monster => {
   const backgroundKey = monster.background;
   const background = backgroundKey ? i18n.t(backgroundKey) : i18n.t('codex.backgroundFallback');

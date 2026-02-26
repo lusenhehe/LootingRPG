@@ -1,4 +1,4 @@
-import type { GameState, MapProgressState, SavePayload, SaveProfile } from '../../types/game';
+import type { GameState, MapProgressState, SavePayload, SaveProfile } from '../../shared/types/game';
 import { createInitialMapProgress, normalizeMapProgress } from '../../domains/map/services/progress';
 import { ACTIVE_PROFILE_KEY, PROFILE_INDEX_KEY, STORAGE_KEY } from '../../config/runtime/storage';
 import { createFreshInitialState, normalizeGameState } from '../../app/state';

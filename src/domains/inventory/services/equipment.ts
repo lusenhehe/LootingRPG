@@ -7,7 +7,7 @@ import {
   ENCHANT_COST_MULTIPLIER_BY_QUALITY,
 } from '../../../config/game/equipment';
 import { getEquipmentTemplates, type EquipmentTemplate } from '../../../config/game/equipment';
-import type { Equipment, EquipmentAffix, EquipmentAffixValue } from '../../../types/game';
+import type { Equipment, EquipmentAffix, EquipmentAffixValue } from '../../../shared/types/game';
 import i18next from 'i18next';
 
 const AFFIX_POOL: EquipmentAffix[] = ['crit_chance', 'lifesteal', 'damage_bonus', 'thorns', 'hp_bonus'];

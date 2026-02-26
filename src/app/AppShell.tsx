@@ -1,10 +1,8 @@
 import { LoginScreen } from '../components/auth/LoginScreen';
-import { GameScreen } from '../components/game/GameScreen';
-import { useGameOrchestrator } from './useGameOrchestrator';
+import { GameScreen }  from '../components/game/GameScreen';
+import { useGame }     from './GameContext';
 
 export function AppShell() {
-  const orchestrator = useGameOrchestrator();
-
   const {
     profiles,
     activeProfileId,
@@ -38,7 +36,7 @@ export function AppShell() {
     handleReroll,
     handleUnequip,
     handleDebugAddItems,
-  } = orchestrator;
+  } = useGame();
 
   if (!isAuthenticated) {
     return (

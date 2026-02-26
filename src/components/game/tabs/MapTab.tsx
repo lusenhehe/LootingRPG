@@ -2,7 +2,7 @@ import { normalizeMapProgress, getChapterProgress} from '../../../domains/map/se
 import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData';
 import { Star, ChevronDown, Mountain, Lock } from 'lucide-react';
 import { MAP_CHAPTERS } from '../../../config/map/ChapterData';
-import type { MapProgressState } from '../../../types/game';
+import type { MapProgressState } from '../../../shared/types/game';
 import { themeColors } from '../../../config/map/mapNode';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
@@ -63,7 +63,7 @@ export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnte
             style={{ borderColor: `${chapterThemeColors.primary}33` }}
           >
             <Mountain size={16} style={{ color: chapterThemeColors.primaryLight }} />
-            <span className="text-sm font-medium" style={{ color: chapterThemeColors.primaryLight }}>{t(selectedChapter.name)}</span>
+            <span className="text-sm font-medium" style={{ color: chapterThemeColors.primaryLight }}>{t(`map.${selectedChapter.id}`)}</span>
             <ChevronDown size={14} className={`text-stone-500 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
@@ -91,7 +91,7 @@ export function MapTab({ playerLevel, loading, progress, onSelectChapter, onEnte
                         style={{ opacity: unlocked ? 1 : 0.4 }}
                       >
                         <Mountain size={14} style={{ color: chapterColors.primaryLight }} />
-                        <span className="flex-1 text-sm text-stone-200">{t(chapter.name)}</span>
+                        <span className="flex-1 text-sm text-stone-200">{t(`map.${chapter.id}`)}</span>
                         {chapterProgress.completed && <Star size={12} className="text-amber-400" fill="currentColor" />}
                         {!unlocked && <Lock size={12} className="text-stone-500" />}
                       </button>

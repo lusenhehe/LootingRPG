@@ -1,5 +1,5 @@
 import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
-import type { Equipment, GameState } from '../../../types/game';
+import type { Equipment, GameState } from '../../../shared/types/game';
 import { t } from 'i18next';
 
 const getQualityLabel = (qualityKey: string): string => t(`quality.${qualityKey}`);

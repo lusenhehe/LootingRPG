@@ -1,6 +1,6 @@
 import { calculateEnchantCost, applyEnchant } from './equipment';
 import i18n from '../../../i18n';
-import type { Equipment, GameState } from '../../../types/game';
+import type { Equipment, GameState } from '../../../shared/types/game';
 
 /**
  * 强化函数: 尝试强化指定的装备，返回日志信息
