@@ -6,7 +6,6 @@ import {defineConfig, loadEnv} from 'vite';
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
-    // use relative paths so built files can load inside Electron/asar
     base: './',
 
     plugins: [react(), tailwindcss()],
