@@ -9,62 +9,34 @@ Phase 1-1：统一战斗单位结构
 建立 BattleUnit 核心模型
 
 你要完成：
-
 新建 BattleUnit 接口
-
 怪物改为使用 baseStats + skills + passives
-
 增加 elements 字段
-
 增加 aiProfile
-
 增加 tags
-
 此阶段成果：
-
 怪物 JSON 升级
-
 旧代码还能跑
-
 战斗逻辑不重写
-
-⛔ 不做：
-
+⛔ 不做
 不做技能重写
-
 不做元素系统
-
 不做 Buff 重构
-
 Phase 1-2：Battle Context 抽离
-
 目标：
 把“战斗过程状态”集中管理
-
 创建：
-
 BattleContext
-
 TurnManager
-
 UnitRegistry
-
 解决问题：
-
 不再到处传 unit 数组
-
 不再 if 判断怪物还是玩家
-
 所有单位统一放入 registry
-
 此阶段成果：
-
-战斗有统一容器
-
-单位引用标准化
-
+战斗有统一器
+单位引用标准
 为 PvP 做准备
-
 ⛔ 不做：
 
 不改技能逻辑

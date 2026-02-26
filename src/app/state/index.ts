@@ -1,15 +1,27 @@
 import { normalizeInventory } from './inventoryState';
-import type { BattleSession, GameState } from '../../types/game';
+import type { BattleSession, GameState } from '../../shared/types/game';
 
 const normalizeBattleSession = (session: BattleSession | null): BattleSession | null => {
   if (!session) return null;
 
   const enemies = (session.enemies ?? []).map((enemy, index) => ({
     ...enemy,
-    waveId: enemy.waveId || `wave-${index + 1}`,
+    meta: {
+      ...(enemy.meta ?? {}),
+      waveId:
+        typeof enemy.meta?.waveId === 'string'
+          ? enemy.meta.waveId
+          : `wave-${index + 1}`,
+    },
   }));
 
-  const inferredWaveOrder = Array.from(new Set(enemies.map((enemy) => enemy.waveId)));
+  const inferredWaveOrder = Array.from(
+    new Set(
+      enemies.map((enemy, index) =>
+        typeof enemy.meta?.waveId === 'string' ? enemy.meta.waveId : `wave-${index + 1}`,
+      ),
+    ),
+  );
   const existingWaveOrder = Array.isArray(session.waveOrder) ? session.waveOrder : [];
   const waveOrder = existingWaveOrder.length > 0
     ? existingWaveOrder.filter((waveId) => inferredWaveOrder.includes(waveId))

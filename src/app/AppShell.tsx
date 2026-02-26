@@ -49,7 +49,7 @@ export function AppShell() {
     );
   }
 
-  const currentProfile = profiles.find((profile) => profile.id === activeProfileId);
+  const currentProfile = profiles.find((profile: import('../shared/types/game').SaveProfile) => profile.id === activeProfileId);
 
   return (
     <GameScreen
@@ -67,7 +67,7 @@ export function AppShell() {
       onReset={handleReset}
       mapProgress={mapProgress}
       onSelectMapChapter={(chapterId) => {
-        setMapProgress((prev) => ({ ...prev, selectedChapterId: chapterId }));
+        setMapProgress((prev: import('../shared/types/game').MapProgressState) => ({ ...prev, selectedChapterId: chapterId }));
       }}
       focusMapNode={focusMapNode}
       onClearFocusMapNode={() => setFocusMapNode(null)}

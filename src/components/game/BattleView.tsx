@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { BattleSession } from '../../types/game';
+import type { BattleSession } from '../../shared/types/game';
 import PlayerCard from './PlayerCard';
 import EnemyCard from './EnemyCard';
 import BattleUnitCardBase from './BattleUnitCardBase';
@@ -13,7 +13,10 @@ interface BattleViewProps {
 
 export function BattleView({ session, onAttack, onRetreat }: BattleViewProps) {
   const { t } = useTranslation();
-  const fallbackWaveOrder = Array.from(new Set((session.enemies ?? []).map((enemy) => enemy.waveId || 'wave-1')));
+  const fallbackWaveOrder = Array.from(new Set((session.enemies ?? []).map((enemy) => {
+    const waveId = enemy.meta?.waveId;
+    return typeof waveId === 'string' ? waveId : 'wave-1';
+  })));
   const waveOrder = Array.isArray(session.waveOrder) && session.waveOrder.length > 0
     ? session.waveOrder
     : fallbackWaveOrder;
@@ -23,7 +26,8 @@ export function BattleView({ session, onAttack, onRetreat }: BattleViewProps) {
   const currentWaveId = waveOrder[safeWaveIndex];
   const currentWaveEnemies = (session.enemies ?? []).filter((enemy) => {
     if (!currentWaveId) return true;
-    return (enemy.waveId || 'wave-1') === currentWaveId;
+    const waveId = enemy.meta?.waveId;
+    return (typeof waveId === 'string' ? waveId : 'wave-1') === currentWaveId;
   });
 
 

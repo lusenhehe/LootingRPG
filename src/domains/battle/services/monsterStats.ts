@@ -37,7 +37,7 @@ const readPlayerCounterStat = (player: FinalPlayerCombatStats, stat: CounterStat
   if (stat === 'elemental') return player.elementalBonus;
   if (stat === 'lifesteal') return player.lifestealRate * 100;
   if (stat === 'thorns') return player.thornsRate * 100;
-  if (stat === 'attackSpeed') return player.attackSpeed;
+  if (stat === 'attackSpeed') return player.speed;
   return 0;
 };
 

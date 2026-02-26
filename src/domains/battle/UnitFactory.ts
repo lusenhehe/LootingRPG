@@ -4,10 +4,11 @@
 // 战斗层不要再直接读取 monster JSON
 // 必须通过 UnitFactory 生成战斗单位
 import { BattleUnitSchema } from '@src/types/battle/BattleUnit'
+import type { BattleUnitInstance } from '@src/types/battle/BattleUnit'
 export function createBattleUnit(
   data: BattleUnitSchema,
   level: number
-) {
+): BattleUnitInstance {
   return {
     id: data.id,
     name: data.name,
@@ -15,10 +16,20 @@ export function createBattleUnit(
     level,
     baseStats: { ...data.baseStats },
     currentHp: data.baseStats.hp,
+    derivedStats: {
+      damageReduction: data.derivedStats?.damageReduction ?? 0,
+      critRate: data.derivedStats?.critRate,
+      lifestealRate: data.derivedStats?.lifestealRate,
+      thornsRate: data.derivedStats?.thornsRate,
+      elementalBonus: data.derivedStats?.elementalBonus,
+    },
     skills: [...data.skills],
     passives: data.passives ?? [],
     elements: data.elements ?? [],
     tags: data.tags ?? [],
-    aiProfile: data.aiProfile ?? 'default'
+    meta: {
+      ...(data.meta ?? {}),
+      aiProfile: data.aiProfile ?? 'default',
+    },
   }
 }

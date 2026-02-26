@@ -17,7 +17,7 @@ export interface FinalPlayerCombatStats {
   elementalBonus: number;
   lifestealRate: number;
   thornsRate: number;
-  attackSpeed: number;
+  speed: number;
 }
 
 const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
@@ -92,7 +92,7 @@ export const getFinalPlayerStats = (
     elementalBonus: toNumber(source.elemental),
     lifestealRate: clamp(lifestealPercent / 100, 0, 0.45),
     thornsRate: clamp(thornsPercent / 100, 0, 0.35),
-    attackSpeed: toNumber(source.attackSpeed),
+    speed: toNumber(source.attackSpeed),
   };
 };
 

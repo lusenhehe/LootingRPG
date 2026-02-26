@@ -1,4 +1,5 @@
-import type { BattleEnemySnapshot, BattleResult, BattleSession, GameState, MapProgressState} from '../../../shared/types/game';
+import type { BattleResult, BattleSession, GameState, MapProgressState} from '../../../shared/types/game';
+import type { BattleUnitInstance, BattleUnitSchema } from '../../../types/battle/BattleUnit';
 import type { MapChapterDef, MapNodeDef, NodeWave } from '../../map/model/chapters';
 import { getFinalPlayerStats } from '../../player/model/combat';
 import { getFinalMonsterStats } from './monsterStats';
@@ -8,6 +9,7 @@ import { PLAYER_GROWTH } from '../../game/config/progression';
 import { recalculatePlayerStats } from '../../player/services/recalculatePlayerStats';
 import { generateEquipment } from '../../inventory/services/equipment';
 import {computeDamage,computeCritMultiplier,computeEffectiveDefense,computeEffectiveLifesteal,clamp,} from '../battleMaths';
+import { createBattleUnit } from '../UnitFactory';
 import i18n from '../../../i18n';
 interface BattleTransition {
   nextGameState: GameState;
@@ -19,6 +21,38 @@ interface BattleTransition {
 
 const toBattleLog = (message: string) => `[Battle] ${message}`;
 
+const getUnitMetaString = (unit: BattleUnitInstance, key: string): string | undefined => {
+  const value = unit.meta?.[key];
+  return typeof value === 'string' ? value : undefined;
+};
+
+const getUnitMetaBoolean = (unit: BattleUnitInstance, key: string): boolean => {
+  return unit.meta?.[key] === true;
+};
+
+const getUnitMetaDropDict = (unit: BattleUnitInstance): Record<string, number> | undefined => {
+  const value = unit.meta?.dropdict;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+  return value as Record<string, number>;
+};
+
+const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
+  ...unit,
+  baseStats: { ...unit.baseStats },
+  derivedStats: { ...unit.derivedStats },
+  skills: [...unit.skills],
+  passives: [...unit.passives],
+  elements: [...unit.elements],
+  tags: [...unit.tags],
+  meta: unit.meta ? { ...unit.meta } : undefined,
+});
+
+const getWaveId = (unit: BattleUnitInstance, fallback: string): string => {
+  return getUnitMetaString(unit, 'waveId') ?? fallback;
+};
+
 const ensureNodeWaves = (node: MapNodeDef): NodeWave[] => {
   if (!node.waves || node.waves.length === 0) {
     throw new Error(`Node ${node.id} has no waves configured.`);
@@ -28,10 +62,13 @@ const ensureNodeWaves = (node: MapNodeDef): NodeWave[] => {
 const normalizeSessionWaves = (session: BattleSession): BattleSession => {
   const enemies = (session.enemies ?? []).map((enemy, index) => ({
     ...enemy,
-    waveId: enemy.waveId || `wave-${index + 1}`,
+    meta: {
+      ...(enemy.meta ?? {}),
+      waveId: getWaveId(enemy, `wave-${index + 1}`),
+    },
   }));
 
-  const inferredWaveOrder = Array.from(new Set(enemies.map((enemy) => enemy.waveId)));
+  const inferredWaveOrder = Array.from(new Set(enemies.map((enemy, index) => getWaveId(enemy, `wave-${index + 1}`))));
   const existingWaveOrder = Array.isArray(session.waveOrder) ? session.waveOrder : [];
   const waveOrder = existingWaveOrder.length > 0
     ? existingWaveOrder.filter((waveId) => inferredWaveOrder.includes(waveId))
@@ -49,7 +86,7 @@ const normalizeSessionWaves = (session: BattleSession): BattleSession => {
     currentWaveIndex,
   };
 };
-const buildEnemySnapshot = (
+const buildEnemyUnit = (
   node: MapNodeDef,
   wave: NodeWave,
   waveId: string,
@@ -57,7 +94,7 @@ const buildEnemySnapshot = (
   enemyIndex: number,
   playerLevel: number,
   playerFinal: ReturnType<typeof getFinalPlayerStats>,
-): BattleEnemySnapshot => {
+): BattleUnitInstance => {
   const monster = getMonsterById(monsterId);
   if (!monster) {
     throw new Error(`Monster '${monsterId}' not found in content config.`);
@@ -66,21 +103,34 @@ const buildEnemySnapshot = (
   const isBoss = node.encounterType === 'boss' || monster.monsterType === 'boss';
   const finalMonster = getFinalMonsterStats(monster, playerLevel, enemyIndex, isBoss, playerFinal, node.id);
 
-  return {
+  const monsterSchema: BattleUnitSchema = {
     id: `${waveId}-${monster.id}-${enemyIndex}`,
-    monsterId: monster.id,
     name: monster.name,
-    icon: monster.icons[0] ?? '👾',
-    waveId,
-    waveLabel: wave.label,
-    maxHp: finalMonster.maxHp,
-    hp: finalMonster.maxHp,
-    attack: finalMonster.attack,
-    defense: finalMonster.defense,
-    damageReduction: finalMonster.damageReduction,
-    isBoss,
-    dropdict: monster.dropdict,
+    faction: 'monster',
+    baseStats: {
+      hp: finalMonster.maxHp,
+      attack: finalMonster.attack,
+      defense: finalMonster.defense,
+    },
+    skills: monster.skillSet ?? [],
+    passives: [],
+    elements: [],
+    tags: [monster.monsterType],
+    aiProfile: 'default',
+    derivedStats: {
+      damageReduction: finalMonster.damageReduction,
+    },
+    meta: {
+      monsterId: monster.id,
+      icon: monster.icons[0] ?? '👾',
+      waveId,
+      waveLabel: wave.label,
+      isBoss,
+      dropdict: monster.dropdict,
+    },
   };
+
+  return createBattleUnit(monsterSchema, playerLevel);
 };
 const resolveBattleResult = (
   gameState: GameState,
@@ -131,10 +181,11 @@ const resolveBattleResult = (
     xpGained = Math.max(15, node.recommendedLevel * 6 + session.enemies.length * 8);
     goldGained = node.firstClearRewardGold;
 
-    const rewardEnemy = session.enemies.find((enemy) => enemy.isBoss) ?? session.enemies[session.enemies.length - 1];
+    const rewardEnemy = session.enemies.find((enemy) => getUnitMetaBoolean(enemy, 'isBoss')) ?? session.enemies[session.enemies.length - 1];
+    const rewardDropDict = rewardEnemy ? getUnitMetaDropDict(rewardEnemy) : undefined;
     const drop = rewardEnemy
       ? generateEquipment(
-          { monsterType: rewardEnemy.isBoss ? 'boss' : 'normal', dropdict: rewardEnemy.dropdict },
+          { monsterType: getUnitMetaBoolean(rewardEnemy, 'isBoss') ? 'boss' : 'normal', dropdict: rewardDropDict },
           gameState.pityCounts,
           gameState.playerStats.level,
         )
@@ -220,15 +271,15 @@ export const startBattleSession = (
     const validWaves = nodeWaves
       .map((wave, index) => ({ wave, waveId: wave.id || `wave-${index + 1}` }))
       .filter(({ wave }) => Array.isArray(wave.monsters) && wave.monsters.length > 0);
-    //  4. 构建敌人快照：根据玩家等级和怪物配置计算每个敌人的最终属性，并生成战斗快照对象
-    const enemies: BattleEnemySnapshot[] = [];
+    //  4. 构建敌方单位：统一创建为 BattleUnitInstance
+    const enemies: BattleUnitInstance[] = [];
     let enemyIndex = 0;
     //  5. 战斗会话构建：将所有信息整合到一个 BattleSession 对象中，
     //     包含玩家属性、敌人列表、当前波次状态等
     for (const { wave, waveId } of validWaves) {
       for (const waveMonster of wave.monsters) {
         enemies.push(
-          buildEnemySnapshot(node, wave, waveId, waveMonster.monsterId, enemyIndex, gameState.playerStats.level, playerFinal),
+          buildEnemyUnit(node, wave, waveId, waveMonster.monsterId, enemyIndex, gameState.playerStats.level, playerFinal),
         );
         enemyIndex += 1;
       }
@@ -239,6 +290,31 @@ export const startBattleSession = (
     }
     // 6. 错误处理：如果在任何步骤中发生错误（例如配置缺失、数据异常等），
     // 捕获错误并返回一个包含错误信息的结果对象，确保调用方能够正确处理异常情况。
+    const playerUnit = createBattleUnit(
+      {
+        id: 'player',
+        name: 'Player',
+        faction: 'player',
+        baseStats: {
+          hp: playerFinal.maxHp,
+          attack: playerFinal.attack,
+          defense: playerFinal.defense,
+        },
+        skills: [],
+        passives: [],
+        elements: [],
+        tags: ['player'],
+        derivedStats: {
+          damageReduction: playerFinal.damageReduction,
+          critRate: playerFinal.critRate,
+          lifestealRate: playerFinal.lifestealRate,
+          thornsRate: playerFinal.thornsRate,
+          elementalBonus: playerFinal.elementalBonus,
+        },
+      },
+      gameState.playerStats.level,
+    );
+
     const session: BattleSession = {
       id: `battle_${Date.now()}`,
       chapterId: chapter.id,
@@ -247,16 +323,7 @@ export const startBattleSession = (
       nodeName: node.name,
       encounterType: node.encounterType,
       turn: 0,
-      playerMaxHp: playerFinal.maxHp,
-      playerHp: playerFinal.maxHp,
-      player: {
-        attack: playerFinal.attack,
-        damageReduction: playerFinal.damageReduction,
-        critRate: playerFinal.critRate,
-        lifestealRate: playerFinal.lifestealRate,
-        thornsRate: playerFinal.thornsRate,
-        elementalBonus: playerFinal.elementalBonus,
-      },
+      player: playerUnit,
       enemies,
       waveOrder: validWaves.map((entry) => entry.waveId),
       currentWaveIndex: 0,
@@ -309,11 +376,12 @@ export const runBattlePlayerAttack = (
     ...session,
     turn: session.turn + 1,
     logs: [...session.logs],
-    enemies: session.enemies.map((e) => ({ ...e })),
+    player: cloneBattleUnit(session.player),
+    enemies: session.enemies.map((enemy) => cloneBattleUnit(enemy)),
   };
 
   const waveEnemies = nextSession.enemies.filter(
-    (e) => e.waveId === currentWaveId && e.hp > 0,
+    (enemy, index) => getWaveId(enemy, `wave-${index + 1}`) === currentWaveId && enemy.currentHp > 0,
   );
 
   if (waveEnemies.length === 0) {
@@ -328,40 +396,39 @@ export const runBattlePlayerAttack = (
     };
   }
 
+  const attacker = nextSession.player;
   const target = waveEnemies[0];
 
   // ====== 玩家攻击阶段 ======
-  const didCrit = Math.random() < nextSession.player.critRate;
+  const didCrit = Math.random() < (attacker.derivedStats.critRate ?? 0);
   const critMultiplier = computeCritMultiplier(
     didCrit,
     0.6, // 可替换为 player.critDamage
   );
 
   const effectiveDefense = computeEffectiveDefense(
-    target.damageReduction > 0
-      ? target.attack // 这里不再用 reduction，而建议你未来改 snapshot 传 defense
-      : 0,
-    nextSession.player.elementalBonus,
+    target.baseStats.defense,
+    attacker.derivedStats.elementalBonus ?? 0,
   );
 
   const damage = computeDamage(
-    nextSession.player.attack,
+    attacker.baseStats.attack,
     effectiveDefense,
     critMultiplier,
   );
 
-  target.hp = Math.max(0, target.hp - damage);
+  target.currentHp = Math.max(0, target.currentHp - damage);
 
   // 吸血
   const effectiveLifesteal = computeEffectiveLifesteal(
-    nextSession.player.lifestealRate,
+    attacker.derivedStats.lifestealRate ?? 0,
   );
 
   if (effectiveLifesteal > 0) {
     const heal = Math.floor(damage * effectiveLifesteal);
-    nextSession.playerHp = Math.min(
-      nextSession.playerMaxHp,
-      nextSession.playerHp + heal,
+    attacker.currentHp = Math.min(
+      attacker.baseStats.hp,
+      attacker.currentHp + heal,
     );
   }
 
@@ -371,38 +438,40 @@ export const runBattlePlayerAttack = (
     } to ${target.name}.`,
   );
 
-  if (target.hp <= 0) {
+  if (target.currentHp <= 0) {
     nextSession.logs.push(`[Battle] ${target.name} defeated.`);
   }
 
   // ====== 怪物反击阶段 ======
   const aliveEnemies = nextSession.enemies.filter(
-    (e) => e.waveId === currentWaveId && e.hp > 0,
+    (enemy, index) => getWaveId(enemy, `wave-${index + 1}`) === currentWaveId && enemy.currentHp > 0,
   );
 
-  for (const attacker of aliveEnemies) {
-    const incomingDamage = computeDamage(
-      attacker.attack,
-      nextSession.player.damageReduction * 100,
+  for (const enemyAttacker of aliveEnemies) {
+    const incomingRawDamage = computeDamage(
+      enemyAttacker.baseStats.attack,
+      attacker.baseStats.defense,
       1,
     );
+    const playerDamageReduction = clamp(attacker.derivedStats.damageReduction ?? 0, 0, 0.9);
+    const incomingDamage = Math.max(1, Math.floor(incomingRawDamage * (1 - playerDamageReduction)));
 
-    nextSession.playerHp = Math.max(
+    attacker.currentHp = Math.max(
       0,
-      nextSession.playerHp - incomingDamage,
+      attacker.currentHp - incomingDamage,
     );
 
     // 反伤
-    if (nextSession.player.thornsRate > 0) {
+    if ((attacker.derivedStats.thornsRate ?? 0) > 0) {
       const reflect = Math.floor(
         incomingDamage *
-          clamp(nextSession.player.thornsRate, 0, 0.4),
+          clamp(attacker.derivedStats.thornsRate ?? 0, 0, 0.4),
       );
-      attacker.hp = Math.max(0, attacker.hp - reflect);
+      enemyAttacker.currentHp = Math.max(0, enemyAttacker.currentHp - reflect);
     }
   }
 
-  if (nextSession.playerHp <= 0) {
+  if (attacker.currentHp <= 0) {
     nextSession.status = 'defeat';
     return resolveBattleResult(
       {
