@@ -1,4 +1,4 @@
-import type { MonsterBaseStats, MonsterScalingProfile, EntityStats } from '../../../shared/types/game';
+import type { EntityStats } from '../../../shared/types/game';
 import type { Monster } from '../../../config/game/monsterSchema';
 import { SCALING_PROFILES } from '../../../config/game/monsterSchema';
 

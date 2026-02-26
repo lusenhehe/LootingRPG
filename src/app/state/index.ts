@@ -38,6 +38,8 @@ const normalizeBattleSession = (session: BattleSession | null): BattleSession | 
     enemies,
     waveOrder: safeWaveOrder,
     currentWaveIndex,
+    phase: session.phase ?? 'player_input',
+    events: Array.isArray(session.events) ? session.events : [],
   };
 };
 

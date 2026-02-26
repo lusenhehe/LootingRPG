@@ -3,6 +3,28 @@ import type { BattleUnitInstance } from '../../types/battle/BattleUnit';
 export type { Monster } from '../../config/game/monsterSchema';
 export type { MonsterTrait, MonsterBaseStats, MonsterScalingProfile, ThreatType, BossIdentity, BossCounterGoal, CounterStatKey, EntityStats, ScalingProfileStats } from '../../config/game/monsterSchema';
 
+export type BattlePhase =
+  | 'player_input'
+  | 'resolving'
+  | 'enemy_turn'
+  | 'finished';
+
+export interface BattleAction {
+  id: string;
+  type: 'basic_attack' | 'skill' | 'passive';
+  sourceId: string;
+  targetIds: string[];
+  payload?: Record<string, unknown>;
+}
+
+export interface BattleEvent {
+  type: 'damage' | 'unit_died' | 'turn_end';
+  sourceId?: string;
+  targetId?: string;
+  amount?: number;
+  unitId?: string;
+}
+
 export interface PlayerStats extends EntityStats     {
   level: number;
   xp: number;
@@ -38,7 +60,7 @@ export interface Equipment {
   };
 }
 
-export type BattleSessionStatus = 'fighting' | 'victory' | 'defeat' | 'retreated';
+export type BattleSessionStatus = 'fighting' | 'victory' | 'defeat';
 
 export interface BattleSession {
   id: string;            // 唯一标识符，格式为 "battle_timestamp"
@@ -48,11 +70,13 @@ export interface BattleSession {
   nodeName: string;      // 所属节点名称（冗余字段，便于快速访问）
   encounterType: string; // 遭遇类型（例如 "normal"、"elite"、"boss"），用于区分不同的战斗场景和规则
   turn: number;          // 当前回合数，从1开始递增
+  phase: BattlePhase;
   player: BattleUnitInstance;
   enemies: BattleUnitInstance[];
   waveOrder: string[];         // 波次顺序列表，记录当前战斗中敌人所属的波次顺序，便于在战斗日志和界面上显示当前波次状态
   currentWaveIndex: number;    // 当前波次索引，指示玩家正在面对哪个波次的敌人，战斗过程中会根据敌人被击败的情况进行更新
   status: BattleSessionStatus; // 战斗状态，指示当前战斗是进行中、胜利、失败还是撤退，战斗过程中会根据玩家和敌人的状态进行更新
+  events: BattleEvent[];
   logs: string[];              // 战斗日志，记录战斗过程中发生的事件和操作，便于回放和调试
 }
 

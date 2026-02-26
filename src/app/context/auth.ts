@@ -1,5 +1,5 @@
 export interface AuthContext {
-  profiles: any[]; // same as result from useProfileSave
+  profiles: any[];
   activeProfileId: string | null;
   isAuthenticated: boolean;
   handleLogin: (id: string) => void;

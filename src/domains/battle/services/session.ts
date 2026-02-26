@@ -8,8 +8,8 @@ import { applyMapNodeResult } from '../../map/services/progress';
 import { PLAYER_GROWTH } from '../../game/config/progression';
 import { recalculatePlayerStats } from '../../player/services/recalculatePlayerStats';
 import { generateEquipment } from '../../inventory/services/equipment';
-import {computeDamage,computeCritMultiplier,computeEffectiveDefense,computeEffectiveLifesteal,clamp,} from '../battleMaths';
 import { createBattleUnit } from '../UnitFactory';
+import { BattleEngine } from '../engine/BattleEngine';
 import i18n from '../../../i18n';
 interface BattleTransition {
   nextGameState: GameState;
@@ -37,17 +37,6 @@ const getUnitMetaDropDict = (unit: BattleUnitInstance): Record<string, number> |
   }
   return value as Record<string, number>;
 };
-
-const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
-  ...unit,
-  baseStats: { ...unit.baseStats },
-  derivedStats: { ...unit.derivedStats },
-  skills: [...unit.skills],
-  passives: [...unit.passives],
-  elements: [...unit.elements],
-  tags: [...unit.tags],
-  meta: unit.meta ? { ...unit.meta } : undefined,
-});
 
 const getWaveId = (unit: BattleUnitInstance, fallback: string): string => {
   return getUnitMetaString(unit, 'waveId') ?? fallback;
@@ -84,6 +73,8 @@ const normalizeSessionWaves = (session: BattleSession): BattleSession => {
     enemies,
     waveOrder: safeWaveOrder,
     currentWaveIndex,
+    phase: session.phase ?? 'player_input',
+    events: Array.isArray(session.events) ? session.events : [],
   };
 };
 const buildEnemyUnit = (
@@ -327,7 +318,9 @@ export const startBattleSession = (
       enemies,
       waveOrder: validWaves.map((entry) => entry.waveId),
       currentWaveIndex: 0,
+      phase: 'player_input',
       status: 'fighting',
+      events: [],
       logs: [toBattleLog(`Entered ${i18n.t(`map.${chapter.id}`)} - ${node.name}.`)],
     };
     // 7. 返回结果对象：包含更新后的游戏状态、日志信息以及可能的错误信息
@@ -367,112 +360,22 @@ export const runBattlePlayerAttack = (
   }
 
   const session = normalizeSessionWaves(sessionRaw);
-  const currentWaveId = session.waveOrder[session.currentWaveIndex];
-  if (!currentWaveId) {
-    return resolveBattleResult(gameState, mapProgress, chapters, session, true);
-  }
+  const nextSession = BattleEngine.resolveTurn(session);
 
-  const nextSession: BattleSession = {
-    ...session,
-    turn: session.turn + 1,
-    logs: [...session.logs],
-    player: cloneBattleUnit(session.player),
-    enemies: session.enemies.map((enemy) => cloneBattleUnit(enemy)),
-  };
-
-  const waveEnemies = nextSession.enemies.filter(
-    (enemy, index) => getWaveId(enemy, `wave-${index + 1}`) === currentWaveId && enemy.currentHp > 0,
-  );
-
-  if (waveEnemies.length === 0) {
-    nextSession.currentWaveIndex += 1;
-    return {
-      nextGameState: {
+  if (nextSession.status === 'victory') {
+    return resolveBattleResult(
+      {
         ...gameState,
         battle: { ...gameState.battle, activeSession: nextSession },
       },
-      nextMapProgress: mapProgress,
-      logs: nextSession.logs,
-    };
-  }
-
-  const attacker = nextSession.player;
-  const target = waveEnemies[0];
-
-  // ====== 玩家攻击阶段 ======
-  const didCrit = Math.random() < (attacker.derivedStats.critRate ?? 0);
-  const critMultiplier = computeCritMultiplier(
-    didCrit,
-    0.6, // 可替换为 player.critDamage
-  );
-
-  const effectiveDefense = computeEffectiveDefense(
-    target.baseStats.defense,
-    attacker.derivedStats.elementalBonus ?? 0,
-  );
-
-  const damage = computeDamage(
-    attacker.baseStats.attack,
-    effectiveDefense,
-    critMultiplier,
-  );
-
-  target.currentHp = Math.max(0, target.currentHp - damage);
-
-  // 吸血
-  const effectiveLifesteal = computeEffectiveLifesteal(
-    attacker.derivedStats.lifestealRate ?? 0,
-  );
-
-  if (effectiveLifesteal > 0) {
-    const heal = Math.floor(damage * effectiveLifesteal);
-    attacker.currentHp = Math.min(
-      attacker.baseStats.hp,
-      attacker.currentHp + heal,
+      mapProgress,
+      chapters,
+      nextSession,
+      true,
     );
   }
 
-  nextSession.logs.push(
-    `[Battle] Turn ${nextSession.turn}: dealt ${damage}${
-      didCrit ? ' (CRIT)' : ''
-    } to ${target.name}.`,
-  );
-
-  if (target.currentHp <= 0) {
-    nextSession.logs.push(`[Battle] ${target.name} defeated.`);
-  }
-
-  // ====== 怪物反击阶段 ======
-  const aliveEnemies = nextSession.enemies.filter(
-    (enemy, index) => getWaveId(enemy, `wave-${index + 1}`) === currentWaveId && enemy.currentHp > 0,
-  );
-
-  for (const enemyAttacker of aliveEnemies) {
-    const incomingRawDamage = computeDamage(
-      enemyAttacker.baseStats.attack,
-      attacker.baseStats.defense,
-      1,
-    );
-    const playerDamageReduction = clamp(attacker.derivedStats.damageReduction ?? 0, 0, 0.9);
-    const incomingDamage = Math.max(1, Math.floor(incomingRawDamage * (1 - playerDamageReduction)));
-
-    attacker.currentHp = Math.max(
-      0,
-      attacker.currentHp - incomingDamage,
-    );
-
-    // 反伤
-    if ((attacker.derivedStats.thornsRate ?? 0) > 0) {
-      const reflect = Math.floor(
-        incomingDamage *
-          clamp(attacker.derivedStats.thornsRate ?? 0, 0, 0.4),
-      );
-      enemyAttacker.currentHp = Math.max(0, enemyAttacker.currentHp - reflect);
-    }
-  }
-
-  if (attacker.currentHp <= 0) {
-    nextSession.status = 'defeat';
+  if (nextSession.status === 'defeat') {
     return resolveBattleResult(
       {
         ...gameState,
@@ -514,7 +417,8 @@ export const runBattleRetreat = (
 
   const nextSession: BattleSession = {
     ...session,
-    status: 'retreated',
+    status: 'defeat',
+    phase: 'finished',
     logs: [...session.logs, toBattleLog('You retreated from battle.')],
   };
 
