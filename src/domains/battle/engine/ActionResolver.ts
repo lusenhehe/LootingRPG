@@ -2,6 +2,9 @@ import type { BattleAction, BattleSession } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import { resolveDamage } from './DamagePipeline';
 import type { BattleEventBus } from './EventBus';
+const isApplyDamageEvent = (
+  event: BattleSession['events'][number],
+): event is Extract<BattleSession['events'][number], { type: 'apply_damage' }> => event.type === 'apply_damage';
 
 const getUnitById = (session: BattleSession, unitId: string): BattleUnitInstance | undefined => {
   if (session.player.id === unitId) {
@@ -30,7 +33,7 @@ export const resolveAction = (
       continue;
     }
 
-    const beforeHp = target.currentHp;
+    const eventCountBefore = eventBus.getEvents().length;
     resolveDamage(
       {
         source,
@@ -42,15 +45,12 @@ export const resolveAction = (
       eventBus,
     );
 
-    const dealt = Math.max(0, beforeHp - target.currentHp);
+    const latestEvents = eventBus.getEvents().slice(eventCountBefore);
+    const dealt = latestEvents
+      .filter(isApplyDamageEvent)
+      .filter((event) => event.sourceId === source.id && event.targetId === target.id)
+      .reduce((total, event) => total + event.amount, 0);
     session.logs.push(`[Battle] Turn ${session.turn}: ${source.name} dealt ${dealt} to ${target.name}.`);
-    if (target.currentHp <= 0) {
-      session.logs.push(`[Battle] ${target.name} defeated.`);
-    }
-    if (source.currentHp <= 0) {
-      session.logs.push(`[Battle] ${source.name} was defeated by reflection.`);
-      break;
-    }
   }
 
   return session;

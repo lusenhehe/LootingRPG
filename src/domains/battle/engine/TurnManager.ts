@@ -2,6 +2,7 @@ import type { BattleAction, BattleSession } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import { resolveAction } from './ActionResolver';
+import { resolveEffects } from './EffectResolver';
 
 const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   ...unit,
@@ -70,7 +71,6 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
   if (session.status !== 'fighting') {
     return session;
   }
-
   const nextSession = cloneSession(session);
   nextSession.turn += 1;
   nextSession.phase = 'resolving';
@@ -93,10 +93,12 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
   };
 
   resolveAction(nextSession, playerAction, eventBus);
+  const playerActionEvents = eventBus.drainEvents();
+  resolveEffects(nextSession, playerActionEvents);
   updateBattleOutcome(nextSession);
   if (nextSession.status !== 'fighting') {
     eventBus.emit({ type: 'turn_end' });
-    nextSession.events = eventBus.drainEvents();
+    nextSession.events.push(...eventBus.drainEvents());
     return nextSession;
   }
 
@@ -111,10 +113,6 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
 
   nextSession.phase = 'enemy_turn';
   for (const enemy of aliveEnemies) {
-    if (nextSession.player.currentHp <= 0) {
-      break;
-    }
-
     const enemyAction: BattleAction = {
       id: `action_${nextSession.turn}_${enemy.id}`,
       type: 'basic_attack',
@@ -125,6 +123,9 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
     resolveAction(nextSession, enemyAction, eventBus);
   }
 
+  const enemyActionEvents = eventBus.drainEvents();
+  resolveEffects(nextSession, enemyActionEvents);
+
   advanceWaveIfNeeded(nextSession);
   updateBattleOutcome(nextSession);
   if (nextSession.status === 'fighting') {
@@ -132,6 +133,6 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
   }
 
   eventBus.emit({ type: 'turn_end' });
-  nextSession.events = eventBus.drainEvents();
+  nextSession.events.push(...eventBus.drainEvents());
   return nextSession;
 };

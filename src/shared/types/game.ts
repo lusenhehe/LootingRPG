@@ -17,13 +17,30 @@ export interface BattleAction {
   payload?: Record<string, unknown>;
 }
 
-export interface BattleEvent {
-  type: 'damage' | 'unit_died' | 'turn_end';
-  sourceId?: string;
-  targetId?: string;
-  amount?: number;
-  unitId?: string;
-}
+export type ApplyDamageEvent = {
+  type: 'apply_damage';
+  sourceId: string;
+  targetId: string;
+  amount: number;
+};
+
+export type ApplyHealEvent = {
+  type: 'apply_heal';
+  sourceId: string;
+  targetId: string;
+  amount: number;
+};
+
+export type UnitDiedEvent = {
+  type: 'unit_died';
+  unitId: string;
+};
+
+export type TurnEndEvent = {
+  type: 'turn_end';
+};
+
+export type BattleEvent = ApplyDamageEvent | ApplyHealEvent | UnitDiedEvent | TurnEndEvent;
 
 export interface PlayerStats extends EntityStats     {
   level: number;

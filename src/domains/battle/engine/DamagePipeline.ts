@@ -35,39 +35,37 @@ export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): voi
   }
 
   const appliedDamage = Math.max(1, Math.floor(ctx.baseDamage));
-  ctx.target.currentHp = Math.max(0, ctx.target.currentHp - appliedDamage);
 
   eventBus.emit({
-    type: 'damage',
+    type: 'apply_damage',
     sourceId: ctx.source.id,
     targetId: ctx.target.id,
     amount: appliedDamage,
   });
 
-  if (ctx.target.currentHp <= 0) {
-    eventBus.emit({ type: 'unit_died', unitId: ctx.target.id });
-  }
-
   const effectiveLifesteal = computeEffectiveLifesteal(ctx.source.derivedStats.lifestealRate ?? 0);
   if (effectiveLifesteal > 0) {
     const heal = Math.floor(appliedDamage * effectiveLifesteal);
-    ctx.source.currentHp = Math.min(ctx.source.baseStats.hp, ctx.source.currentHp + heal);
+    if (heal > 0) {
+      eventBus.emit({
+        type: 'apply_heal',
+        sourceId: ctx.source.id,
+        targetId: ctx.source.id,
+        amount: heal,
+      });
+    }
   }
 
   const thornsRate = clamp(ctx.target.derivedStats.thornsRate ?? 0, 0, 0.4);
   if (thornsRate > 0) {
     const reflectDamage = Math.floor(appliedDamage * thornsRate);
     if (reflectDamage > 0) {
-      ctx.source.currentHp = Math.max(0, ctx.source.currentHp - reflectDamage);
       eventBus.emit({
-        type: 'damage',
+        type: 'apply_damage',
         sourceId: ctx.target.id,
         targetId: ctx.source.id,
         amount: reflectDamage,
       });
-      if (ctx.source.currentHp <= 0) {
-        eventBus.emit({ type: 'unit_died', unitId: ctx.source.id });
-      }
     }
   }
 };
