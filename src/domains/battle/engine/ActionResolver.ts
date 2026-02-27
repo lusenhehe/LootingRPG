@@ -2,7 +2,6 @@ import type { BattleAction, BattleSession } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import { resolveDamage } from './DamagePipeline';
 import type { BattleEventBus } from './EventBus';
-import type { BattleListenerRegistry } from './ListenerRegistry';
 import { castSkill } from './skillsConfig';
 const isApplyDamageEvent = (
   event: BattleSession['events'][number],
@@ -19,7 +18,6 @@ export const resolveAction = (
   session: BattleSession,
   action: BattleAction,
   eventBus: BattleEventBus,
-  registry?: BattleListenerRegistry,
 ): BattleSession => {
   const source = getUnitById(session, action.sourceId);
   if (!source || source.currentHp <= 0) {
@@ -67,8 +65,8 @@ export const resolveAction = (
       const targets = action.targetIds
         .map((id) => getUnitById(session, id))
         .filter((unit): unit is BattleUnitInstance => Boolean(unit && unit.currentHp > 0));
-      // 释放技能：热注册到当前回合注册中心，确保 on_cast 能定位到 once 监听器
-      castSkill(skillId, source, targets, eventBus, registry);
+      // 释放技能：热注册到 session.listenerRegistry，确保 on_cast 能定位到 once 监听器
+      castSkill(skillId, source, targets, eventBus, session.listenerRegistry);
     }
   }
 

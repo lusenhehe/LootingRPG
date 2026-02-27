@@ -19,7 +19,6 @@ import type {
 } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
-import type { BattleListenerRegistry } from './ListenerRegistry';
 import { dispatchEvent, MAX_EVENT_DEPTH } from './EventDispatcher';
 import { applyStatusFromEvent, maybeEmitElementReaction } from './StatusSystem';
 
@@ -86,7 +85,6 @@ export function resolveEffects(
   session: BattleSession,
   events: BattleEvent[],
   eventBus?: BattleEventBus,
-  registry?: BattleListenerRegistry,
 ): BattleSession {
   const pendingEvents: BattleEvent[] = [...events];
   let depth = 0;
@@ -105,7 +103,7 @@ export function resolveEffects(
 
     // ── Phase 1: Broadcast to listeners ───────────────────────────────────
     if (eventBus) {
-      dispatchEvent(session, event, eventBus, [], registry);
+      dispatchEvent(session, event, eventBus);
       // Drain listener-generated events and insert at head of queue (priority)
       const listenerEvents = eventBus.drainEvents();
       pendingEvents.unshift(...listenerEvents);

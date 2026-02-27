@@ -26,6 +26,8 @@ const cloneSession = (session: BattleSession): BattleSession => ({
   enemies: session.enemies.map((enemy) => cloneBattleUnit(enemy)),
   logs: [...session.logs],
   events: [],
+  // listenerRegistry 由 resolveTurn 在克隆后立即重建，不继承旧引用
+  listenerRegistry: undefined,
 });
 
 const getWaveId = (unit: BattleUnitInstance, fallback: string): string => {
@@ -84,14 +86,14 @@ export const resolveTurn = (
   nextSession.turn += 1;
   nextSession.phase = 'resolving';
 
-  // ── 构建本回合注册中心（从克隆后单位的监听器快照） ──────────────────────
-  const registry = BattleListenerRegistry.fromSession(nextSession);
+  // ── 构建本回合注册中心，挂载到 session 上以确保任何调用路径都可访问 ──────────
+  nextSession.listenerRegistry = BattleListenerRegistry.fromSession(nextSession);
 
   // `on_turn_start` 事件在每个回合开始时触发，允许 DOT/HOT 和被动效果自动处理持续影响。
   eventBus.emit({ type: 'on_turn_start', turn: nextSession.turn });
   const turnStartEvents = eventBus.drainEvents();
   if (turnStartEvents.length > 0) {
-    resolveEffects(nextSession, turnStartEvents, eventBus, registry);
+    resolveEffects(nextSession, turnStartEvents, eventBus);
   }
 
   advanceWaveIfNeeded(nextSession);
@@ -111,9 +113,9 @@ export const resolveTurn = (
     targetIds: [aliveEnemies[0].id],
   };
 
-  resolveAction(nextSession, playerAction, eventBus, registry);
+  resolveAction(nextSession, playerAction, eventBus);
   const playerActionEvents = eventBus.drainEvents();
-  resolveEffects(nextSession, playerActionEvents, eventBus, registry);
+  resolveEffects(nextSession, playerActionEvents, eventBus);
   updateBattleOutcome(nextSession);
   if (nextSession.status !== 'fighting') {
     eventBus.emit({ type: 'turn_end' });
@@ -139,11 +141,11 @@ export const resolveTurn = (
       targetIds: [nextSession.player.id],
     };
 
-    resolveAction(nextSession, enemyAction, eventBus, registry);
+    resolveAction(nextSession, enemyAction, eventBus);
   }
 
   const enemyActionEvents = eventBus.drainEvents();
-  resolveEffects(nextSession, enemyActionEvents, eventBus, registry);
+  resolveEffects(nextSession, enemyActionEvents, eventBus);
 
   advanceWaveIfNeeded(nextSession);
   updateBattleOutcome(nextSession);

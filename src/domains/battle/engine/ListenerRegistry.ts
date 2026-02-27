@@ -17,7 +17,7 @@
  *   ☐ 宠物 / 天赋
  */
 import type { BattleSession } from '../../../shared/types/game';
-import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
+import type { BattleListenerDef, BattleUnitInstance, IListenerRegistry } from '../../../types/battle/BattleUnit';
 import type { BattleListener, ListenerContext } from './listenerTypes';
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -29,7 +29,7 @@ function findUnit(session: BattleSession, unitId: string): BattleUnitInstance | 
 
 // ─── Registry Class ───────────────────────────────────────────────────────────
 
-export class BattleListenerRegistry {
+export class BattleListenerRegistry implements IListenerRegistry {
   /** trigger → 对应监听器列表（O(1) 查找） */
   private readonly byTrigger: Map<string, BattleListener[]> = new Map();
   /** listenerId → 监听器（O(1) unregister） */
@@ -39,13 +39,15 @@ export class BattleListenerRegistry {
 
   /**
    * 注册一个监听器。重复注册（相同 id）会被忽略（幂等）。
+   * 接受 BattleListenerDef（公共类型）内底按 BattleListener 处理。
    */
-  register(listener: BattleListener): void {
-    if (this.byId.has(listener.id)) return;
-    this.byId.set(listener.id, listener);
-    const bucket = this.byTrigger.get(listener.trigger) ?? [];
-    bucket.push(listener);
-    this.byTrigger.set(listener.trigger, bucket);
+  register(listener: BattleListenerDef): void {
+    const l = listener as unknown as BattleListener;
+    if (this.byId.has(l.id)) return;
+    this.byId.set(l.id, l);
+    const bucket = this.byTrigger.get(l.trigger) ?? [];
+    bucket.push(l);
+    this.byTrigger.set(l.trigger, bucket);
   }
 
   /**
@@ -74,23 +76,29 @@ export class BattleListenerRegistry {
   /**
    * 将 `ctx.event` 广播给所有匹配触发类型的监听器。
    *
+   * 接受 `unknown` 以满足 IListenerRegistry 接口；内部强转为 ListenerContext。
+   *
    * 行为：
-   *  1. 按 trigger 在 O(1) 取出所有匹配监听器的快照
-   *  2. 对每个监听器，从 session 中解析 ownerUnit，执行 execute()
-   *  3. `once` 监听器执行后从 registry 和 unit.listeners 双向移除
+   *  1. 按 trigger 在 O(1) 取出匹配监听器快照
+   *  2. 按 priority 降序排序（数字越大越先执行；相同则保持注册顺序）
+   *  3. 对每个监听器，从 session 中解析 ownerUnit，覆盖 source 后执行 execute()
+   *  4. `once` 监听器执行后从 registry 和 unit.listeners 双向移除
    */
-  dispatch(ctx: ListenerContext): void {
-    if (!ctx.event) return;
-    const trigger = ctx.event.type;
-    const matching = [...(this.byTrigger.get(trigger) ?? [])];
-    if (matching.length === 0) return;
+  dispatch(ctx: unknown): void {
+    const lctx = ctx as ListenerContext;
+    if (!lctx.event) return;
+    const trigger = lctx.event.type;
+    const raw = this.byTrigger.get(trigger);
+    if (!raw || raw.length === 0) return;
 
+    // 快照 + 按 priority 降序排序（高优先级先触发）
+    const matching = [...raw].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     const onceCandidates: BattleListener[] = [];
 
     for (const listener of matching) {
-      const ownerUnit = findUnit(ctx.session, listener.ownerId);
+      const ownerUnit = findUnit(lctx.session, listener.ownerId);
       if (!ownerUnit) continue;
-      listener.execute({ ...ctx, source: ownerUnit });
+      listener.execute({ ...lctx, source: ownerUnit });
       if (listener.once) {
         onceCandidates.push(listener);
       }
@@ -99,7 +107,7 @@ export class BattleListenerRegistry {
     // 双向同步移除 once 监听器
     for (const listener of onceCandidates) {
       this.unregister(listener.id);
-      const unit = findUnit(ctx.session, listener.ownerId);
+      const unit = findUnit(lctx.session, listener.ownerId);
       if (unit?.listeners) {
         unit.listeners = unit.listeners.filter((l) => l.id !== listener.id);
       }
@@ -117,7 +125,7 @@ export class BattleListenerRegistry {
     const allUnits: BattleUnitInstance[] = [session.player, ...session.enemies];
     for (const unit of allUnits) {
       for (const raw of unit.listeners ?? []) {
-        reg.register(raw as BattleListener);
+        reg.register(raw);
       }
     }
     return reg;

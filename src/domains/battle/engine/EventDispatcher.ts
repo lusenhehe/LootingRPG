@@ -12,7 +12,6 @@ import type { BattleEvent, BattleSession } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import type { BattleListener, ListenerContext } from './listenerTypes';
-import type { BattleListenerRegistry } from './ListenerRegistry';
 
 /** 最大事件深度，防止无限递归链反应。 */
 export const MAX_EVENT_DEPTH = 100;
@@ -31,23 +30,23 @@ export function dispatchEvent(
   event: BattleEvent,
   bus: BattleEventBus,
   contextTargets: BattleUnitInstance[] = [],
-  registry?: BattleListenerRegistry,
 ): void {
-  const ctx: ListenerContext = {
+  // source 由每个路径内部按 ownerId 覆盖；基础 ctx 不预设具体单位避免隐式污染
+  const baseCtx = {
     session,
     bus,
-    source: session.player, // registry.dispatch 会按 ownerId 覆盖 source
     targets: contextTargets,
     event,
-  };
+    source: undefined as unknown as BattleUnitInstance,
+  } satisfies ListenerContext;
 
-  // ── 路径 A：注册中心（O(1) 分桶查找） ─────────────────────────────────────
-  if (registry) {
-    registry.dispatch(ctx);
+  // 路径 A：注册中心（O(1) 分桶查找）
+  if (session.listenerRegistry) {
+    session.listenerRegistry.dispatch(baseCtx);
     return;
   }
 
-  // ── 路径 B：兜底——逐单位遍历（无 registry 时的向后兼容路径） ─────────────
+  // 路径 B：尼底——逐单位遍历（无注册中心时的向后兼容路径）
   const allUnits: BattleUnitInstance[] = [session.player, ...session.enemies];
 
   for (const unit of allUnits) {
@@ -59,7 +58,7 @@ export function dispatchEvent(
     if (matching.length === 0) continue;
 
     const toRemove: string[] = [];
-    const unitCtx: ListenerContext = { ...ctx, source: unit };
+    const unitCtx: ListenerContext = { ...baseCtx, source: unit };
 
     for (const listener of matching) {
       listener.execute(unitCtx);

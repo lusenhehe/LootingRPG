@@ -13,10 +13,9 @@ import type {
   CastEvent,
   StatusAppliedEvent,
 } from '../../../shared/types/game';
-import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
+import type { BattleUnitInstance, IListenerRegistry } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import type { BattleListener, ListenerContext } from './listenerTypes';
-import type { BattleListenerRegistry } from './ListenerRegistry';
 import { resolveDamage } from './DamagePipeline';
 import skillsJson from '@data/config/game/skills.json';
 
@@ -145,7 +144,7 @@ export function castSkill(
   source: BattleUnitInstance,
   targets: BattleUnitInstance[],
   bus: BattleEventBus,
-  registry?: BattleListenerRegistry,
+  registry?: IListenerRegistry,
 ): void {
   const raw = SKILL_DEFINITIONS[skillId];
   if (!raw) return;

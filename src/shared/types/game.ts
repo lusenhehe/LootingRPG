@@ -1,13 +1,9 @@
 import type { EntityStats } from '../../config/game/monsterSchema';
-import type { BattleUnitInstance } from '../../types/battle/BattleUnit';
+import type { BattleUnitInstance, IListenerRegistry } from '../../types/battle/BattleUnit';
 export type { Monster } from '../../config/game/monsterSchema';
 export type { MonsterTrait, MonsterBaseStats, MonsterScalingProfile, ThreatType, BossIdentity, BossCounterGoal, CounterStatKey, EntityStats, ScalingProfileStats } from '../../config/game/monsterSchema';
 
-export type BattlePhase =
-  | 'player_input'
-  | 'resolving'
-  | 'enemy_turn'
-  | 'finished';
+export type BattlePhase = 'player_input' | 'resolving' | 'enemy_turn' | 'finished';
 
 export interface BattleAction {
   id: string;
@@ -174,7 +170,8 @@ export interface BattleSession {
   currentWaveIndex: number;    // 当前波次索引，指示玩家正在面对哪个波次的敌人，战斗过程中会根据敌人被击败的情况进行更新
   status: BattleSessionStatus; // 战斗状态，指示当前战斗是进行中、胜利、失败还是撤退，战斗过程中会根据玩家和敌人的状态进行更新
   events: BattleEvent[];
-  logs: string[];              // 战斗日志，记录战斗过程中发生的事件和操作，便于回放和调试
+  logs: string[];              // 战斗日志，记录战斗过程中发生的事件和操作，便于回放和调试 
+  listenerRegistry?: IListenerRegistry;
 }
 
 export interface BattleResult {

@@ -37,5 +37,7 @@ export interface BattleListener {
   trigger: BattleEvent['type'];
   /** 如果为 true，监听器在首次执行后会被移除 */
   once?: boolean;
+  /** 执行优先级，数值越大越先触发。默认 0。同优先级按注册顺序。 */
+  priority?: number;
   execute(ctx: ListenerContext): void;
 }
