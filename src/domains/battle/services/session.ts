@@ -361,6 +361,7 @@ export const runBattlePlayerAttack = (
   gameState: GameState,
   mapProgress: MapProgressState,
   chapters: MapChapterDef[],
+  targetId?: string,
 ): BattleTransition => {
   const sessionRaw = gameState.battle.activeSession;
   if (!sessionRaw || sessionRaw.status !== 'fighting') {
@@ -373,7 +374,21 @@ export const runBattlePlayerAttack = (
   }
 
   const session = normalizeSessionWaves(sessionRaw);
-  const nextSession = BattleEngine.resolveTurn(session);
+
+  // 解析目标：优先使用玩家选择的目标，否则默认攻击第一个存活敌人
+  const resolvedTarget = targetId
+    ? session.enemies.find((e) => e.id === targetId && e.currentHp > 0)
+    : session.enemies.find((e) => e.currentHp > 0);
+  const playerActionOverride = resolvedTarget
+    ? {
+        id: `action_${session.turn + 1}_player`,
+        type: 'basic_attack' as const,
+        sourceId: session.player.id,
+        targetIds: [resolvedTarget.id],
+      }
+    : undefined;
+
+  const nextSession = BattleEngine.resolveTurn(session, playerActionOverride);
 
   if (nextSession.status === 'victory') {
     return resolveBattleResult(
@@ -420,6 +435,7 @@ export const runBattlePlayerSkill = (
   mapProgress: MapProgressState,
   chapters: MapChapterDef[],
   skillId: string,
+  targetId?: string,
 ): BattleTransition => {
   const sessionRaw = gameState.battle.activeSession;
   if (!sessionRaw || sessionRaw.status !== 'fighting') {
@@ -432,12 +448,15 @@ export const runBattlePlayerSkill = (
   }
 
   const session = normalizeSessionWaves(sessionRaw);
-  const firstAliveEnemy = session.enemies.find((e) => e.currentHp > 0);
+  // 解析目标：优先使用玩家选择的目标，否则默认第一个存活敌人
+  const resolvedTarget = targetId
+    ? session.enemies.find((e) => e.id === targetId && e.currentHp > 0)
+    : session.enemies.find((e) => e.currentHp > 0);
   const playerAction = {
     id: `action_${session.turn + 1}_player`,
     type: 'skill' as const,
     sourceId: session.player.id,
-    targetIds: firstAliveEnemy ? [firstAliveEnemy.id] : [],
+    targetIds: resolvedTarget ? [resolvedTarget.id] : [],
     payload: { skillId },
   };
 

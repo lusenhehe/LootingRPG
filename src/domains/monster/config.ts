@@ -82,7 +82,7 @@ const toMonster = (monster: RawMonsterData | RawBossData): Monster => {
     maxHp:   previewStats.maxHp,
     attack:  previewStats.attack,
     defense: previewStats.defense,
-    name: t(`monster.${monster.id}`, { defaultValue: monster.id ?? 'unknown_monster' }),
+    name: t(`monster.${monster.id}.name`, { defaultValue: monster.id ?? 'unknown_monster' }),
     dropdict: Object.fromEntries( Object.entries(monster.dropdict ?? {})
       .map(([id, chance]) => [id, chance]))
   } as Monster;

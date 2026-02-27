@@ -1,4 +1,4 @@
-import { Coins, Download, LogOut, RefreshCw, Sword, Upload, Settings2, ChevronDown, Palette } from 'lucide-react';
+import { Coins, Heart, Shield, Download, LogOut, RefreshCw, Sword, Upload, Settings2, ChevronDown, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
@@ -14,11 +14,14 @@ interface AppHeaderProps {
   onExportSave: () => void;
   onImportSave: () => void;
 }
-
+const commonStyles = {
+  gradientBorder: "border border-stone-700/50",
+  statBadge: "flex items-center gap-1.5 px-2.5 py-1 text-xs border rounded-sm",
+  gradientBg: "bg-gradient-to-br",
+  divider: "w-px h-8 bg-gradient-to-b from-transparent via-stone-700/50 to-transparent"
+};
 function AppHeaderInner({
-  gold,
-  playerName,
-  playerStats,
+  gold, playerName, playerStats,
   onReset,
   onLogout,
   onExportSave,
@@ -28,85 +31,79 @@ function AppHeaderInner({
   const [showMenu, setShowMenu] = useState(false);
   const expNeeded = playerStats.level * 100;
   const expPercent = Math.min(100, (playerStats.xp / expNeeded) * 100);
-
   return (
-    <header className="flex items-center justify-between gap-4 h-16 px-5 border-b border-white/5 bg-gradient-to-b from-stone-900 via-stone-900/95 to-stone-950 backdrop-blur-md shadow-lg shadow-black/20">
-      <div className="flex items-center gap-5">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-600 via-amber-700 to-amber-900 rounded-xl flex items-center justify-center shadow-lg shadow-amber-900/40 border border-amber-500/30">
-              <Sword className="text-amber-100" size={22} strokeWidth={2.5} />
-            </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full border-2 border-stone-900" />
+    <header
+      className="flex items-center justify-between h-14 px-4 border-b border-stone-800/60 bg-gradient-to-b from-stone-950 via-stone-900/95 to-stone-950 shadow-lg shadow-black/50 relative overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-amber-950/5 via-transparent to-red-950/5 pointer-events-none" />
+      
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/30 to-transparent" />
+
+      <div className="flex items-center gap-3 z-10">
+        <div className="relative group">
+          <div className={`w-9 h-9 ${commonStyles.gradientBg} from-amber-600 via-amber-700 to-amber-900 rounded flex items-center justify-center shadow-lg shadow-amber-900/40 border border-amber-500/30`}>
+            <Sword className="text-amber-100" size={20} strokeWidth={2.5} />
           </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-display font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm">
-              LOOT GRINDER
-            </span>
-            <span className="text-[9px] font-medium tracking-[0.2em] text-stone-500 uppercase">Rare Earth Explorer</span>
-          </div>
+          <div className="absolute -inset-1 bg-amber-500/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
+        <span className="text-sm font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm tracking-wide">
+          LOOT GRINDER
+        </span>
+      </div>
 
-        <div className="w-px h-8 bg-gradient-to-b from-transparent via-stone-700/50 to-transparent" />
-
+      <div className="flex items-center gap-6 z-10">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5 px-3.5 py-2 bg-stone-800/40 rounded-xl border border-white/5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-red-800/30 to-red-900/30 flex items-center justify-center border border-red-700/20">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-sm bg-gradient-to-br from-indigo-900/40 to-purple-900/40 flex items-center justify-center border border-indigo-700/30">
               <span className="text-xs font-bold text-indigo-300">{playerName.charAt(0).toUpperCase()}</span>
             </div>
-            <span className="text-sm font-medium text-stone-200">{playerName}</span>
-            <span className="px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-amber-600 to-amber-700 text-amber-100 rounded-md shadow-inner">Lv.{playerStats.level}</span>
+            <span className="text-sm font-medium text-stone-300">{playerName}</span>
+            <span className="px-1.5 py-0.5 text-xs font-mono text-amber-400 border border-amber-700/30 rounded-sm">Lv.{playerStats.level}</span>
           </div>
-
-          <div className="flex items-center gap-2 w-28">
-            <div className="flex-1 h-2 rounded-full bg-stone-800 border border-stone-700/50 overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 relative"
-                initial={{ width: 0 }}
-                animate={{ width: `${expPercent}%` }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-full" />
-              </motion.div>
-            </div>
-            <span className="text-[10px] text-stone-500 font-mono w-12 text-right">{playerStats.xp}/{expNeeded}</span>
+          <div className="w-32 h-2 rounded-sm bg-stone-800 border border-stone-700/50 overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 relative"
+              initial={{ width: 0 }}
+              animate={{ width: `${expPercent}%` }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-sm" />
+            </motion.div>
           </div>
-
-          <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-rose-500/10 rounded-md border border-rose-500/20">
-              <Sword size={12} className="text-rose-400" />
-              <span className="text-rose-300 font-semibold">{playerStats.attack}</span>
-              <span className="text-stone-600 font-normal">ATK</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded-md border border-emerald-500/20">
-              <div className="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-400/50" />
-              <span className="text-emerald-300 font-semibold">{playerStats.hp}</span>
-              <span className="text-stone-600 font-normal">HP</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-sky-500/10 rounded-md border border-sky-500/20">
-              <div className="w-3 h-1.5 rounded-sm bg-sky-400/50" />
-              <span className="text-sky-300 font-semibold">{playerStats.defense}</span>
-              <span className="text-stone-600 font-normal">DEF</span>
-            </div>
+        </div>
+        
+        <div className={commonStyles.divider} />
+        
+        <div className="grid grid-cols-2 gap-2">
+          <div className={`${commonStyles.statBadge} bg-rose-500/10 border-rose-500/20`}> 
+            <Sword size={11} className="text-rose-400" />
+            <span className="text-rose-300 font-mono font-semibold">{playerStats.attack}</span>
+          </div>
+          <div className={`${commonStyles.statBadge} bg-emerald-500/10 border-emerald-500/20`}> 
+            <Heart size={11} className="text-emerald-400" />
+            <span className="text-emerald-300 font-mono font-semibold">{playerStats.hp}</span>
+          </div>
+          <div className={`${commonStyles.statBadge} bg-sky-500/10 border-sky-500/20`}> 
+            <Shield size={11} className="text-sky-400" />
+            <span className="text-sky-300 font-mono font-semibold">{playerStats.defense}</span>
+          </div>
+          <div className={`${commonStyles.statBadge} bg-amber-900/20 border-amber-700/30`}> 
+            <Coins size={11} className="text-amber-400" />
+            <span className="text-amber-300 font-mono font-semibold">{gold.toLocaleString()}</span>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/30 to-amber-800/20 rounded-xl border border-amber-700/30 shadow-lg shadow-amber-900/10">
-          <Coins className="text-amber-400" size={16} strokeWidth={2} />
-          <span className="font-mono font-bold text-amber-400 text-sm tracking-wide">{gold.toLocaleString()}</span>
-        </div>
-
+      <div className="flex items-center gap-2 z-10">
         <div className="relative">
           <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: 'rgba(51, 65, 85, 0.5)' }}
+            whileHover={{ scale: 1.05, backgroundColor: 'rgba(63, 63, 70, 0.5)' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowMenu(!showMenu)}
-            className="flex items-center gap-1 p-2.5 text-stone-400 hover:text-stone-200 rounded-lg transition-all cursor-pointer app-header-settings-anchor"
+            className="flex items-center gap-1 p-2 text-stone-400 hover:text-stone-200 rounded-sm transition-all cursor-pointer app-header-settings-anchor border border-transparent hover:border-stone-700"
           >
-            <Settings2 size={18} strokeWidth={2} />
-            <ChevronDown size={12} className={`transition-transform ${showMenu ? 'rotate-180' : ''}`} />
+            <Settings2 size={16} strokeWidth={2} />
+            <ChevronDown size={11} className={`transition-transform ${showMenu ? 'rotate-180' : ''}`} />
           </motion.button>
           <MenuPortal
             show={showMenu}
@@ -186,27 +183,32 @@ function MenuPortal({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 8, scale: 0.96 }}
           transition={{ duration: 0.15 }}
-          style={pos ? { position: 'fixed', top: pos.top, right: pos.right } : { position: 'fixed', top: 64, right: 20 }}
-          className="z-[9999] bg-stone-900/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl shadow-black/40 py-1.5 min-w-[160px]"
+          style={pos ? { position: 'fixed', top: pos.top, right: pos.right } : { position: 'fixed', top: 56, right: 16 }}
+          className="z-[9999] bg-stone-900/98 backdrop-blur-xl rounded-sm border border-stone-700/50 shadow-2xl shadow-black/60 py-1 min-w-[160px] relative"
         >
+          <div className="absolute top-0 left-0 w-3 h-3 border-l border-t border-amber-600/50 -translate-x-px -translate-y-px" />
+          <div className="absolute top-0 right-0 w-3 h-3 border-r border-t border-amber-600/50 translate-x-px -translate-y-px" />
+          <div className="absolute bottom-0 left-0 w-3 h-3 border-l border-b border-amber-600/50 -translate-x-px translate-y-px" />
+          <div className="absolute bottom-0 right-0 w-3 h-3 border-r border-b border-amber-600/50 translate-x-px translate-y-px" />
+          
           <button
             onClick={onExportSave}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all cursor-pointer border-l-2 border-transparent hover:border-emerald-500/50"
           >
-            <Download size={15} />
+            <Download size={14} />
             导出存档
           </button>
           <button
             onClick={onImportSave}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all cursor-pointer border-l-2 border-transparent hover:border-emerald-500/50"
           >
-            <Upload size={15} />
+            <Upload size={14} />
             导入存档
           </button>
-          <div className="my-1.5 border-t border-white/5" />
+          <div className="my-1.5 border-t border-stone-800" />
           <div className="px-4 py-2">
-            <div className="flex items-center gap-2 text-xs text-stone-500 mb-2">
-              <Palette size={12} />
+            <div className="flex items-center gap-2 text-xs text-stone-500 mb-2 font-medium">
+              <Palette size={11} />
               <span>主题</span>
             </div>
             <div className="flex gap-1.5">
@@ -214,9 +216,9 @@ function MenuPortal({
                 <button
                   key={t.id}
                   onClick={() => onThemeChange(t.id)}
-                  className={`flex-1 px-2 py-1.5 text-xs rounded-md border transition-all cursor-pointer ${
+                  className={`flex-1 px-2 py-1.5 text-xs rounded-sm border transition-all cursor-pointer ${
                     theme.id === t.id
-                      ? 'bg-stone-700/80 border-stone-500 text-stone-100'
+                      ? 'bg-amber-900/30 border-amber-600/50 text-amber-300'
                       : 'bg-stone-800/50 border-stone-700/50 text-stone-400 hover:border-stone-600 hover:text-stone-300'
                   }`}
                   style={{
@@ -228,17 +230,17 @@ function MenuPortal({
               ))}
             </div>
           </div>
-          <div className="my-1.5 border-t border-white/5" />
+          <div className="my-1.5 border-t border-stone-800" />
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-blue-400 hover:bg-blue-500/10 transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-blue-400 hover:bg-blue-500/10 transition-all cursor-pointer border-l-2 border-transparent hover:border-blue-500/50"
           >
-            <LogOut size={15} />
+            <LogOut size={14} />
             切换玩家
           </button>
           <button
             onClick={onReset}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-stone-300 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer border-l-2 border-transparent hover:border-rose-500/50"
           >
             <RefreshCw size={15} />
             重置存档

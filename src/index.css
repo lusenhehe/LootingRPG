@@ -22,11 +22,11 @@
 
 @layer base {
   body {
-    @apply bg-game-bg text-stone-200 font-sans antialiased;
+    @apply bg-stone-950 text-stone-200 font-sans antialiased;
     background-image: 
-      radial-gradient(ellipse at 50% 0%, rgba(180, 83, 9, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 100%, rgba(34, 197, 94, 0.05) 0%, transparent 40%),
-      linear-gradient(180deg, #0A0908 0%, #1C1917 100%);
+      radial-gradient(ellipse at 20% 0%, rgba(180, 83, 9, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(34, 197, 94, 0.04) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 50%, rgba(10, 9, 8, 1) 0%, rgba(6, 5, 4, 1) 100%);
     background-attachment: fixed;
   }
 }
@@ -467,4 +467,358 @@
 
 .bg-gradient-radial {
   background-image: radial-gradient(circle, var(--tw-gradient-from), var(--tw-gradient-via, transparent), var(--tw-gradient-to));
+}
+
+/* ==================== FANTASY GAME UI STYLES ==================== */
+
+/* Fantasy Card with Corner Decorations */
+.fantasy-card {
+  background: linear-gradient(145deg, #1C1917 0%, #0A0908 100%);
+  border: 1px solid #292524;
+  border-radius: 4px;
+  position: relative;
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 4px 12px rgba(0,0,0,0.5);
+}
+
+.fantasy-card::before,
+.fantasy-card::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #B45309;
+  opacity: 0.6;
+}
+
+.fantasy-card::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+}
+
+.fantasy-card::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 4px;
+}
+
+/* Fantasy Button */
+.fantasy-button {
+  background: linear-gradient(180deg, #292524 0%, #1C1917 100%);
+  border: 1px solid #44403C;
+  border-radius: 2px;
+  color: #FAFAF9;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.fantasy-button:hover {
+  border-color: #B45309;
+  box-shadow: 0 0 12px rgba(180, 83, 9, 0.3), inset 0 0 8px rgba(180, 83, 9, 0.1);
+}
+
+.fantasy-button:active {
+  transform: scale(0.98);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.fantasy-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+}
+
+/* Fantasy Button - Primary (Blood Red) */
+.fantasy-button-primary {
+  background: linear-gradient(180deg, #991B1B 0%, #7F1D1D 100%);
+  border: 1px solid #B91C1C;
+  color: #FECACA;
+}
+
+.fantasy-button-primary:hover {
+  border-color: #EF4444;
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.5), inset 0 0 8px rgba(255,255,255,0.1);
+}
+
+/* Fantasy Button - Gold Accent */
+.fantasy-button-gold {
+  background: linear-gradient(180deg, #B45309 0%, #92400E 100%);
+  border: 1px solid #D97706;
+  color: #FEF3C7;
+}
+
+.fantasy-button-gold:hover {
+  border-color: #F59E0B;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.5), inset 0 0 8px rgba(255,255,255,0.1);
+}
+
+/* Panel with Ornate Border */
+.fantasy-panel {
+  background: linear-gradient(180deg, rgba(28, 25, 23, 0.95) 0%, rgba(10, 9, 8, 0.98) 100%);
+  border: 1px solid #44403C;
+  position: relative;
+}
+
+.fantasy-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(145deg, rgba(180, 83, 9, 0.3), transparent 50%, rgba(180, 83, 9, 0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Corner Ornaments */
+.corner-ornament {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.corner-ornament-tl {
+  top: -2px;
+  left: -2px;
+  border-top: 2px solid #B45309;
+  border-left: 2px solid #B45309;
+}
+
+.corner-ornament-tr {
+  top: -2px;
+  right: -2px;
+  border-top: 2px solid #B45309;
+  border-right: 2px solid #B45309;
+}
+
+.corner-ornament-bl {
+  bottom: -2px;
+  left: -2px;
+  border-bottom: 2px solid #B45309;
+  border-left: 2px solid #B45309;
+}
+
+.corner-ornament-br {
+  bottom: -2px;
+  right: -2px;
+  border-bottom: 2px solid #B45309;
+  border-right: 2px solid #B45309;
+}
+
+/* Text Glow Effects */
+.text-glow-gold {
+  text-shadow: 0 0 10px rgba(180, 83, 9, 0.5), 0 0 20px rgba(180, 83, 9, 0.3);
+}
+
+.text-glow-blood {
+  text-shadow: 0 0 10px rgba(153, 27, 27, 0.5), 0 0 20px rgba(153, 27, 27, 0.3);
+}
+
+.text-glow-ember {
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+/* Noise Texture Overlay */
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Vignette Effect */
+.vignette-overlay {
+  position: relative;
+}
+
+.vignette-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Ember Particles Animation */
+@keyframes ember-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-60px) scale(0);
+    opacity: 0;
+  }
+}
+
+.ember-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #FCD34D 0%, #F59E0B 50%, transparent 100%);
+  border-radius: 50%;
+  animation: ember-rise 3s ease-out infinite;
+}
+
+/* Stone Texture Background */
+.stone-texture {
+  background-color: #1C1917;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* HUD Frame Border */
+.hud-frame {
+  position: relative;
+}
+
+.hud-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid transparent;
+  border-image: linear-gradient(145deg, #B45309, #44403C, #B45309) 1;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Tab Active Indicator */
+.tab-active-bar {
+  position: relative;
+}
+
+.tab-active-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #B45309, #F59E0B, #B45309, transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* Blood Drip Effect for Mythic */
+@keyframes blood-drip-full {
+  0% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+}
+
+.blood-drip-effect {
+  animation: blood-drip-full 2.5s ease-in-out infinite;
+}
+
+/* Inventory Slot Style */
+.inventory-slot {
+  background: linear-gradient(145deg, #1C1917, #0A0908);
+  border: 1px solid #292524;
+  border-radius: 2px;
+  position: relative;
+}
+
+.inventory-slot:hover {
+  border-color: #44403C;
+  box-shadow: inset 0 0 8px rgba(180, 83, 9, 0.1);
+}
+
+.inventory-slot::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* Health/Mana Bar Fantasy Style */
+.fantasy-bar {
+  background: #0A0908;
+  border: 1px solid #292524;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.fantasy-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.fantasy-bar-fill {
+  height: 100%;
+  position: relative;
+}
+
+.fantasy-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2), transparent);
+  pointer-events: none;
+}
+
+/* Scrollbar Fantasy Style */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(10, 9, 8, 0.8);
+  border: 1px solid #292524;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #44403C, #292524);
+  border: 1px solid #B45309;
+  border-radius: 2px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #57534E, #44403C);
 }

@@ -5,9 +5,9 @@ export interface BattleContextValue {
     node: import('../../config/map/ChapterData').MapNodeDef,
     chapter: import('../../config/map/ChapterData').MapChapterDef,
   ) => void;
-  handleBattleAttack: () => void;
+  handleBattleAttack: (targetId?: string) => void;
   handleBattleRetreat: () => void;
-  handleBattleUseSkill: (skillId: string) => void;
+  handleBattleUseSkill: (skillId: string, targetId?: string) => void;
 }
 
 export const BattleContext = createContext<BattleContextValue | undefined>(undefined);

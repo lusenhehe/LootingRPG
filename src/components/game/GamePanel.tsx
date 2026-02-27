@@ -57,17 +57,26 @@ function GamePanelInner({
     .filter((item) => !item.equipped)
     .map((item) => ({ ...item, equipped: false }));
   return (
-    <div className="lg:col-span-8 flex flex-col gap-6 h-full">
-      <div className="bg-gradient-to-br from-game-card/90 to-game-card/70 border border-game-border/50 rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-red-900/10 h-[68vh] max-h-[820px] min-h-[420px] relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-red-900/10 via-transparent to-rose-500/3 pointer-events-none" />
-        
-        <div className="flex border-b border-game-border relative z-10">
-          <TabButton active={activeTab === 'map'} onClick={() => onSetTab('map')} label={t('map.explore')} />
-          <TabButton active={activeTab === 'inventory'} onClick={() => onSetTab('inventory')} label={t('tabs.inventory')} />
-          <TabButton active={activeTab === 'forge'} onClick={() => onSetTab('forge')} label={t('tabs.forge')} />
-          <TabButton active={activeTab === 'codex'} onClick={() => onSetTab('codex')} label={t('tabs.codex')} />
-        </div>
+    <div className="fantasy-panel rounded-lg overflow-hidden h-[90vh] shadow-2xl shadow-black/60 relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-red-950/20 via-transparent to-amber-950/10 pointer-events-none" />
+      
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
 
+      <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-amber-700/40 rounded-tl-lg" />
+      <div className="absolute top-0 right-0 w-16 h-16 border-r-2 border-t-2 border-amber-700/40 rounded-tr-lg" />
+      <div className="absolute bottom-0 left-0 w-16 h-16 border-l-2 border-b-2 border-amber-700/40 rounded-bl-lg" />
+      <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-amber-700/40 rounded-br-lg" />
+      
+      <div className="flex border-b border-stone-800 relative z-10">
+        <TabButton active={activeTab === 'map'} onClick={() => onSetTab('map')} label={t('map.explore')} />
+        <TabButton active={activeTab === 'inventory'} onClick={() => onSetTab('inventory')} label={t('tabs.inventory')} />
+        <TabButton active={activeTab === 'forge'} onClick={() => onSetTab('forge')} label={t('tabs.forge')} />
+        <TabButton active={activeTab === 'codex'} onClick={() => onSetTab('codex')} label={t('tabs.codex')} />
+      </div>
         <div className="p-4 overflow-hidden relative z-10 h-full">
           <AnimatePresence mode="wait">
             {activeTab === 'inventory' && (
@@ -198,7 +207,6 @@ function GamePanelInner({
           </motion.div>
         </div>
       </div>
-    </div>
   );
 }
 

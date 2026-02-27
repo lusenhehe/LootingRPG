@@ -68,91 +68,106 @@
   "stat.defense": "Defense",
   "stat.crit": "Crit",
   "stat.critDamage": "Crit Damage",
-  "skeleton": "The Ashlands are full of buried bones; these skeletons were once militia who still wander with broken blades after the kingdom fell.",
-  "zombie": "When the bells tolled for the plague, the abbey refused to burn the dead — the rotten learned hate beneath hymns.",
-  "goblin": "Cave goblins are born in collapsed shafts; they steal more than coin — they steal a winter's fire taken by nobles.",
-  "wolf": "Packs of wolves prowl the woods, keen-scented and swift — a common threat in the novice woodland.",
-  "wraith": "Wraiths are soldiers with forgotten names; vows unfulfilled leave their souls nailed to old battlefields.",
-  "slime": "Slimes seem dull but have swallowed lost potions underground; their bodies churn with alchemical embers.",
-  "bandit": "Bandits aren't born evil; many were driven to the roads by taxmen and hunger, learning to strike first to survive.",
-  "cultist": "Cultists swear under the black moon, believing that offering goodness will buy them a dawn without hunger.",
-  "giant_rat": "Giant rats haunt old sewers beneath the city that once stored grain; now only damp and gnawing remain.",
-  "stone_golem": "Stone golems were forged by a dwarven king to guard gates; after the dynasty fell they still obey orders without friend or foe.",
-  "lava_hound": "Lava hounds are born from volcanic fissures; legend says they chase the lost heart of a smithing god.",
-  "poison_spider": "The venomous queen weaves webs in abandoned temples; every bone on the altar was once a pilgrim seeking redemption.",
-  "frost_mage": "Frost mages hail from the northern academy; on the night the gates fell she wrote her final lesson into an eternal winter spell.",
-  "harpy": "Harpy brood keep cliffside nests; beneath their wings is the lament of a stolen chick never soothed.",
-  "mimic": "Mimics imitate the most alluring treasures; they swallow more than fingers — they swallow the greedy's last prayers.",
-  "void_eye": "Void Eyes come from a star-fallen well; when they gaze, dreams fracture into black dust.",
-  "forest_satyr": "The forest satyr once guarded the woods; after imperial logging he now summons vengeful beasts with his horn.",
-  "shadow_assassin": "The shadow assassin was once the court's blade until he learned royal orders fall on innocent necks.",
-  "bone_shaman": "Bone shamans light lamps for nameless dead, trading names for spells; each casting looks less like the living.",
-  "iron_knight": "The iron-bound knight vowed lifetime service; when the king betrayed him, he gave his loyalty to the armor itself.",
-  "plague_doctor": "The plague doctor walked with an empty satchel for years; the more he couldn't save, the more he believed suffering was truth.",
-  "storm_elemental": "Storm elementals wrap old lighthouses; they remember sailors lighting a homecoming fire there.",
-  "blood_bat": "The blood-bat king perches on ruined bell towers; legend says it was once a bell boy cursed to reshape the night.",
-  "sand_wraith": "Sand wraiths guard buried city-states; sand covers crowns but not the weeping of the fallen.",
-  "abyss_guard": "Abyss guards were reshaped from the garrison; their souls sewn to well-edges with iron, never leaving post.",
-  "thorn_beast": "Thorn beasts stalk the wasteland with village banners on their spines, still looking for the home that couldn't hold.",
-  "arcane_construct": "Arcane constructs were made by the mage council; after the council's fall they obey only 'remove heresy'.",
-  "grave_keeper": "Grave keepers carved stones for the nameless for a century until war filled the cemetery with friends and he refused gentle words.",
-  "ashen_warlock": "Ashen warlocks burned invaders to save home but found in the cheers they could no longer return to people.",
-  "crystal_lurker": "Crystal lurkers sleep in crystal veins, replaying the dwarf-kingdom's final collapse in endless dreams.",
-  "moon_huntress": "The moon huntress chases sinners through silver woods; her arrows never miss, yet she cannot find her missing sister.",
-  "rot_brute": "Rot brutes were temple guards turned by black mire; they stand at gates like statues of regret.",
-  "abyss_demon": "Abyss Demon Azral once led a tribunal; fallen, he still obsesses over weighing each soul's sins.",
-  "ancient_dragon": "Ancient dragon Ignas guards a ruined capital; it remembers feasts shared with humans — now only ash contracts remain.",
-  "dark_knight": "Dark Knight Mordrek was an exiled guardian; his armor holds an unforgiven loyalty.",
-  "necromancer": "Necromancer Vira sought to raise plague children, but was lost among a thousand souls.",
-  "storm_titan": "Storm Titan Oros was forged by gods to judge mortals; now it remembers thunder but not mercy.",
-  "scarlet_queen": "Scarlet Queen Selina swallowed blood oaths on the night of the coup; she wrote throne and curse into her pulse.",
-  "void_reaper": "Void Reaper Naeil walks the star gaps, reaping not only life but forgotten hope.",
-  "clockwork_core": "The runaway core was once the city's power heart; when the coup cut power it treated the city as a fault to be cleared.",
   "stat.lifesteal": "Lifesteal",
   "stat.elemental": "Elemental",
 
   "stat.damage": "Damage Bonus",
 
-  "monster.skeleton": "Skeleton Warrior",
-  "monster.zombie": "Rotten Zombie",
-  "monster.goblin": "Goblin",
-  "monster.wolf": "Wolf",
-  "monster.wraith": "Wraith",
-  "monster.slime": "Slime",
-  "monster.bandit": "Bandit",
-  "monster.cultist": "Cultist",
-  "monster.giant_rat": "Giant Rat",
-  "monster.stone_golem": "Stone Golem",
-  "monster.lava_hound": "Lava Hound",
-  "monster.poison_spider": "Poison Spider",
-  "monster.frost_mage": "Frost Mage",
-  "monster.harpy": "Harpy",
-  "monster.mimic": "Mimic",
-  "monster.void_eye": "Void Eye",
-  "monster.forest_satyr": "Forest Satyr",
-  "monster.shadow_assassin": "Shadow Assassin",
-  "monster.bone_shaman": "Bone Shaman",
-  "monster.iron_knight": "Iron Knight",
-  "monster.plague_doctor": "Plague Doctor",
-  "monster.storm_elemental": "Storm Elemental",
-  "monster.blood_bat": "Blood Bat",
-  "monster.sand_wraith": "Sand Wraith",
-  "monster.abyss_guard": "Abyss Guard",
-  "monster.thorn_beast": "Thorn Beast",
-  "monster.arcane_construct": "Arcane Construct",
-  "monster.grave_keeper": "Grave Keeper",
-  "monster.ashen_warlock": "Ashen Warlock",
-  "monster.crystal_lurker": "Crystal Lurker",
-  "monster.moon_huntress": "Moon Huntress",
-  "monster.rot_brute": "Rot Brute",
-  "monster.abyss_demon": "Abyss Demon",
-  "monster.ancient_dragon": "Ancient Dragon",
-  "monster.dark_knight": "Dark Knight",
-  "monster.necromancer": "Necromancer",
-  "monster.storm_titan": "Storm Titan",
-  "monster.scarlet_queen": "Scarlet Queen",
-  "monster.void_reaper": "Void Reaper",
-  "monster.clockwork_core": "Clockwork Core",
+  "monster": {
+    "skeleton": {
+      "name": "Skeleton Warrior",
+      "background": "The Ashlands are full of buried bones; these skeletons were once militia who still wander with broken blades after the kingdom fell."
+    },
+    "zombie": {
+      "name": "Rotten Zombie",
+      "background": "When the bells tolled for the plague, the abbey refused to burn the dead — the rotten learned hate beneath hymns."
+    },
+    "goblin": {
+      "name": "Goblin",
+      "background": "Cave goblins are born in collapsed shafts; they steal more than coin — they steal a winter's fire taken by nobles."
+    },
+    "wolf": {
+      "name": "Wolf",
+      "background": "Packs of wolves prowl the woods, keen-scented and swift — a common threat in the novice woodland."
+    },
+    "storm_titan": {
+      "name": "Storm Titan",
+      "background": "Storm Titan Oros was forged by gods to judge mortals; now it remembers thunder but not mercy."
+    },
+    "scarlet_queen": {
+      "name": "Scarlet Queen",
+      "background": "Scarlet Queen Selina swallowed blood oaths on the night of the coup; she wrote throne and curse into her pulse."
+    },
+    "void_reaper": {
+      "name": "Void Reaper",
+      "background": "Void Reaper Naeil walks the star gaps, reaping not only life but forgotten hope."
+    },
+    "clockwork_core": {
+      "name": "Clockwork Core",
+      "background": "The runaway core was once the city's power heart; when the coup cut power it treated the city as a fault to be cleared."
+    },
+    "dark_spider": {
+      "background": "Dark spiders lurk in ruined halls, weaving webs laced with lingering curses.",
+      "name": "Dark Spider"
+    },
+    "fire_imp": {
+      "background": "Fire imps are mischievous embers made flesh; they skitter from forge to camp stealing warmth.",
+      "name": "Fire Imp"
+    },
+    "ice_wolf": {
+      "background": "Ice wolves hunt across frozen plains; their breath crystallizes armor and bones alike.",
+      "name": "Ice Wolf"
+    },
+    "thunder_eagle": {
+      "background": "Thunder eagles nest on storm-swept cliffs and strike like blades of lightning.",
+      "name": "Thunder Eagle"
+    },
+    "plague_mushroom": {
+      "background": "Plague mushrooms colonize damp ruins, exuding spores that rot both memory and marrow.",
+      "name": "Plague Mushroom"
+    },
+    "venom_hydra": {
+      "background": "Venom Hydras coil in poisoned springs, each head tasting centuries of decay.",
+      "name": "Venom Hydra"
+    }
+  },
+
+  "boss": {
+    "abyss_demon": {
+      "introLine": "Azral commences the tribunal against your greed.",
+      "battleLogLine": "The abyssal codex turns; black flame traces your shadow.",
+      "phase": {
+        "entering": "The tribunal bell echoes through the rift.",
+        "fighting": "Azral raises the black-flame seal.",
+        "dying": "The litany of judgment begins to crumble.",
+        "dropping": "The scales of judgment finally tip."
+      }
+      ,
+      "counter": {
+        "title": "Defensive Counter",
+        "success": "Frontline Hold",
+        "fail": "Demon Rage Overpower"
+      }
+    },
+    "venom_hydra": {
+      "introLine": "A hissing chorus answers the springs — the Venom Hydra awakens.",
+      "battleLogLine": "Toxic steam clouds the field as heads strike like knives.",
+      "phase": {
+        "entering": "A chorus of hisses fills the cavern.",
+        "fighting": "Heads lunge in poisonous synchronization.",
+        "dying": "The hydra's heads writhe as the venom ebbs.",
+        "dropping": "The poisoned well settles into silence."
+      }
+    }
+    ,
+    "ancient_dragon": {
+      "counter": {
+        "title": "High-Speed Decap",
+        "success": "Beat Dragon Breath",
+        "fail": "Dragon Breath Crushes"
+      }
+    }
+  },
 
   "label.boss": "BOSS",
   "label.monster": "Monster",
@@ -285,37 +300,8 @@
   "bossPhase.void_annihilation": "Void Annihilation",
   "bossPhase.core_reconstruct": "Core Reconstruct",
 
-  "counter.abyss_demon": "Defensive Counter",
-  "counterSuccess.abyss_demon": "Frontline Hold",
-  "counterFail.abyss_demon": "Demon Rage Overpower",
+  
 
-  "counter.ancient_dragon": "High-Speed Decap",
-  "counterSuccess.ancient_dragon": "Beat Dragon Breath",
-  "counterFail.ancient_dragon": "Dragon Breath Crushes",
-
-  "counter.dark_knight": "Armor Break",
-  "counterSuccess.dark_knight": "Shield Penetrated",
-  "counterFail.dark_knight": "Stalled by Shield",
-
-  "counter.necromancer": "Sustain Suppression",
-  "counterSuccess.necromancer": "Match Lifesteal",
-  "counterFail.necromancer": "Drained by Souls",
-
-  "counter.storm_titan": "Elemental Resistance",
-  "counterSuccess.storm_titan": "Kill Before Rampage",
-  "counterFail.storm_titan": "Titan Chains You",
-
-  "counter.scarlet_queen": "Blood Pool",
-  "counterSuccess.scarlet_queen": "Survive Queen Burst",
-  "counterFail.scarlet_queen": "Crushed by Blood",
-
-  "counter.void_reaper": "Thorns Duel",
-  "counterSuccess.void_reaper": "Reaper Turned",
-  "counterFail.void_reaper": "Hurt by Thorns",
-
-  "counter.clockwork_core": "Burst Break",
-  "counterSuccess.clockwork_core": "Stop Reconstruction",
-  "counterFail.clockwork_core": "Core Stacks Shields",
   "label.crit_prefix": "Crit ",
   "label.lifesteal_plus": "Lifesteal +{{value}}",
   "label.lethal": "Lethal Strike",

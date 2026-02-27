@@ -26,8 +26,8 @@ export function useBattleSession({
   setActiveTab,
   setFocusMapNode,
 }: UseBattleSessionParams) {
-  const handleBattleAttack = useCallback(() => {
-    const result = runBattlePlayerAttack(gameState, mapProgress, MAP_CHAPTERS);
+  const handleBattleAttack = useCallback((targetId?: string) => {
+    const result = runBattlePlayerAttack(gameState, mapProgress, MAP_CHAPTERS, targetId);
     setGameState(result.nextGameState);
     setMapProgress(result.nextMapProgress);
     if (result.focusNodeId) {
@@ -49,8 +49,8 @@ export function useBattleSession({
   }, [gameState, mapProgress, addLog, setGameState, setMapProgress, setFocusMapNode, setActiveTab]);
 
   const handleBattleUseSkill = useCallback(
-    (skillId: string) => {
-      const result = runBattlePlayerSkill(gameState, mapProgress, MAP_CHAPTERS, skillId);
+    (skillId: string, targetId?: string) => {
+      const result = runBattlePlayerSkill(gameState, mapProgress, MAP_CHAPTERS, skillId, targetId);
       setGameState(result.nextGameState);
       setMapProgress(result.nextMapProgress);
       if (result.focusNodeId) {

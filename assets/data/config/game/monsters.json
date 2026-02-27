@@ -20,7 +20,7 @@
     "difficultyWeight": 1,
     
 "icon": "🟢",
-"background": "monster.background.forest_slime",
+  "background": "monster.forest_slime.background",
 "monsterType": "normal",
 "threatTypes": ["attrition"],
 "traits": ["lifesteal"],
@@ -29,7 +29,7 @@
     {
       "id": "skeleton",
       "icon": "💀",
-      "background": "monster.background.skeleton",
+      "background": "monster.skeleton.background",
       "monsterType": "normal",
       "threatTypes": [ "tank_breaker" ],
       "dropdict": {
@@ -46,7 +46,7 @@
     {
       "id": "goblin",
       "icon": "👺",
-      "background": "monster.background.goblin",
+      "background": "monster.goblin.background",
       "monsterType": "normal",
       "threatTypes": [ "burst_punish" ],
       "dropdict": { "u001_ashen_blade": 1 },
@@ -61,7 +61,7 @@
     {
       "id": "wolf",
       "icon": "🐺",
-      "background": "monster.background.wolf",
+      "background": "monster.wolf.background",
       "monsterType": "normal",
       "threatTypes": ["sustain_pressure"],
       "dropdict": { "u001_ashen_blade": 1 },
@@ -72,13 +72,151 @@
       },
       "scalingProfile": "normal",
       "skillSet": []
+    },
+    {
+      "id": "dark_spider",
+      "name": "Dark Spider",
+      "icon": "🕷",
+      "faction": "monster",
+      "background": "monster.dark_spider.background",
+      "monsterType": "normal",
+      "threatTypes": ["attrition"],
+      "traits": ["lifesteal"],
+      "elements": ["poison"],
+      "tags": ["beast", "insect"],
+      "baseStats": {
+        "hp": 0.85,
+        "attack": 1.18,
+        "defense": 0.70
+      },
+      "scalingProfile": "glass",
+      "skills": ["basic_attack", "poison_blade"],
+      "passives": [],
+      "aiProfile": "simple_aggressive",
+      "dropdict": { "u001_ashen_blade": 2 },
+      "difficultyWeight": 2
+    },
+    {
+      "id": "stone_golem",
+      "name": "Stone Golem",
+      "icon": "🪨",
+      "faction": "monster",
+      "background": "monster.stone_golem.background",
+      "monsterType": "normal",
+      "threatTypes": ["tank_breaker", "sustain_pressure"],
+      "traits": ["thorns"],
+      "elements": [],
+      "tags": ["construct"],
+      "baseStats": {
+        "hp": 1.55,
+        "attack": 0.85,
+        "defense": 1.45
+      },
+      "scalingProfile": "tank",
+      "skills": ["basic_attack"],
+      "passives": [],
+      "aiProfile": "simple_aggressive",
+      "dropdict": { "u001_ashen_blade": 1 },
+      "difficultyWeight": 2
+    },
+    {
+      "id": "fire_imp",
+      "name": "Fire Imp",
+      "icon": "🔥",
+      "faction": "monster",
+      "background": "monster.fire_imp.background",
+      "monsterType": "normal",
+      "threatTypes": ["burst_punish"],
+      "traits": [],
+      "elements": ["fire"],
+      "tags": ["demon"],
+      "baseStats": {
+        "hp": 0.78,
+        "attack": 1.35,
+        "defense": 0.62
+      },
+      "scalingProfile": "glass",
+      "skills": ["basic_attack", "flame_shield"],
+      "passives": [],
+      "aiProfile": "simple_aggressive",
+      "dropdict": { "u001_ashen_blade": 2 },
+      "difficultyWeight": 2
+    },
+    {
+      "id": "ice_wolf",
+      "name": "Ice Wolf",
+      "icon": "🐺",
+      "faction": "monster",
+      "background": "monster.ice_wolf.background",
+      "monsterType": "normal",
+      "threatTypes": ["burst_punish", "sustain_pressure"],
+      "traits": ["double_attack"],
+      "elements": ["ice", "water"],
+      "tags": ["beast"],
+      "baseStats": {
+        "hp": 0.92,
+        "attack": 1.22,
+        "defense": 0.80
+      },
+      "scalingProfile": "striker",
+      "skills": ["basic_attack"],
+      "passives": [],
+      "aiProfile": "simple_aggressive",
+      "dropdict": { "u001_ashen_blade": 1 },
+      "difficultyWeight": 2
+    },
+    {
+      "id": "thunder_eagle",
+      "name": "Thunder Eagle",
+      "icon": "🦅",
+      "faction": "monster",
+      "background": "monster.thunder_eagle.background",
+      "monsterType": "normal",
+      "threatTypes": ["burst_punish"],
+      "traits": ["double_attack"],
+      "elements": ["lightning"],
+      "tags": ["beast", "flying"],
+      "baseStats": {
+        "hp": 0.88,
+        "attack": 1.28,
+        "defense": 0.72
+      },
+      "scalingProfile": "striker",
+      "skills": ["basic_attack"],
+      "passives": [],
+      "aiProfile": "simple_aggressive",
+      "dropdict": { "u001_ashen_blade": 2 },
+      "difficultyWeight": 2
+    },
+    {
+      "id": "plague_mushroom",
+      "name": "Plague Mushroom",
+      "icon": "🍄",
+      "faction": "monster",
+      "background": "monster.plague_mushroom.background",
+      "monsterType": "normal",
+      "threatTypes": ["attrition", "sustain_pressure"],
+      "traits": ["thorns"],
+      "elements": ["poison", "water"],
+      "tags": ["plant"],
+      "baseStats": {
+        "hp": 1.25,
+        "attack": 0.90,
+        "defense": 1.10
+      },
+      "scalingProfile": "bruiser",
+      "skills": ["basic_attack", "poison_blade"],
+      "passives": [],
+      "aiProfile": "simple_aggressive",
+      "dropdict": { "u001_ashen_blade": 1 },
+      "difficultyWeight": 2
     }
   ],
   "boss": [
     {
       "id": "abyss_demon",
       "icon": "👹",
-      "background": "monster.background.abyss_demon",
+      "background": "monster.abyss_demon.background",
       "bossIdentity": {
         "theme": "abyss",
         "introLineKey": "boss.abyss_demon.introLine",
@@ -99,11 +237,11 @@
         "attrition"
       ],
       "counterGoal": {
-        "titleKey": "counter.abyss_demon",
+        "titleKey": "boss.abyss_demon.counter.title",
         "stat": "defense",
         "threshold": 110,
-        "successText": "counterSuccess.abyss_demon",
-        "failText": "counterFail.abyss_demon"
+        "successText": "boss.abyss_demon.counter.success",
+        "failText": "boss.abyss_demon.counter.fail"
       },
       "baseStats": {
         "hp": 3.58,
@@ -113,8 +251,47 @@
       "scalingProfile": "boss",
       "skillSet": [
         "rageMode"
-      ]
-    }
+      ]    },
+    {
+      "id": "venom_hydra",
+      "name": "Venom Hydra",
+      "icon": "🐉",
+      "faction": "monster",
+      "background": "monster.venom_hydra.background",
+      "monsterType": "boss",
+      "scalingProfile": "boss",
+      "traits": ["lifesteal", "rage_on_low_hp"],
+      "threatTypes": ["attrition", "sustain_pressure"],
+      "elements": ["poison", "water"],
+      "tags": ["beast", "boss"],
+      "baseStats": {
+        "hp": 4.0,
+        "attack": 2.55,
+        "defense": 2.70
+      },
+      "skills": ["basic_attack", "poison_blade"],
+      "passives": [],
+      "aiProfile": "simple_aggressive",
+      "difficultyWeight": 5,
+      "dropdict": { "u001_ashen_blade": 5 },
+      "bossIdentity": {
+        "theme": "venom",
+        "introLineKey": "boss.venom_hydra.introLine",
+        "battleLogLineKey": "boss.venom_hydra.battleLogLine",
+        "phasePrompts": {
+          "entering": "boss.venom_hydra.phase.entering",
+          "fighting": "boss.venom_hydra.phase.fighting",
+          "dying": "boss.venom_hydra.phase.dying",
+          "dropping": "boss.venom_hydra.phase.dropping"
+        }
+      },
+      "counterGoal": {
+        "titleKey": "boss.venom_hydra.counter.title",
+        "stat": "defense",
+        "threshold": 95,
+        "successText": "boss.venom_hydra.counter.success",
+        "failText": "boss.venom_hydra.counter.fail"
+      }    }
   ]
 }
 

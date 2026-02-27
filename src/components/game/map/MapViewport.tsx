@@ -36,32 +36,17 @@ export default function MapViewport({
   const mapViewportRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dragging: boolean; x: number; y: number }>({ dragging: false, x: 0, y: 0 });
   const themeColors = themeHeaderColors[selectedChapter.theme];
-
-  const onWheel = (event: React.WheelEvent) => {
-    // logic lives in the effect listener; kept here for typing but not attached directly
-    const deltaX = event.deltaY || event.deltaX;
-    setOffset((prev) => {
-      const viewport = mapViewportRef.current?.getBoundingClientRect() ?? null;
-      const next = { x: prev.x - deltaX, y: 0 };
-      return clampMapOffset(next, viewport, selectedChapter.nodes.length);
-    });
-  };
-
-  // React attaches wheel as a passive listener by default which prevents us from
-  // calling preventDefault.  Patch the element directly with a non-passive
-  // handler so we can cancel scrolling when over the map.
   useEffect(() => {
     const el = mapViewportRef.current;
     if (!el) return;
     const handler = (e: WheelEvent) => {
       e.preventDefault();
-      onWheel(e as unknown as React.WheelEvent);
     };
     el.addEventListener('wheel', handler, { passive: false });
     return () => {
       el.removeEventListener('wheel', handler);
     };
-  }, [onWheel]);
+  });
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
@@ -89,15 +74,12 @@ export default function MapViewport({
   const onPointerLeave = () => {
     dragRef.current.dragging = false;
   };
-
-  // center viewport when requested
   useEffect(() => {
     if (!focusNodeId) return;
     const idx = selectedChapter.nodes.findIndex((n) => n.id === focusNodeId);
     if (idx >= 0 && mapViewportRef.current) {
       const viewport = mapViewportRef.current.getBoundingClientRect();
       const pos = getZigzagNodePosition(idx);
-      // target coordinates in px
       const targetX = (pos.x / 100) * viewport.width;
       const centerX = viewport.width / 2;
       const desired = { x: centerX - targetX, y: 0 };

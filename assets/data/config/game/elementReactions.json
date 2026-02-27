@@ -13,5 +13,20 @@
     "conditions": ["lightning", "water"],
     "reaction": "electrolysis",
     "extraDamageFactor": 0.08
+  },
+  "fire_ice": {
+    "conditions": ["fire", "ice"],
+    "reaction": "steam_burst",
+    "extraDamageFactor": 0.06
+  },
+  "poison_water": {
+    "conditions": ["poison", "water"],
+    "reaction": "toxic_flood",
+    "extraDamageFactor": 0.07
+  },
+  "lightning_fire": {
+    "conditions": ["lightning", "fire"],
+    "reaction": "plasma_burst",
+    "extraDamageFactor": 0.10
   }
 }

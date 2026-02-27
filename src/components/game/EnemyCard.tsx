@@ -34,8 +34,10 @@ function StatusBadge({ status }: { status: BattleStatusInstance }) {
 interface EnemyCardProps {
   enemy: BattleUnitInstance;
   isActive?: boolean;
+  isSelected?: boolean;
+  onClick?: (enemyId: string) => void;
 }
-function EnemyCardInner({ enemy, isActive = false }: EnemyCardProps) {
+function EnemyCardInner({ enemy, isActive = false, isSelected = false, onClick }: EnemyCardProps) {
   const icon = typeof enemy.meta?.icon === 'string' ? enemy.meta.icon : '👾';
 
   const hpPercent = percent(enemy.currentHp, enemy.baseStats.hp);
@@ -59,16 +61,22 @@ function EnemyCardInner({ enemy, isActive = false }: EnemyCardProps) {
   const activeRing = isActive
     ? 'ring-2 ring-red-400 ring-offset-1 ring-offset-black/30 shadow-[0_0_12px_2px_rgba(248,113,113,0.5)]'
     : '';
+  const selectedRing = isSelected && !isActive
+    ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-black/30 shadow-[0_0_10px_2px_rgba(251,191,36,0.5)] scale-[1.03]'
+    : '';
+
+  const isAlive = enemy.currentHp > 0;
+  const clickable = isAlive && onClick ? 'cursor-pointer hover:brightness-110' : '';
 
   return (
     <BattleUnitCardBase
-      className={`w-full p-0 transition-all duration-300 ${borderColor} ${activeRing}`}
+      className={`w-full p-0 duration-100 ${borderColor} ${activeRing} ${selectedRing} ${clickable}`}
+      onClick={isAlive && onClick ? () => onClick(enemy.id) : undefined}
       subtitle={
-        <div className="flex items-center gap-1 min-w-0">
-          <span className="min-w-0 flex-1 truncate text-[clamp(0.52rem,1vw,0.75rem)] font-semibold text-white">
-            {enemy.name}
+        <div className="flex min-w-0 bg-transparent">
+          <span className="text-[clamp(0.45rem,0.9vw,0.6rem)] font-semibold bg-transparent">
+            {enemy.name} Lv.{enemy.level}
           </span>
-          <span className="shrink-0 text-[clamp(0.45rem,0.85vw,0.68rem)] text-gray-400">Lv.{enemy.level}</span>
         </div>
       }
     >
