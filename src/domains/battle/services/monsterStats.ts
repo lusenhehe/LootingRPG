@@ -53,8 +53,8 @@ export const getFinalMonsterStats = (
   const monsterLevelFactor = 1 + (monsterLevel - 1) * 0.08;
   const levelFactor = 1 + Math.max(0, playerLevel - 1) * 0.08;
   const encounterFactor = 1 + Math.min(0.65, encounterCount * 0.003);
-  const hpFactor = isBoss ? 1.55 : 1.28;
-  const attackFactor = isBoss ? 1.36 : 1.22;
+  const hpFactor = isBoss ? 1.30 : 1.08;
+  const attackFactor = isBoss ? 1.18 : 1.05;
   const defenseFactor = isBoss ? 1.32 : 1.18;
   const combatProfile = getCombatProfile();
 

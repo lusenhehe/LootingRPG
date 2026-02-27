@@ -3,12 +3,12 @@ import type { BattleSession } from '../../shared/types/game';
 import PlayerCard from './PlayerCard';
 import EnemyCard from './EnemyCard';
 import BattleUnitCardBase from './BattleUnitCardBase';
+import TurnOrderBar from './TurnOrderBar';
 import { memo } from 'react';
 interface BattleViewProps {
   session: BattleSession;
   onAttack: () => void;
   onRetreat: () => void;
-  /** debug only – skill id will be passed when button clicked */
   onSkill?: (skillId: string) => void;
 }
 
@@ -55,6 +55,9 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
         </div>
       </div>
 
+      {/* 行动顺序可视化条 */}
+      <TurnOrderBar session={session} />
+
       {/* battlefield section with square grid background */}
       <div className="rounded-2xl border border-game-border/60 bg-black/20">
         <div className="relative overflow-auto" style={{ width:'768px', height:'288px' }}>
@@ -92,7 +95,8 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
             const leftSlots: React.ReactNode[] = [];
             for (let i = 0; i < leftSlotCount; i++) {
               if (i === 3) {
-                leftSlots.push(<PlayerCard key="player" session={session} />);
+                const playerActive = session.phase === 'player_input' || session.phase === 'resolving';
+                leftSlots.push(<PlayerCard key="player" session={session} isActive={playerActive && session.status === 'fighting'} />);
               } else {
                 leftSlots.push(
                   <BattleUnitCardBase
@@ -115,7 +119,8 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
             rightIdx.forEach((idx, i) => {
               const enemy = rightEnemies[i];
               if (enemy) {
-                cells[idx] = <EnemyCard key={enemy.id} enemy={enemy} />;
+                const enemyActive = session.phase === 'enemy_turn' && session.status === 'fighting';
+                cells[idx] = <EnemyCard key={enemy.id} enemy={enemy} isActive={enemyActive} />;
               } else {
                 cells[idx] = (
                   <BattleUnitCardBase

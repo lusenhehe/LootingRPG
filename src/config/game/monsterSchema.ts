@@ -6,8 +6,7 @@ export type MonsterScalingProfile = keyof typeof monsterConfig.scalingProfileSta
 export type ScalingProfileStats = { [key in MonsterScalingProfile]: EntityStats };
 export type StrategyTag           = typeof monsterConfig.strategy.tag[number];
 export type CounterStatKey        = typeof monsterConfig.strategy.counterGoalScoreMap[keyof typeof monsterConfig.strategy.counterGoalScoreMap];
-export const SCALING_PROFILES: ScalingProfileStats =
-  (monsterConfig as any).scalingProfileStats as ScalingProfileStats;
+export const SCALING_PROFILES: ScalingProfileStats = monsterConfig.scalingProfileStats as ScalingProfileStats;
 export interface RawMonsterBaseStats { hp?: number; attack?: number; defense?: number}
 // 基础生命/攻击/防御三围，可供玩家和怪物统一使用
 export interface EntityStats { hp: number; attack: number; defense: number; }

@@ -10,7 +10,6 @@
  */
 import type {
   BattleEvent,
-  BattleSession,
   CastEvent,
   StatusAppliedEvent,
 } from '../../../shared/types/game';
@@ -145,7 +144,6 @@ export function castSkill(
   source: BattleUnitInstance,
   targets: BattleUnitInstance[],
   bus: BattleEventBus,
-  _session?: BattleSession,
 ): void {
   const raw = SKILL_DEFINITIONS[skillId];
   if (!raw) return;

@@ -65,9 +65,9 @@ export const resolveAction = (
       const targets = action.targetIds
         .map((id) => getUnitById(session, id))
         .filter((unit): unit is BattleUnitInstance => Boolean(unit && unit.currentHp > 0));
-      // castSkill registers once-listeners on `source` then emits `on_cast`.
-      // EffectResolver will dispatch `on_cast` → fire listeners → process results.
-      castSkill(skillId, source, targets, eventBus, session);
+      // 释放技能 -- 注意：技能内部可能会发出更多事件（如伤害、状态应用等），
+      // 这些事件会在技能执行过程中被处理和记录
+      castSkill(skillId, source, targets, eventBus);
     }
   }
 

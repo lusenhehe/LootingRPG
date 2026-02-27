@@ -5,10 +5,9 @@
     "name": "Slime",
     "faction": "monster",
     "baseStats": {
-      "hp": 100,
-      "attack": 12,
-      "defense": 6,
-      "speed": 8
+      "hp": 1.0,
+      "attack": 1.0,
+      "defense": 1.1
     },
     "growthProfile": "normal",
     "elements": ["poison"],
