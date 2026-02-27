@@ -4,15 +4,16 @@ import PlayerCard from './PlayerCard';
 import EnemyCard from './EnemyCard';
 import BattleUnitCardBase from './BattleUnitCardBase';
 import { memo } from 'react';
-
 interface BattleViewProps {
   session: BattleSession;
   onAttack: () => void;
   onRetreat: () => void;
+  /** debug only – skill id will be passed when button clicked */
+  onSkill?: (skillId: string) => void;
 }
 
 
-function BattleViewInner({ session, onAttack, onRetreat }: BattleViewProps) {
+function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewProps) {
   const { t } = useTranslation();
   const fallbackWaveOrder = Array.from(new Set((session.enemies ?? []).map((enemy) => {
     const waveId = enemy.meta?.waveId;
@@ -158,6 +159,25 @@ function BattleViewInner({ session, onAttack, onRetreat }: BattleViewProps) {
           >
             {t('battle.retreat')}
           </button>
+          {onSkill && session.status === 'fighting' && (
+            <>
+              <div className="mt-2 text-[10px] text-gray-400">Debug Skills</div>
+              <button
+                type="button"
+                onClick={() => onSkill('poison_blade')}
+                className="w-full px-3 py-1 rounded-lg bg-green-600 hover:bg-green-500 text-white text-xs"
+              >
+                Poison Blade
+              </button>
+              <button
+                type="button"
+                onClick={() => onSkill('flame_shield')}
+                className="w-full px-3 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs mt-1"
+              >
+                Flame Shield
+              </button>
+            </>
+          )}
           <div className="text-[11px] text-gray-500">
             {Math.min(safeWaveIndex + 1, waveOrder.length)} / {waveOrder.length}
           </div>
@@ -167,7 +187,7 @@ function BattleViewInner({ session, onAttack, onRetreat }: BattleViewProps) {
             <span>battle log</span>
             <span>{t('battle.turn')}: {session.turn}</span>
           </div>
-          <div className="mt-3 flex-1 overflow-auto space-y-1 text-xs text-gray-200">
+          <div className="mt-3 flex-1 overflow-auto space-y-1 text-xs text-gray-200 max-h-[180px]">
             {session.logs.slice(-30).map((line, index) => (
               <div key={`${line}-${index}`} className="border-b border-game-border/10 pb-1">
                 {line}

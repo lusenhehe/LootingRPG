@@ -7,6 +7,7 @@ export interface BattleContextValue {
   ) => void;
   handleBattleAttack: () => void;
   handleBattleRetreat: () => void;
+  handleBattleUseSkill: (skillId: string) => void;
 }
 
 export const BattleContext = createContext<BattleContextValue | undefined>(undefined);

@@ -3,7 +3,6 @@ import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import { resolveAction } from './ActionResolver';
 import { resolveEffects } from './EffectResolver';
-import { emitTurnStartStatusTicks } from './StatusSystem';
 
 const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   ...unit,
@@ -13,6 +12,10 @@ const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   passives: [...unit.passives],
   elements: [...unit.elements],
   tags: [...unit.tags],
+  // Deep-clone statuses so magnitude/remainingTurns mutations stay isolated
+  statuses: unit.statuses ? unit.statuses.map((s) => ({ ...s })) : undefined,
+  // Shallow-clone listeners array; listener closures reference IDs (strings), not objects
+  listeners: unit.listeners ? [...unit.listeners] : undefined,
   meta: unit.meta ? { ...unit.meta } : undefined,
 });
 
@@ -68,7 +71,11 @@ const advanceWaveIfNeeded = (session: BattleSession): void => {
   }
 };
 
-export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): BattleSession => {
+export const resolveTurn = (
+  session: BattleSession,
+  eventBus: BattleEventBus,
+  playerActionOverride?: BattleAction,
+): BattleSession => {
   if (session.status !== 'fighting') {
     return session;
   }
@@ -76,8 +83,9 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
   nextSession.turn += 1;
   nextSession.phase = 'resolving';
 
+  // `on_turn_start` 事件在每个回合开始时触发，允许状态效果（如 DOT/HOT）和其他被动效果自动处理持续影响。
+  // 无需单独的状态滴答事件泵。
   eventBus.emit({ type: 'on_turn_start', turn: nextSession.turn });
-  emitTurnStartStatusTicks(nextSession, eventBus);
   const turnStartEvents = eventBus.drainEvents();
   if (turnStartEvents.length > 0) {
     resolveEffects(nextSession, turnStartEvents, eventBus);
@@ -93,7 +101,7 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
     return nextSession;
   }
 
-  const playerAction: BattleAction = {
+  const playerAction: BattleAction = playerActionOverride ?? {
     id: `action_${nextSession.turn}_player`,
     type: 'basic_attack',
     sourceId: nextSession.player.id,

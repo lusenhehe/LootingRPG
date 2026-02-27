@@ -28,6 +28,7 @@ export function AppShell() {
     handleEnterMapNode,
     handleBattleAttack,
     handleBattleRetreat,
+    handleBattleUseSkill,
     handleToggleAutoSellQuality,
     quickSellByQualityRange,
     handleEquip,
@@ -75,6 +76,7 @@ export function AppShell() {
       onEnterMapNode={handleEnterMapNode}
       onBattleAttack={handleBattleAttack}
       onBattleRetreat={handleBattleRetreat}
+      onBattleUseSkill={handleBattleUseSkill}
       onQuickSellByQualityRange={quickSellByQualityRange}
       onEquip={handleEquip}
       onSell={handleSell}

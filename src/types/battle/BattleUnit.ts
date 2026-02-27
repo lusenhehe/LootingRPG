@@ -26,6 +26,22 @@ export interface BattleStatusInstance {
   magnitude: number
 }
 
+/**
+ * Opaque listener definition stored on units.
+ * Uses `unknown` context to avoid circular dependency with shared/types/game.
+ * The engine casts ctx to ListenerContext when executing.
+ */
+export interface BattleListenerDef {
+  id: string
+  ownerId: string
+  /** Matches BattleEvent['type'] at runtime; typed as string to avoid circular dep */
+  trigger: string
+  /** If true, listener is removed automatically after first execution */
+  once?: boolean
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  execute(ctx: any): void
+}
+
 export interface BattleUnitInstance {
   id: string
   name: string
@@ -38,8 +54,10 @@ export interface BattleUnitInstance {
   passives: string[]
   elements: string[]
   tags: string[]
-   // active buffs / debuffs / shields / dots
+  /** active的状态 */
   statuses?: BattleStatusInstance[]
+  /** 注册的事件监听器（技能、被动、状态、装备效果） */
+  listeners?: BattleListenerDef[]
   meta?: Record<string, unknown>
 }
 

@@ -30,6 +30,8 @@ interface GameScreenProps {
   onSelectMapChapter: (chapterId: string) => void;
   onBattleAttack: () => void;
   onBattleRetreat: () => void;
+  /** debug: cast skill by id */
+  onBattleUseSkill?: (skillId: string) => void;
   onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
   onEquip: (id: string) => void;
   onSell: (id: string) => void;
@@ -61,6 +63,7 @@ function GameScreenInner({
   onSelectMapChapter,
   onBattleAttack,
   onBattleRetreat,
+  onBattleUseSkill,
   onQuickSellByQualityRange,
   onEquip,
   onSell,
@@ -99,6 +102,7 @@ function GameScreenInner({
                 session={battleSession}
                 onAttack={onBattleAttack}
                 onRetreat={onBattleRetreat}
+                onSkill={onBattleUseSkill}
               />
             ) : (
               <GamePanel

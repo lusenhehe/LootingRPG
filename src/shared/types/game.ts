@@ -98,15 +98,29 @@ export type ElementReactionEvent = {
   targetId: string;
 };
 
+export type CastEvent = {
+  type: 'on_cast';
+  sourceId: string;
+  skillId: string;
+};
+
+export type StatusExpiredEvent = {
+  type: 'status_expired';
+  targetId: string;
+  statusId: string;
+};
+
 export type BattleEvent =
   | ApplyDamageEvent
   | ApplyHealEvent
   | UnitDiedEvent
-  | TurnEndEvent
-  | BattleLifecycleEvent
-  | StatusAppliedEvent
-  | StatusTickEvent
-  | ElementReactionEvent;
+  | TurnEndEvent         // 回合结束事件，指示当前回合结束，通常用于触发状态效果的持续时间减少、DOT/HOT生效等逻辑
+  | BattleLifecycleEvent // 战斗生命周期事件（如技能释放前后、伤害应用前后、单位死亡、回合开始等）
+  | StatusAppliedEvent   // 状态效果应用事件（如DOT/HOT/Buff/Debuff/Shield被施加）
+  | StatusTickEvent      // 状态效果触发事件（如DOT/HOT每回合生效）
+  | ElementReactionEvent // 元素反应事件
+  | CastEvent            // 技能释放事件
+  | StatusExpiredEvent;  // 状态过期事件
 
 export interface PlayerStats extends EntityStats     {
   level: number;

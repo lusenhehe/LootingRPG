@@ -2,7 +2,7 @@ import type { BattleAction, BattleSession } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import { resolveDamage } from './DamagePipeline';
 import type { BattleEventBus } from './EventBus';
-import { runSkillOnCast } from './skillsConfig';
+import { castSkill } from './skillsConfig';
 const isApplyDamageEvent = (
   event: BattleSession['events'][number],
 ): event is Extract<BattleSession['events'][number], { type: 'apply_damage' }> => event.type === 'apply_damage';
@@ -59,16 +59,15 @@ export const resolveAction = (
   } else if (action.type === 'skill') {
     const skillId = typeof action.payload?.skillId === 'string' ? action.payload.skillId : undefined;
     if (skillId) {
+      session.logs.push(
+        `[Battle] Turn ${session.turn}: ${source.name} casts ${skillId}.`,
+      );
       const targets = action.targetIds
         .map((id) => getUnitById(session, id))
         .filter((unit): unit is BattleUnitInstance => Boolean(unit && unit.currentHp > 0));
-      runSkillOnCast(skillId, {
-        session,
-        action,
-        bus: eventBus,
-        source,
-        targets,
-      });
+      // castSkill registers once-listeners on `source` then emits `on_cast`.
+      // EffectResolver will dispatch `on_cast` → fire listeners → process results.
+      castSkill(skillId, source, targets, eventBus, session);
     }
   }
 

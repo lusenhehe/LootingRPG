@@ -1,0 +1,17 @@
+{
+  "fire_poison": {
+    "conditions": ["fire", "poison"],
+    "reaction": "fire_poison_explosion",
+    "extraDamageFactor": 0.05
+  },
+  "ice_water": {
+    "conditions": ["ice", "water"],
+    "reaction": "frozen",
+    "extraDamageFactor": 0.03
+  },
+  "lightning_water": {
+    "conditions": ["lightning", "water"],
+    "reaction": "electrolysis",
+    "extraDamageFactor": 0.08
+  }
+}

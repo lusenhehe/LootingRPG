@@ -291,7 +291,7 @@ export const startBattleSession = (
           attack: playerFinal.attack,
           defense: playerFinal.defense,
         },
-        skills: [],
+        skills: ['poison_blade', 'flame_shield'],
         passives: [],
         elements: [],
         tags: ['player'],
@@ -398,6 +398,73 @@ export const runBattlePlayerAttack = (
   };
 };
 
+/**
+ * 与 `runBattlePlayerAttack` 类似，但本回合让玩家使用指定技能。
+ * 主要用于调试/测试按钮。技能是否在玩家的 `skills` 列表中不作检查。
+ */
+export const runBattlePlayerSkill = (
+  gameState: GameState,
+  mapProgress: MapProgressState,
+  chapters: MapChapterDef[],
+  skillId: string,
+): BattleTransition => {
+  const sessionRaw = gameState.battle.activeSession;
+  if (!sessionRaw || sessionRaw.status !== 'fighting') {
+    return {
+      nextGameState: gameState,
+      nextMapProgress: mapProgress,
+      logs: [],
+      error: 'No active battle session',
+    };
+  }
+
+  const session = normalizeSessionWaves(sessionRaw);
+  const firstAliveEnemy = session.enemies.find((e) => e.currentHp > 0);
+  const playerAction = {
+    id: `action_${session.turn + 1}_player`,
+    type: 'skill' as const,
+    sourceId: session.player.id,
+    targetIds: firstAliveEnemy ? [firstAliveEnemy.id] : [],
+    payload: { skillId },
+  };
+
+  const nextSession = BattleEngine.resolveTurn(session, playerAction);
+
+  if (nextSession.status === 'victory') {
+    return resolveBattleResult(
+      {
+        ...gameState,
+        battle: { ...gameState.battle, activeSession: nextSession },
+      },
+      mapProgress,
+      chapters,
+      nextSession,
+      true,
+    );
+  }
+
+  if (nextSession.status === 'defeat') {
+    return resolveBattleResult(
+      {
+        ...gameState,
+        battle: { ...gameState.battle, activeSession: nextSession },
+      },
+      mapProgress,
+      chapters,
+      nextSession,
+      false,
+    );
+  }
+
+  return {
+    nextGameState: {
+      ...gameState,
+      battle: { ...gameState.battle, activeSession: nextSession },
+    },
+    nextMapProgress: mapProgress,
+    logs: nextSession.logs.slice(-3),
+  };
+};
 export const runBattleRetreat = (
   gameState: GameState,
   mapProgress: MapProgressState,

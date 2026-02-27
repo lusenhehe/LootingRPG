@@ -1,3 +1,14 @@
+/**
+ * EffectResolver — unified event processing loop.
+ *
+ * Each event goes through three phases in order:
+ *   1. dispatchEvent  → broadcast to all unit listeners (may emit new events)
+ *   2. applyBaseEffect → mutate session state (damage, heal, death, etc.)
+ *   3. drain bus       → collect any newly emitted events and push to pending queue
+ *
+ * The loop continues until the pending queue is empty or MAX_EVENT_DEPTH is reached
+ * (guard against infinite element-reaction chains or recursive skills).
+ */
 import type {
   ApplyDamageEvent,
   ApplyHealEvent,
@@ -5,21 +16,16 @@ import type {
   BattleSession,
   UnitDiedEvent,
   StatusAppliedEvent,
-  StatusTickEvent,
-  ElementReactionEvent,
 } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
-import {
-  applyStatusFromEvent,
-  handleStatusTickEvent,
-  maybeEmitElementReaction,
-} from './StatusSystem';
+import { dispatchEvent, MAX_EVENT_DEPTH } from './EventDispatcher';
+import { applyStatusFromEvent, maybeEmitElementReaction } from './StatusSystem';
+
+// ─── Base-Effect Handlers ─────────────────────────────────────────────────────
 
 const findUnit = (session: BattleSession, unitId: string): BattleUnitInstance | undefined => {
-  if (session.player.id === unitId) {
-    return session.player;
-  }
+  if (session.player.id === unitId) return session.player;
   return session.enemies.find((enemy) => enemy.id === unitId);
 };
 
@@ -28,12 +34,11 @@ function handleApplyDamage(
   event: ApplyDamageEvent,
 ): UnitDiedEvent | undefined {
   const target = findUnit(session, event.targetId);
-  if (!target) {
-    return;
-  }
+  if (!target) return;
 
   let remaining = event.amount;
 
+  // Shield absorption
   if (target.statuses && target.statuses.length > 0) {
     const shields = target.statuses.filter((s) => s.kind === 'shield');
     for (const shield of shields) {
@@ -56,34 +61,25 @@ function handleApplyDamage(
 
   if (target.currentHp <= 0) {
     target.currentHp = 0;
-    return {
-      type: 'unit_died',
-      unitId: target.id,
-    };
+    return { type: 'unit_died', unitId: target.id };
   }
-
   return;
 }
 
 function handleApplyHeal(session: BattleSession, event: ApplyHealEvent): void {
   const target = findUnit(session, event.targetId);
-  if (!target) {
-    return;
-  }
-
-  const maxHp = target.baseStats.hp;
-  target.currentHp = Math.min(maxHp, target.currentHp + event.amount);
+  if (!target) return;
+  target.currentHp = Math.min(target.baseStats.hp, target.currentHp + event.amount);
 }
 
 function handleUnitDied(session: BattleSession, event: UnitDiedEvent): void {
   const unit = findUnit(session, event.unitId);
-  if (!unit) {
-    return;
-  }
-
+  if (!unit) return;
   unit.currentHp = 0;
   session.logs.push(`[Battle] ${unit.name} defeated.`);
 }
+
+// ─── Main Loop ────────────────────────────────────────────────────────────────
 
 export function resolveEffects(
   session: BattleSession,
@@ -91,15 +87,29 @@ export function resolveEffects(
   eventBus?: BattleEventBus,
 ): BattleSession {
   const pendingEvents: BattleEvent[] = [...events];
+  let depth = 0;
 
   while (pendingEvents.length > 0) {
-    const event = pendingEvents.shift();
-    if (!event) {
+    if (depth >= MAX_EVENT_DEPTH) {
+      session.logs.push('[Battle] ⚠ Event chain depth limit reached — chain aborted.');
       break;
     }
+    depth++;
+
+    const event = pendingEvents.shift();
+    if (!event) break;
 
     session.events.push(event);
 
+    // ── Phase 1: Broadcast to listeners ───────────────────────────────────
+    if (eventBus) {
+      dispatchEvent(session, event, eventBus);
+      // Drain listener-generated events and insert at head of queue (priority)
+      const listenerEvents = eventBus.drainEvents();
+      pendingEvents.unshift(...listenerEvents);
+    }
+
+    // ── Phase 2: Apply base effect ────────────────────────────────────────
     switch (event.type) {
       case 'apply_damage': {
         const deathEvent = handleApplyDamage(session, event);
@@ -125,18 +135,28 @@ export function resolveEffects(
       case 'status_applied':
         applyStatusFromEvent(session, event as StatusAppliedEvent);
         break;
-      case 'status_tick':
-        if (eventBus) {
-          handleStatusTickEvent(session, event as StatusTickEvent, eventBus);
-        }
-        break;
       case 'element_reaction':
-        // element reactions already emitted secondary effects when created
+        // Secondary damage already emitted by maybeEmitElementReaction; no further base effect.
+        break;
+      case 'status_expired':
+        // Listener self-cleaned; log entry optional.
+        break;
+      case 'status_tick':
+        // Legacy event — tick handling moved to on_turn_start listeners in StatusSystem.
         break;
       default:
+        // Lifecycle events (before_action, after_action, on_cast, on_turn_start, etc.)
+        // have no base effect; listeners handle them above.
         break;
+    }
+
+    // ── Phase 3: Drain bus after base effect ──────────────────────────────
+    if (eventBus) {
+      const afterEvents = eventBus.drainEvents();
+      pendingEvents.push(...afterEvents);
     }
   }
 
   return session;
 }
+
