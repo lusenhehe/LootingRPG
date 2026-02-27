@@ -37,7 +37,20 @@ export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): voi
   const appliedDamage = Math.max(1, Math.floor(ctx.baseDamage));
 
   eventBus.emit({
+    type: 'before_damage',
+    sourceId: ctx.source.id,
+    targetId: ctx.target.id,
+  });
+
+  eventBus.emit({
     type: 'apply_damage',
+    sourceId: ctx.source.id,
+    targetId: ctx.target.id,
+    amount: appliedDamage,
+  });
+
+  eventBus.emit({
+    type: 'after_damage',
     sourceId: ctx.source.id,
     targetId: ctx.target.id,
     amount: appliedDamage,

@@ -21,7 +21,7 @@
         "./*"
       ],
       "@data/*": [
-        "./asset/data/*"
+        "./assets/data/*"
       ],
       "@src/*": [
         "./src/*"

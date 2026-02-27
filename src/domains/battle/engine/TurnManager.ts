@@ -3,6 +3,7 @@ import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import { resolveAction } from './ActionResolver';
 import { resolveEffects } from './EffectResolver';
+import { emitTurnStartStatusTicks } from './StatusSystem';
 
 const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   ...unit,
@@ -75,6 +76,13 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
   nextSession.turn += 1;
   nextSession.phase = 'resolving';
 
+  eventBus.emit({ type: 'on_turn_start', turn: nextSession.turn });
+  emitTurnStartStatusTicks(nextSession, eventBus);
+  const turnStartEvents = eventBus.drainEvents();
+  if (turnStartEvents.length > 0) {
+    resolveEffects(nextSession, turnStartEvents, eventBus);
+  }
+
   advanceWaveIfNeeded(nextSession);
   let aliveEnemies = getCurrentWaveAliveEnemies(nextSession);
 
@@ -94,7 +102,7 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
 
   resolveAction(nextSession, playerAction, eventBus);
   const playerActionEvents = eventBus.drainEvents();
-  resolveEffects(nextSession, playerActionEvents);
+  resolveEffects(nextSession, playerActionEvents, eventBus);
   updateBattleOutcome(nextSession);
   if (nextSession.status !== 'fighting') {
     eventBus.emit({ type: 'turn_end' });
@@ -124,7 +132,7 @@ export const resolveTurn = (session: BattleSession, eventBus: BattleEventBus): B
   }
 
   const enemyActionEvents = eventBus.drainEvents();
-  resolveEffects(nextSession, enemyActionEvents);
+  resolveEffects(nextSession, enemyActionEvents, eventBus);
 
   advanceWaveIfNeeded(nextSession);
   updateBattleOutcome(nextSession);

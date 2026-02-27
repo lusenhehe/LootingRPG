@@ -14,6 +14,18 @@ export interface BattleDerivedStats {
 
 export type Faction = 'player' | 'monster'
 
+export type BattleStatusKind = 'dot' | 'hot' | 'buff' | 'debuff' | 'shield'
+
+export interface BattleStatusInstance {
+  id: string
+  kind: BattleStatusKind
+  sourceId?: string
+  element?: string
+  stacks: number
+  remainingTurns: number
+  magnitude: number
+}
+
 export interface BattleUnitInstance {
   id: string
   name: string
@@ -26,6 +38,8 @@ export interface BattleUnitInstance {
   passives: string[]
   elements: string[]
   tags: string[]
+   // active buffs / debuffs / shields / dots
+  statuses?: BattleStatusInstance[]
   meta?: Record<string, unknown>
 }
 

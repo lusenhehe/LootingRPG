@@ -1,0 +1,52 @@
+{
+  "poison_blade": {
+    "id": "poison_blade",
+    "name": "Poison Blade",
+    "nodes": [
+      {
+        "id": "poison_blade:deal_damage",
+        "trigger": "on_cast",
+        "type": "deal_damage",
+        "params": {
+          "baseDamage": 0,
+          "critMultiplier": 1
+        }
+      },
+      {
+        "id": "poison_blade:apply_poison",
+        "trigger": "on_cast",
+        "type": "apply_status",
+        "params": {
+          "statusId": "poison_blade_dot",
+          "statusType": "dot",
+          "stacks": 1,
+          "duration": 3,
+          "magnitudeFactor": 0.12,
+          "magnitudeBase": "attack",
+          "element": "poison"
+        }
+      }
+    ]
+  },
+
+  "flame_shield": {
+    "id": "flame_shield",
+    "name": "Flame Shield",
+    "nodes": [
+      {
+        "id": "flame_shield:apply_shield",
+        "trigger": "on_cast",
+        "type": "apply_status",
+        "params": {
+          "statusId": "flame_shield",
+          "statusType": "shield",
+          "stacks": 1,
+          "duration": 3,
+          "magnitudeFactor": 0.25,
+          "magnitudeBase": "hp",
+          "element": "fire"
+        }
+      }
+    ]
+  }
+}

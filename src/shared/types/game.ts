@@ -17,6 +17,38 @@ export interface BattleAction {
   payload?: Record<string, unknown>;
 }
 
+export type BattleLifecycleEvent =
+  | {
+      type: 'before_action';
+      action: BattleAction;
+      sourceId: string;
+    }
+  | {
+      type: 'after_action';
+      action: BattleAction;
+      sourceId: string;
+    }
+  | {
+      type: 'before_damage';
+      sourceId: string;
+      targetId: string;
+    }
+  | {
+      type: 'after_damage';
+      sourceId: string;
+      targetId: string;
+      amount: number;
+    }
+  | {
+      type: 'on_kill';
+      killerId: string;
+      victimId: string;
+    }
+  | {
+      type: 'on_turn_start';
+      turn: number;
+    };
+
 export type ApplyDamageEvent = {
   type: 'apply_damage';
   sourceId: string;
@@ -34,13 +66,47 @@ export type ApplyHealEvent = {
 export type UnitDiedEvent = {
   type: 'unit_died';
   unitId: string;
+  killerId?: string;
 };
 
 export type TurnEndEvent = {
   type: 'turn_end';
 };
 
-export type BattleEvent = ApplyDamageEvent | ApplyHealEvent | UnitDiedEvent | TurnEndEvent;
+export type StatusAppliedEvent = {
+  type: 'status_applied';
+  targetId: string;
+  statusId: string;
+  statusType: 'dot' | 'hot' | 'buff' | 'debuff' | 'shield';
+  stacks: number;
+  duration: number;
+  magnitude: number;
+  element?: string;
+  sourceId?: string;
+};
+
+export type StatusTickEvent = {
+  type: 'status_tick';
+  targetId: string;
+  statusId: string;
+};
+
+export type ElementReactionEvent = {
+  type: 'element_reaction';
+  reaction: string;
+  sourceId: string;
+  targetId: string;
+};
+
+export type BattleEvent =
+  | ApplyDamageEvent
+  | ApplyHealEvent
+  | UnitDiedEvent
+  | TurnEndEvent
+  | BattleLifecycleEvent
+  | StatusAppliedEvent
+  | StatusTickEvent
+  | ElementReactionEvent;
 
 export interface PlayerStats extends EntityStats     {
   level: number;
