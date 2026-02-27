@@ -12,6 +12,7 @@ import type { BattleEvent, BattleSession } from '../../../shared/types/game';
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import type { BattleListener, ListenerContext } from './listenerTypes';
+import type { BattleListenerRegistry } from './ListenerRegistry';
 
 /** 最大事件深度，防止无限递归链反应。 */
 export const MAX_EVENT_DEPTH = 100;
@@ -30,30 +31,38 @@ export function dispatchEvent(
   event: BattleEvent,
   bus: BattleEventBus,
   contextTargets: BattleUnitInstance[] = [],
+  registry?: BattleListenerRegistry,
 ): void {
+  const ctx: ListenerContext = {
+    session,
+    bus,
+    source: session.player, // registry.dispatch 会按 ownerId 覆盖 source
+    targets: contextTargets,
+    event,
+  };
+
+  // ── 路径 A：注册中心（O(1) 分桶查找） ─────────────────────────────────────
+  if (registry) {
+    registry.dispatch(ctx);
+    return;
+  }
+
+  // ── 路径 B：兜底——逐单位遍历（无 registry 时的向后兼容路径） ─────────────
   const allUnits: BattleUnitInstance[] = [session.player, ...session.enemies];
 
   for (const unit of allUnits) {
     if (!unit.listeners || unit.listeners.length === 0) continue;
 
-    // 对于被动和状态监听器，目标单位通常需要从当前战斗状态中解析（例如，"所有敌人"、"自己"等）。对于技能监听器，目标单位由施法者在执行时明确指定。
     const matching = unit.listeners.filter(
       (l): l is BattleListener => l.trigger === event.type,
     );
     if (matching.length === 0) continue;
 
     const toRemove: string[] = [];
-
-    const ctx: ListenerContext = {
-      session,
-      bus,
-      source: unit,
-      targets: contextTargets,
-      event,
-    };
+    const unitCtx: ListenerContext = { ...ctx, source: unit };
 
     for (const listener of matching) {
-      listener.execute(ctx);
+      listener.execute(unitCtx);
       if (listener.once) {
         toRemove.push(listener.id);
       }

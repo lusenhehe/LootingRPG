@@ -10,6 +10,7 @@ import { recalculatePlayerStats } from '../../player/services/recalculatePlayerS
 import { generateEquipment } from '../../inventory/services/equipment';
 import { createBattleUnit } from '../UnitFactory';
 import { BattleEngine } from '../engine/BattleEngine';
+import { registerPassiveListeners } from '../engine/skillsConfig';
 import i18n from '../../../i18n';
 interface BattleTransition {
   nextGameState: GameState;
@@ -305,6 +306,18 @@ export const startBattleSession = (
       },
       gameState.playerStats.level,
     );
+
+    // Phase 3.d — 被动监听器注册：在战斗开始时为所有单位注册 passive 技能监听器。
+    // 之后 BattleListenerRegistry.fromSession() 会读取这些 unit.listeners，
+    // 确保每回合开始时注册中心中就已存在所有被动效果。
+    for (const passiveId of playerUnit.passives) {
+      registerPassiveListeners(passiveId, playerUnit);
+    }
+    for (const enemy of enemies) {
+      for (const passiveId of enemy.passives) {
+        registerPassiveListeners(passiveId, enemy);
+      }
+    }
 
     const session: BattleSession = {
       id: `battle_${Date.now()}`,

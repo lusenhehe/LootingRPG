@@ -16,6 +16,7 @@ import type {
 import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import type { BattleListener, ListenerContext } from './listenerTypes';
+import type { BattleListenerRegistry } from './ListenerRegistry';
 import { resolveDamage } from './DamagePipeline';
 import skillsJson from '@data/config/game/skills.json';
 
@@ -144,6 +145,7 @@ export function castSkill(
   source: BattleUnitInstance,
   targets: BattleUnitInstance[],
   bus: BattleEventBus,
+  registry?: BattleListenerRegistry,
 ): void {
   const raw = SKILL_DEFINITIONS[skillId];
   if (!raw) return;
@@ -153,6 +155,12 @@ export function castSkill(
   );
 
   source.listeners = [...(source.listeners ?? []), ...listeners];
+  // 热注册到当前回合注册中心（确保 on_cast 分发时能立即找到这些 once 监听器）
+  if (registry) {
+    for (const l of listeners) {
+      registry.register(l);
+    }
+  }
 
   const castEvent: CastEvent = {
     type: 'on_cast',

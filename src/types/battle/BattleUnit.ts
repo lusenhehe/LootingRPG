@@ -39,7 +39,7 @@ export interface BattleListenerDef {
   ownerId: string,
   trigger: string,
   once?: boolean,
-  execute(ctx: any): void
+  execute(ctx: unknown): void
 }
 
 export interface BattleUnitInstance {

@@ -3,6 +3,7 @@ import type { BattleUnitInstance } from '../../../types/battle/BattleUnit';
 import type { BattleEventBus } from './EventBus';
 import { resolveAction } from './ActionResolver';
 import { resolveEffects } from './EffectResolver';
+import { BattleListenerRegistry } from './ListenerRegistry';
 
 const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   ...unit,
@@ -83,12 +84,14 @@ export const resolveTurn = (
   nextSession.turn += 1;
   nextSession.phase = 'resolving';
 
-  // `on_turn_start` 事件在每个回合开始时触发，允许状态效果（如 DOT/HOT）和其他被动效果自动处理持续影响。
-  // 无需单独的状态滴答事件泵。
+  // ── 构建本回合注册中心（从克隆后单位的监听器快照） ──────────────────────
+  const registry = BattleListenerRegistry.fromSession(nextSession);
+
+  // `on_turn_start` 事件在每个回合开始时触发，允许 DOT/HOT 和被动效果自动处理持续影响。
   eventBus.emit({ type: 'on_turn_start', turn: nextSession.turn });
   const turnStartEvents = eventBus.drainEvents();
   if (turnStartEvents.length > 0) {
-    resolveEffects(nextSession, turnStartEvents, eventBus);
+    resolveEffects(nextSession, turnStartEvents, eventBus, registry);
   }
 
   advanceWaveIfNeeded(nextSession);
@@ -108,9 +111,9 @@ export const resolveTurn = (
     targetIds: [aliveEnemies[0].id],
   };
 
-  resolveAction(nextSession, playerAction, eventBus);
+  resolveAction(nextSession, playerAction, eventBus, registry);
   const playerActionEvents = eventBus.drainEvents();
-  resolveEffects(nextSession, playerActionEvents, eventBus);
+  resolveEffects(nextSession, playerActionEvents, eventBus, registry);
   updateBattleOutcome(nextSession);
   if (nextSession.status !== 'fighting') {
     eventBus.emit({ type: 'turn_end' });
@@ -136,11 +139,11 @@ export const resolveTurn = (
       targetIds: [nextSession.player.id],
     };
 
-    resolveAction(nextSession, enemyAction, eventBus);
+    resolveAction(nextSession, enemyAction, eventBus, registry);
   }
 
   const enemyActionEvents = eventBus.drainEvents();
-  resolveEffects(nextSession, enemyActionEvents, eventBus);
+  resolveEffects(nextSession, enemyActionEvents, eventBus, registry);
 
   advanceWaveIfNeeded(nextSession);
   updateBattleOutcome(nextSession);
