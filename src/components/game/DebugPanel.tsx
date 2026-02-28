@@ -2,8 +2,11 @@ import React, { useEffect, useState, memo } from 'react';
 import { QUALITIES, SLOTS } from '../../config/game/equipment';
 import type { Equipment } from '../../types/game';
 import { createCustomEquipment } from '../../domains/inventory/services/equipment';
-interface DebugPanelProps { onAddItems: (items: Equipment[]) => void;}
-function DebugPanelInner({ onAddItems }: DebugPanelProps) {
+interface DebugPanelProps {
+  onAddItems: (items: Equipment[]) => void;
+  onOpenSimulator?: () => void;
+}
+function DebugPanelInner({ onAddItems, onOpenSimulator }: DebugPanelProps) {
   const [open, setOpen] = useState(false);
   const [quality, setQuality] = useState(QUALITIES[0] || 'common');
   const [slot, setSlot] = useState(SLOTS[0] || 'weapon');
@@ -31,7 +34,16 @@ function DebugPanelInner({ onAddItems }: DebugPanelProps) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-sticky flex flex-col items-end gap-2">
+      {onOpenSimulator && (
+        <button
+          className="px-3 py-2 bg-blue-800 hover:bg-blue-700 text-white rounded-lg shadow-md text-sm transition-colors"
+          onClick={onOpenSimulator}
+          title="打开战斗模拟器"
+        >
+          ⚔️ 模拟器
+        </button>
+      )}
       <button
         className="px-3 py-2 bg-red-800 text-white rounded-lg shadow-md"
         onClick={() => setOpen((v) => !v)}

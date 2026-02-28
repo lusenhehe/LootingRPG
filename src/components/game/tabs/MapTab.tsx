@@ -53,7 +53,7 @@ function MapTabInner({ playerLevel, loading, progress, onSelectChapter, onEnterN
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className="h-full flex flex-col"
+      className="h-full flex flex-col min-h-0"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="relative">
@@ -70,12 +70,12 @@ function MapTabInner({ playerLevel, loading, progress, onSelectChapter, onEnterN
           <AnimatePresence>
             {dropdownOpen && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                <div className="fixed inset-0 z-overlay" onClick={() => setDropdownOpen(false)} />
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
-                  className="absolute top-full mt-1 left-0 z-50 bg-stone-900/95 backdrop-blur-xl rounded-lg border border-white/10 shadow-xl py-1 min-w-[220px]"
+                  className="absolute top-full mt-1 left-0 z-dropdown bg-stone-900/95 backdrop-blur-xl rounded-lg border border-white/10 shadow-xl py-1 min-w-[220px]"
                 >
                   {MAP_CHAPTERS.map((chapter) => {
                     const unlocked = normalizedProgress.unlockedChapters.includes(chapter.id);

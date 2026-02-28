@@ -177,14 +177,14 @@ function MenuPortal({
   return createPortal(
     <AnimatePresence>
       <>
-        <div className="fixed inset-0 z-40" onClick={onClose} />
+        <div className="fixed inset-0 z-overlay" onClick={onClose} />
         <motion.div
           initial={{ opacity: 0, y: 8, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 8, scale: 0.96 }}
           transition={{ duration: 0.15 }}
           style={pos ? { position: 'fixed', top: pos.top, right: pos.right } : { position: 'fixed', top: 56, right: 16 }}
-          className="z-[9999] bg-stone-900/98 backdrop-blur-xl rounded-sm border border-stone-700/50 shadow-2xl shadow-black/60 py-1 min-w-[160px] relative"
+          className="z-modal bg-stone-900/98 backdrop-blur-xl rounded-sm border border-stone-700/50 shadow-2xl shadow-black/60 py-1 min-w-[160px] relative"
         >
           <div className="absolute top-0 left-0 w-3 h-3 border-l border-t border-amber-600/50 -translate-x-px -translate-y-px" />
           <div className="absolute top-0 right-0 w-3 h-3 border-r border-t border-amber-600/50 translate-x-px -translate-y-px" />

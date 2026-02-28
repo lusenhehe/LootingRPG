@@ -57,7 +57,7 @@ function GamePanelInner({
     .filter((item) => !item.equipped)
     .map((item) => ({ ...item, equipped: false }));
   return (
-    <div className="fantasy-panel rounded-lg overflow-hidden h-[90vh] shadow-2xl shadow-black/60 relative">
+    <div className="fantasy-panel rounded-lg overflow-hidden h-full min-h-0 shadow-2xl shadow-black/60 relative flex flex-col">
       <div className="absolute inset-0 bg-gradient-to-br from-red-950/20 via-transparent to-amber-950/10 pointer-events-none" />
       
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
@@ -71,13 +71,13 @@ function GamePanelInner({
       <div className="absolute bottom-0 left-0 w-16 h-16 border-l-2 border-b-2 border-amber-700/40 rounded-bl-lg" />
       <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-amber-700/40 rounded-br-lg" />
       
-      <div className="flex border-b border-stone-800 relative z-10">
+      <div className="flex border-b border-stone-800 relative z-10 shrink-0">
         <TabButton active={activeTab === 'map'} onClick={() => onSetTab('map')} label={t('map.explore')} />
         <TabButton active={activeTab === 'inventory'} onClick={() => onSetTab('inventory')} label={t('tabs.inventory')} />
         <TabButton active={activeTab === 'forge'} onClick={() => onSetTab('forge')} label={t('tabs.forge')} />
         <TabButton active={activeTab === 'codex'} onClick={() => onSetTab('codex')} label={t('tabs.codex')} />
       </div>
-        <div className="p-4 overflow-hidden relative z-10 h-full">
+        <div className="p-4 overflow-hidden relative z-10 flex-1 min-h-0">
           <AnimatePresence mode="wait">
             {activeTab === 'inventory' && (
               <motion.div 

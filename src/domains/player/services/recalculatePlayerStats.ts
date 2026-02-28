@@ -1,14 +1,13 @@
 import { INITIAL_STATE } from '../../../config/game/gameConfig';
-import { PLAYER_GROWTH } from '../../../config/game/progression';
 import type { GameState } from '../../../shared/types/game';
 import { getEquipmentTotals } from '../../inventory/services/equipmentTotals';
-
+import { PLAYER_GROWTH } from '../../../config/game/gameConfig';
 export const recalculatePlayerStats = (state: GameState): GameState => {
   const next = structuredClone(state);
-  const level = next.playerStats.level;
-  const baseAttack = INITIAL_STATE.playerStats.attack + (level - 1) * PLAYER_GROWTH.attackPerLevel;
-  const baseHp = INITIAL_STATE.playerStats.hp + (level - 1) * PLAYER_GROWTH.hpPerLevel;
-  const baseDefense = INITIAL_STATE.playerStats.defense + (level - 1) * PLAYER_GROWTH.defensePerLevel;
+  const level        = next.playerStats.level;
+  const baseAttack   = INITIAL_STATE.playerStats.attack  + (level - 1) * PLAYER_GROWTH.attackPerLevel;
+  const baseHp       = INITIAL_STATE.playerStats.hp      + (level - 1) * PLAYER_GROWTH.hpPerLevel;
+  const baseDefense  = INITIAL_STATE.playerStats.defense + (level - 1) * PLAYER_GROWTH.defensePerLevel;
   const baseCritRate = Number(PLAYER_GROWTH.baseCritRate);
 
   let attackBonus = 0;

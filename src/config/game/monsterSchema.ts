@@ -9,6 +9,12 @@ export type CounterStatKey        = typeof monsterConfig.strategy.counterGoalSco
 export const SCALING_PROFILES: ScalingProfileStats = monsterConfig.scalingProfileStats as ScalingProfileStats;
 export interface RawMonsterBaseStats { hp?: number; attack?: number; defense?: number}
 // 基础生命/攻击/防御三围，可供玩家和怪物统一使用
+// 优先从静态配置文件读取，若配置缺失则使用内置回退值
+export const BASELINE_STATS: {
+  hp: { baseline: number; levelAdder: number };
+  attack: { baseline: number; levelAdder: number };
+  defense: { baseline: number; levelAdder: number };
+} = monsterConfig.baselineStats;
 export interface EntityStats { hp: number; attack: number; defense: number; }
 export interface RawBossCounterGoal {
   title?: string; titleKey?: string;

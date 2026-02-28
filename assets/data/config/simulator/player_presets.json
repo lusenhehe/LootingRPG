@@ -1,0 +1,119 @@
+{
+  "presets": [
+    {
+      "id": "lv1_base",
+      "name": "Lv.1 裸装",
+      "level": 1,
+      "statsOverride": {
+        "hp": 300,
+        "attack": 50,
+        "defense": 5,
+        "critRate": 5
+      }
+    },
+    {
+      "id": "lv5_base",
+      "name": "Lv.5 裸装",
+      "level": 5,
+      "statsOverride": {
+        "hp": 380,
+        "attack": 70,
+        "defense": 13,
+        "critRate": 5
+      }
+    },
+    {
+      "id": "lv5_geared",
+      "name": "Lv.5 普通装备",
+      "level": 5,
+      "statsOverride": {
+        "hp": 500,
+        "attack": 95,
+        "defense": 20,
+        "critRate": 10
+      }
+    },
+    {
+      "id": "lv10_base",
+      "name": "Lv.10 裸装",
+      "level": 10,
+      "statsOverride": {
+        "hp": 480,
+        "attack": 95,
+        "defense": 23,
+        "critRate": 5
+      }
+    },
+    {
+      "id": "lv10_geared",
+      "name": "Lv.10 普通装备",
+      "level": 10,
+      "statsOverride": {
+        "hp": 680,
+        "attack": 140,
+        "defense": 38,
+        "critRate": 12,
+        "lifesteal": 8
+      }
+    },
+    {
+      "id": "lv10_elite",
+      "name": "Lv.10 精良装备",
+      "level": 10,
+      "statsOverride": {
+        "hp": 820,
+        "attack": 175,
+        "defense": 50,
+        "critRate": 20,
+        "lifesteal": 15
+      }
+    },
+    {
+      "id": "lv15_base",
+      "name": "Lv.15 裸装",
+      "level": 15,
+      "statsOverride": {
+        "hp": 580,
+        "attack": 120,
+        "defense": 33,
+        "critRate": 5
+      }
+    },
+    {
+      "id": "lv15_geared",
+      "name": "Lv.15 普通装备",
+      "level": 15,
+      "statsOverride": {
+        "hp": 820,
+        "attack": 180,
+        "defense": 55,
+        "critRate": 15,
+        "lifesteal": 10
+      }
+    },
+    {
+      "id": "lv20_base",
+      "name": "Lv.20 裸装",
+      "level": 20,
+      "statsOverride": {
+        "hp": 680,
+        "attack": 145,
+        "defense": 43,
+        "critRate": 5
+      }
+    },
+    {
+      "id": "lv20_geared",
+      "name": "Lv.20 精良装备",
+      "level": 20,
+      "statsOverride": {
+        "hp": 1100,
+        "attack": 250,
+        "defense": 80,
+        "critRate": 25,
+        "lifesteal": 20,
+        "thorns": 10
+      }
+    }
+  ]
+}

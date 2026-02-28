@@ -79,7 +79,7 @@ function InventoryTabInner({
 
   return (
     <motion.div key="inventory" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="h-full flex flex-col gap-3">
-      <section className="border border-game-border rounded-xl bg-game-bg/60 p-3">
+      <section className="border border-game-border rounded-xl bg-game-bg/60 p-3 shrink-0">
         <p className="text-xs text-gray-400 mb-2">{t('ui.autoSellHint')}</p>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
           {QUALITIES.map((quality) => (
@@ -99,7 +99,7 @@ function InventoryTabInner({
         </div>
       </section>
 
-      <section className="border border-game-border rounded-xl bg-game-bg/60 p-3 space-y-3">
+      <section className="border border-game-border rounded-xl bg-game-bg/60 p-3 space-y-3 shrink-0">
         <p className="text-xs text-gray-400">{t('ui.quickSellAndSort')}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -156,7 +156,7 @@ function InventoryTabInner({
         </div>
       </section>
 
-      <div className="h-[420px] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 pr-2">
+      <div className="flex-1 min-h-0 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-3 pr-2">
         {sortedItems.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center h-64 text-gray-600">
             <Package size={48} className="mb-2 opacity-20" />

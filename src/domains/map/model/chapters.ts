@@ -21,6 +21,9 @@ interface RawMapChapter {
   name: string;
   levelRange: string;
   theme: string;
+  ui?: {
+    themeStyles?: Record<string, unknown>;
+  };
   nodes: RawMapNode[];
 }
 
@@ -44,6 +47,9 @@ export interface MapChapterDef {
   name: string;
   levelRange: string;
   theme: ChapterTheme;
+  ui?: {
+    themeStyles?: Record<string, unknown>;
+  };
   nodes: MapNodeDef[];
 }
 

@@ -1,0 +1,764 @@
+{
+  "gameState": {
+    "playerStats": {
+      "level": 10,
+      "xp": 632,
+      "attack": 1000929,
+      "hp": 653,
+      "defense": 653,
+      "critRate": "165",
+      "damageBonus": 4506,
+      "lifesteal": 3600,
+      "thorns": 8,
+      "elemental": 14399,
+      "attackSpeed": 523,
+      "gold": 102375
+    },
+    "battleResult": "成功击败怪物！获得经验 20。",
+    "droppedEquipment": {
+      "id": "u002_warden_aegis_mm54kiqv_cbpga",
+      "icon": "🛡️",
+      "level": 10,
+      "name": "永夜壁垒",
+      "quality": "mythic",
+      "slot": "armor",
+      "attributes": {
+        "hp": 144,
+        "defense": 34
+      },
+      "affixes": [
+        {
+          "type": "thorns",
+          "value": 9
+        },
+        {
+          "type": "hp_bonus",
+          "value": 48
+        }
+      ],
+      "enhancementLevel": 0,
+      "mainStat": "hp",
+      "equipped": false,
+      "special": "生命低于 30% 时获得护盾",
+      "localeNames": {
+        "zh": "永夜壁垒",
+        "en": "Eternal Bulwark"
+      }
+    },
+    "backpack": [
+      {
+        "id": "u001_ashen_blade_mm5214gv_cazyv",
+        "icon": "⚔️",
+        "level": 10,
+        "name": "灼灰之刃",
+        "quality": "legendary",
+        "slot": "weapon",
+        "attributes": {
+          "attack": 42,
+          "attackSpeed": 4
+        },
+        "affixes": [
+          {
+            "type": "damage_bonus",
+            "value": 6
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "attack",
+        "equipped": false,
+        "special": "对亡灵伤害提升 25%",
+        "localeNames": {
+          "zh": "灼灰之刃",
+          "en": "Ashen Blade"
+        }
+      },
+      {
+        "id": "u003_skytrace_boots_mm52481p_85326",
+        "icon": "👢",
+        "level": 10,
+        "name": "逐风战靴",
+        "quality": "epic",
+        "slot": "boots",
+        "attributes": {
+          "attackSpeed": 5,
+          "defense": 6
+        },
+        "affixes": [
+          {
+            "type": "crit_chance",
+            "value": 2
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "defense",
+        "equipped": false,
+        "special": "移动与出手更迅捷",
+        "localeNames": {
+          "zh": "逐风战靴",
+          "en": "Skytrace Boots"
+        }
+      },
+      {
+        "id": "u003_skytrace_boots_mm54466k_uf71m",
+        "icon": "👢",
+        "level": 10,
+        "name": "逐风战靴",
+        "quality": "epic",
+        "slot": "boots",
+        "attributes": {
+          "attackSpeed": 5,
+          "defense": 6
+        },
+        "affixes": [
+          {
+            "type": "crit_chance",
+            "value": 2
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "defense",
+        "equipped": false,
+        "special": "移动与出手更迅捷",
+        "localeNames": {
+          "zh": "逐风战靴",
+          "en": "Skytrace Boots"
+        }
+      },
+      {
+        "id": "u001_ashen_blade_mm54hgdm_u1tjd",
+        "icon": "⚔️",
+        "level": 10,
+        "name": "灼灰之刃",
+        "quality": "legendary",
+        "slot": "weapon",
+        "attributes": {
+          "attack": 42,
+          "attackSpeed": 4
+        },
+        "affixes": [
+          {
+            "type": "damage_bonus",
+            "value": 6
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "attack",
+        "equipped": false,
+        "special": "对亡灵伤害提升 25%",
+        "localeNames": {
+          "zh": "灼灰之刃",
+          "en": "Ashen Blade"
+        }
+      },
+      {
+        "id": "u002_warden_aegis_mm54kiqv_cbpga",
+        "icon": "🛡️",
+        "level": 10,
+        "name": "永夜壁垒",
+        "quality": "mythic",
+        "slot": "armor",
+        "attributes": {
+          "hp": 144,
+          "defense": 34
+        },
+        "affixes": [
+          {
+            "type": "thorns",
+            "value": 9
+          },
+          {
+            "type": "hp_bonus",
+            "value": 48
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "hp",
+        "equipped": false,
+        "special": "生命低于 30% 时获得护盾",
+        "localeNames": {
+          "zh": "永夜壁垒",
+          "en": "Eternal Bulwark"
+        }
+      }
+    ],
+    "systemMessage": "一键售卖完成:普通-神话，共出售 7 件，获得 31000 金币。",
+    "currentEquipment": {
+      "weapon": {
+        "id": "u001_ashen_blade_mm51teh9_mc187",
+        "icon": "⚔️",
+        "level": 9,
+        "name": "灼灰之刃",
+        "quality": "legendary",
+        "slot": "weapon",
+        "attributes": {
+          "attack": 38,
+          "attackSpeed": 4
+        },
+        "affixes": [
+          {
+            "type": "damage_bonus",
+            "value": 6
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "attack",
+        "equipped": true,
+        "special": "对亡灵伤害提升 25%",
+        "localeNames": {
+          "zh": "灼灰之刃",
+          "en": "Ashen Blade"
+        }
+      },
+      "helmet": null,
+      "armor": {
+        "id": "u002_warden_aegis_mm51tcjq_53yw5",
+        "icon": "🛡️",
+        "level": 9,
+        "name": "永夜壁垒",
+        "quality": "mythic",
+        "slot": "armor",
+        "attributes": {
+          "hp": 130,
+          "defense": 31
+        },
+        "affixes": [
+          {
+            "type": "thorns",
+            "value": 8
+          },
+          {
+            "type": "hp_bonus",
+            "value": 43
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "hp",
+        "equipped": true,
+        "special": "生命低于 30% 时获得护盾",
+        "localeNames": {
+          "zh": "永夜壁垒",
+          "en": "Eternal Bulwark"
+        }
+      },
+      "ring": {
+        "id": "u004_abyss_eye_ring_mm51tww0_uup81",
+        "icon": "💍",
+        "level": 9999,
+        "name": "渊瞳指环",
+        "quality": "mythic",
+        "slot": "ring",
+        "attributes": {
+          "elemental": 14399,
+          "attack": 21598
+        },
+        "affixes": [
+          {
+            "type": "lifesteal",
+            "value": 3600
+          },
+          {
+            "type": "damage_bonus",
+            "value": 4500
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "attack",
+        "equipped": true,
+        "special": "元素伤害提升并附带吸血",
+        "localeNames": {
+          "zh": "渊瞳指环",
+          "en": "Abyss Eye Ring"
+        }
+      },
+      "necklace": null,
+      "boots": {
+        "id": "u003_skytrace_boots_mm51tqk5_cqzhy",
+        "icon": "👢",
+        "level": 999,
+        "name": "逐风战靴",
+        "quality": "epic",
+        "slot": "boots",
+        "attributes": {
+          "attackSpeed": 519,
+          "defense": 599
+        },
+        "affixes": [
+          {
+            "type": "crit_chance",
+            "value": 160
+          }
+        ],
+        "enhancementLevel": 0,
+        "mainStat": "defense",
+        "equipped": true,
+        "special": "移动与出手更迅捷",
+        "localeNames": {
+          "zh": "逐风战靴",
+          "en": "Skytrace Boots"
+        }
+      }
+    },
+    "pityCounts": {
+      "legendary": 167,
+      "mythic": 167
+    },
+    "battle": {
+      "activeSession": null,
+      "history": [
+        {
+          "sessionId": "battle_1772110289099",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": true,
+          "turns": 14,
+          "xpGained": 124,
+          "goldGained": 120,
+          "finishedAt": 1772110294550
+        },
+        {
+          "sessionId": "battle_1772121888932",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 2,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772121942616
+        },
+        {
+          "sessionId": "battle_1772177490274",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": true,
+          "turns": 15,
+          "xpGained": 124,
+          "goldGained": 120,
+          "finishedAt": 1772177520181
+        },
+        {
+          "sessionId": "battle_1772177755223",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 6,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772177771531
+        },
+        {
+          "sessionId": "battle_1772177781068",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 2,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772177787259
+        },
+        {
+          "sessionId": "battle_1772177788261",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 1,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772178104717
+        },
+        {
+          "sessionId": "battle_1772178106101",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 2,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772178382960
+        },
+        {
+          "sessionId": "battle_1772178384608",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 2,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772186115409
+        },
+        {
+          "sessionId": "battle_1772186116513",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 35,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772186143765
+        },
+        {
+          "sessionId": "battle_1772186144849",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": true,
+          "turns": 42,
+          "xpGained": 124,
+          "goldGained": 120,
+          "finishedAt": 1772186153165
+        },
+        {
+          "sessionId": "battle_1772186437850",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": true,
+          "turns": 42,
+          "xpGained": 124,
+          "goldGained": 120,
+          "finishedAt": 1772188159521
+        },
+        {
+          "sessionId": "battle_1772189637233",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 8,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772189643343
+        },
+        {
+          "sessionId": "battle_1772189644347",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 8,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772189689030
+        },
+        {
+          "sessionId": "battle_1772189689917",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 8,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772189706604
+        },
+        {
+          "sessionId": "battle_1772189707771",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 9,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772189799712
+        },
+        {
+          "sessionId": "battle_1772189800779",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 9,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772189828755
+        },
+        {
+          "sessionId": "battle_1772189842869",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772189857045
+        },
+        {
+          "sessionId": "battle_1772189858041",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772190373598
+        },
+        {
+          "sessionId": "battle_1772190377851",
+          "chapterId": "chapter-1",
+          "nodeId": "1-5",
+          "won": true,
+          "turns": 5,
+          "xpGained": 70,
+          "goldGained": 220,
+          "finishedAt": 1772190387167
+        },
+        {
+          "sessionId": "battle_1772190395359",
+          "chapterId": "chapter-1",
+          "nodeId": "1-6",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772190400548
+        },
+        {
+          "sessionId": "battle_1772206198106",
+          "chapterId": "chapter-1",
+          "nodeId": "1-6",
+          "won": true,
+          "turns": 5,
+          "xpGained": 76,
+          "goldGained": 240,
+          "finishedAt": 1772206201286
+        },
+        {
+          "sessionId": "battle_1772206201549",
+          "chapterId": "chapter-1",
+          "nodeId": "1-5",
+          "won": true,
+          "turns": 4,
+          "xpGained": 70,
+          "goldGained": 220,
+          "finishedAt": 1772206203789
+        },
+        {
+          "sessionId": "battle_1772206233950",
+          "chapterId": "chapter-1",
+          "nodeId": "1-7",
+          "won": true,
+          "turns": 3,
+          "xpGained": 90,
+          "goldGained": 260,
+          "finishedAt": 1772206235271
+        },
+        {
+          "sessionId": "battle_1772206237597",
+          "chapterId": "chapter-1",
+          "nodeId": "1-8",
+          "won": true,
+          "turns": 3,
+          "xpGained": 96,
+          "goldGained": 280,
+          "finishedAt": 1772206238904
+        },
+        {
+          "sessionId": "battle_1772206241221",
+          "chapterId": "chapter-1",
+          "nodeId": "1-9",
+          "won": true,
+          "turns": 3,
+          "xpGained": 102,
+          "goldGained": 300,
+          "finishedAt": 1772206242395
+        },
+        {
+          "sessionId": "battle_1772206244331",
+          "chapterId": "chapter-1",
+          "nodeId": "1-10",
+          "won": true,
+          "turns": 3,
+          "xpGained": 108,
+          "goldGained": 400,
+          "finishedAt": 1772206246921
+        },
+        {
+          "sessionId": "battle_1772206250928",
+          "chapterId": "chapter-2",
+          "nodeId": "2-1",
+          "won": true,
+          "turns": 4,
+          "xpGained": 104,
+          "goldGained": 160,
+          "finishedAt": 1772206253337
+        },
+        {
+          "sessionId": "battle_1772206373947",
+          "chapterId": "chapter-2",
+          "nodeId": "2-1",
+          "won": true,
+          "turns": 4,
+          "xpGained": 104,
+          "goldGained": 160,
+          "finishedAt": 1772206564064
+        },
+        {
+          "sessionId": "battle_1772206568315",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772206572039
+        },
+        {
+          "sessionId": "battle_1772206573291",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": true,
+          "turns": 17,
+          "xpGained": 132,
+          "goldGained": 120,
+          "finishedAt": 1772206708669
+        },
+        {
+          "sessionId": "battle_1772206709994",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772207147547
+        },
+        {
+          "sessionId": "battle_1772207196494",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772207353399
+        },
+        {
+          "sessionId": "battle_1772207354823",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 1,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772209750621
+        },
+        {
+          "sessionId": "battle_1772210041528",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": true,
+          "turns": 15,
+          "xpGained": 132,
+          "goldGained": 120,
+          "finishedAt": 1772210065484
+        },
+        {
+          "sessionId": "battle_1772210679366",
+          "chapterId": "chapter-1",
+          "nodeId": "1-10",
+          "won": true,
+          "turns": 3,
+          "xpGained": 108,
+          "goldGained": 400,
+          "finishedAt": 1772210685226
+        },
+        {
+          "sessionId": "battle_1772210824378",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": true,
+          "turns": 15,
+          "xpGained": 132,
+          "goldGained": 120,
+          "finishedAt": 1772210828264
+        },
+        {
+          "sessionId": "battle_1772210960368",
+          "chapterId": "chapter-1",
+          "nodeId": "1-10",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772210962069
+        },
+        {
+          "sessionId": "battle_1772210965131",
+          "chapterId": "chapter-1",
+          "nodeId": "1-7",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772210966057
+        },
+        {
+          "sessionId": "battle_1772211026925",
+          "chapterId": "chapter-1",
+          "nodeId": "1-3",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772211028300
+        },
+        {
+          "sessionId": "battle_1772211030863",
+          "chapterId": "chapter-1",
+          "nodeId": "1-1",
+          "won": false,
+          "turns": 0,
+          "xpGained": 0,
+          "goldGained": 0,
+          "finishedAt": 1772211138805
+        }
+      ]
+    }
+  },
+  "logs": [
+    "[00:34:17] [Battle] Turn 4: 森林史莱姆 dealt 1 to Player."
+  ],
+  "autoSellQualities": {
+    "common": false,
+    "uncommon": false,
+    "rare": false,
+    "epic": false,
+    "legendary": false,
+    "mythic": false
+  },
+  "mapProgress": {
+    "selectedChapterId": "chapter-1",
+    "unlockedChapters": [
+      "chapter-1",
+      "chapter-2",
+      "chapter-3",
+      "chapter-4"
+    ],
+    "unlockedNodes": [
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5",
+      "1-6",
+      "1-7",
+      "1-8",
+      "1-9",
+      "1-10",
+      "2-1",
+      "2-2"
+    ],
+    "clearedNodes": [
+      "1-1",
+      "1-2",
+      "1-3",
+      "1-4",
+      "1-5",
+      "1-6",
+      "1-7",
+      "1-8",
+      "1-9",
+      "1-10",
+      "2-1"
+    ],
+    "failedAttempts": {
+      "1-10": 1,
+      "1-7": 1,
+      "1-3": 1,
+      "1-1": 1
+    }
+  }
+}

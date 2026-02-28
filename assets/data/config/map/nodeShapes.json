@@ -1,8 +1,8 @@
 {
   "林地": {
     "normal": "rounded-lg clip-path-forest",
-    "elite": "rotate-45 rounded-sm clip-path-forest-elite",
-    "boss": "rounded-2xl clip-path-forest-boss"
+    "elite":  "rotate-45 rounded-sm clip-path-forest-elite",
+    "boss":   "rounded-2xl clip-path-forest-boss"
   },
   "地牢": {
     "normal": "rounded-sm clip-path-dungeon",

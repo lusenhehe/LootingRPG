@@ -5,11 +5,28 @@
       "name": "新手林地",
       "levelRange": "Lv.1-10",
       "theme": "林地",
+      "ui": {
+        "themeStyles": {
+          "islandGradient": "from-emerald-950 via-red-900 to-black",
+          "terrainTop": "from-emerald-900 via-red-800 to-stone-900",
+          "glowColor": "rgba(180, 40, 40, 0.4)",
+          "shadowColor": "rgba(120, 30, 30, 0.3)",
+          "accentColor": "emerald",
+          "background": "linear-gradient(180deg, #030803 0%, #050805 50%, #020402 100%)",
+          "pathStyle": {
+            "type": "dirt",
+            "strokeColor": "rgb(60, 45, 30)",
+            "strokeWidth": 4,
+            "clearedColor": "rgb(80, 60, 40)",
+            "dashed": false,
+            "texture": "rough"
+          }
+        }
+      },
       "nodes": [
-        {
-          "id": "1-1", "name": "侦查营地", "recommendedLevel": 2, "encounterType": "normal", "firstClearRewardGold": 120,
+        { "id": "1-1", "name": "侦查营地", "recommendedLevel": 2, "encounterType": "normal", "firstClearRewardGold": 120,
           "waves": [
-            { "id": "1-1-a", "label": "第一波", "monsters": [ { "monsterId": "abyss_demon" }, { "monsterId": "forest_slime" }, { "monsterId": "dark_spider" } ] },
+            { "id": "1-1-a", "label": "第一波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "dark_spider" } ] },
             { "id": "1-1-b", "label": "第二波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" }, { "monsterId": "dark_spider" } ] },
             { "id": "1-1-c", "label": "第三波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "plague_mushroom" } ] },
             { "id": "1-1-d", "label": "第四波", "monsters": [ { "monsterId": "forest_slime" }, { "monsterId": "forest_slime" }, { "monsterId": "dark_spider" } ] },
@@ -66,6 +83,24 @@
       "name": "废弃地牢",
       "levelRange": "Lv.10-20",
       "theme": "地牢",
+      "ui": {
+        "themeStyles": {
+          "islandGradient": "from-stone-950 via-red-950 to-black",
+          "terrainTop": "from-stone-800 via-red-900 to-black",
+          "glowColor": "rgba(150, 40, 40, 0.4)",
+          "shadowColor": "rgba(100, 30, 30, 0.3)",
+          "accentColor": "slate",
+          "background": "linear-gradient(180deg, #050505 0%, #080808 50%, #030303 100%)",
+          "pathStyle": {
+            "type": "stone",
+            "strokeColor": "rgb(70, 65, 60)",
+            "strokeWidth": 3,
+            "clearedColor": "rgb(90, 85, 75)",
+            "dashed": true,
+            "texture": "cracked"
+          }
+        }
+      },
       "nodes": [
         { "id": "2-1", "name": "破碎回廊", "recommendedLevel": 12, "encounterType": "normal", "firstClearRewardGold": 160,
           "waves": [
@@ -88,6 +123,24 @@
       "name": "熔岩深渊",
       "levelRange": "Lv.20-35",
       "theme": "火山",
+      "ui": {
+        "themeStyles": {
+          "islandGradient": "from-stone-950 via-red-950 to-black",
+          "terrainTop": "from-orange-900 via-red-900 to-stone-950",
+          "glowColor": "rgba(200, 60, 20, 0.5)",
+          "shadowColor": "rgba(180, 40, 20, 0.35)",
+          "accentColor": "orange",
+          "background": "linear-gradient(180deg, #0a0404 0%, #080505 50%, #050202 100%)",
+          "pathStyle": {
+            "type": "lava",
+            "strokeColor": "rgb(120, 40, 10)",
+            "strokeWidth": 4,
+            "clearedColor": "rgb(180, 60, 20)",
+            "dashed": false,
+            "texture": "cracked"
+          }
+        }
+      },
       "nodes": [
         { "id": "3-1", "name": "熔火", "recommendedLevel": 23, "encounterType": "normal", "firstClearRewardGold": 220,
           "waves": [
@@ -115,6 +168,24 @@
       "name": "永夜墓园",
       "levelRange": "Lv.35-50",
       "theme": "亡灵",
+      "ui": {
+        "themeStyles": {
+          "islandGradient": "from-slate-950 via-red-950 to-black",
+          "terrainTop": "from-red-900 via-red-900 to-stone-950",
+          "glowColor": "rgba(160, 50, 100, 0.4)",
+          "shadowColor": "rgba(120, 30, 60, 0.3)",
+          "accentColor": "purple",
+          "background": "linear-gradient(180deg, #030205 0%, #040306 50%, #020104 100%)",
+          "pathStyle": {
+            "type": "blood",
+            "strokeColor": "rgb(80, 20, 25)",
+            "strokeWidth": 5,
+            "clearedColor": "rgb(100, 25, 30)",
+            "dashed": false,
+            "texture": "stained"
+          }
+        }
+      },
       "nodes": [
         { "id": "4-1", "name": "枯骨庭院", "recommendedLevel": 38, "encounterType": "normal", "firstClearRewardGold": 260 },
         { "id": "4-2", "name": "死灵拱廊", "recommendedLevel": 40, "encounterType": "elite", "firstClearRewardGold": 300 },

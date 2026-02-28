@@ -1,0 +1,36 @@
+{
+  "chapterId": "chapter-1",
+  "nodeId": "1-1",
+  "presetId": "lv1_base",
+  "useManual": true,
+  "manualLevel": 1,
+  "manualHp": 500,
+  "manualAtk": 65,
+  "manualDef": 20,
+  "manualCrit": 5,
+  "manualLifesteal": 0,
+  "manualThorns": 0,
+  "manualElemental": 0,
+  "manualSpeed": 0,
+  "iterations": 500,
+  "mapScale": {
+    "hpMult": 1,
+    "attackMult": 1,
+    "defenseMult": 1
+  },
+  "useBaselineOverride": true,
+  "baselineOverride": {
+    "hp": {
+      "baseline": 100,
+      "levelAdder": 10
+    },
+    "attack": {
+      "baseline": 10,
+      "levelAdder": 1.35
+    },
+    "defense": {
+      "baseline": 7,
+      "levelAdder": 1
+    }
+  }
+}

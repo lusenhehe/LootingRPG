@@ -1,13 +1,14 @@
 import type { EntityStats } from '../../../shared/types/game';
 import type { Monster } from '../../../config/game/monsterSchema';
 import { SCALING_PROFILES } from '../../../config/game/monsterSchema';
-
+import { BASELINE_STATS } from '../../../config/game/monsterSchema';
 export const getMapMonsterBaselineByLevel = (recommendedLevel: number): EntityStats => {
   const level = Math.max(1, recommendedLevel);
   return {
-    hp: Math.floor(120 + (level - 1) * 14),
-    attack: Math.floor(16 + (level - 1) * 1.35),
-    defense: Math.floor(7 + (level - 1) * 0.72),
+    // 基础数值 = 基线数值 + (等级 - 1) * 等差增长
+    hp:      Math.floor(BASELINE_STATS.hp.baseline      + (level - 1) * BASELINE_STATS.hp.levelAdder),
+    attack:  Math.floor(BASELINE_STATS.attack.baseline  + (level - 1) * BASELINE_STATS.attack.levelAdder),
+    defense: Math.floor(BASELINE_STATS.defense.baseline + (level - 1) * BASELINE_STATS.defense.levelAdder),
   };
 };
 export const resolveMonsterTemplateStats = (

@@ -5,7 +5,7 @@ import { getFinalPlayerStats } from '../../player/model/combat';
 import { getFinalMonsterStats } from './monsterStats';
 import { getMonsterById } from '../../monster/config';
 import { applyMapNodeResult } from '../../map/services/progress';
-import { PLAYER_GROWTH } from '../../game/config/progression';
+import { PLAYER_GROWTH } from '../../../config/game/gameConfig';
 import { recalculatePlayerStats } from '../../player/services/recalculatePlayerStats';
 import { generateEquipment } from '../../inventory/services/equipment';
 import { createBattleUnit } from '../UnitFactory';

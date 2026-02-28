@@ -438,12 +438,12 @@ function MonsterCodexTabInner() {
         </div>
       </motion.section>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2 min-h-0 overflow-hidden items-stretch">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-10 gap-2 min-h-0 overflow-hidden items-stretch">
         <motion.section
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="border border-game-border/50 rounded-xl bg-game-bg/40 p-2 overflow-hidden flex flex-col h-full min-h-0"
+          className="border border-game-border/50 rounded-xl bg-game-bg/40 p-2 overflow-hidden flex flex-col h-full min-h-0 lg:col-span-3"
         >
           <div className="flex items-center gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider flex-shrink-0">
             <Info size={12} />
@@ -473,7 +473,7 @@ function MonsterCodexTabInner() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.15 }}
-          className="border border-game-border/50 rounded-xl bg-game-bg/30 p-2 overflow-hidden flex flex-col h-full min-h-0"
+          className="border border-game-border/50 rounded-xl bg-game-bg/30 p-2 overflow-hidden flex flex-col h-full min-h-0 lg:col-span-7"
         >
           <div className="flex items-center gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider flex-shrink-0">
             <Heart size={12} className="text-red-400" />

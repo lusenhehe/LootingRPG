@@ -203,9 +203,9 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
       
       {/* Confirm Modal */}
       {confirmOpen && selected && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setConfirmOpen(false)} />
-          <div className="relative bg-game-bg border border-game-border rounded-lg p-6" style={{ width: 'min(92%,560px)' }}>
+        <div className="fixed inset-0 z-modal flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 z-modal-backdrop" onClick={() => setConfirmOpen(false)} />
+          <div className="relative bg-game-bg border border-game-border rounded-lg p-6 z-modal" style={{ width: 'min(92%,560px)' }}>
             <h3 className="text-lg font-bold mb-2">{t('ui.forge.confirm_title') || 'Confirm Enchant'}</h3>
             <p className="text-sm text-gray-300 mb-4">{t('ui.forge.confirm_body') || 'This will consume resources and apply the enchant.'}</p>
             {previewResult && (

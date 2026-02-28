@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { LoginScreen } from '../components/auth/LoginScreen';
 import { GameScreen }  from '../components/game/GameScreen';
 import { useGame }     from './GameContext';
+import { BattleSimulatorPage } from '../tools/BattleSimulator/BattleSimulatorPage';
 
 export function AppShell() {
+  const [showSimulator, setShowSimulator] = useState(false);
   const {
     profiles,
     activeProfileId,
@@ -53,6 +56,7 @@ export function AppShell() {
   const currentProfile = profiles.find((profile: import('../shared/types/game').SaveProfile) => profile.id === activeProfileId);
 
   return (
+    <>
     <GameScreen
       gameState={gameState}
       activeTab={activeTab}
@@ -86,6 +90,11 @@ export function AppShell() {
       onSelectForgeItem={setForgeSelectedId}
       onUnequip={handleUnequip}
       onDebugAddItems={handleDebugAddItems}
+      onOpenSimulator={() => setShowSimulator(true)}
     />
+    {showSimulator && (
+      <BattleSimulatorPage onClose={() => setShowSimulator(false)} />
+    )}
+    </>
   );
 }

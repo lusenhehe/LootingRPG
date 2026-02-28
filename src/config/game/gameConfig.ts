@@ -1,15 +1,25 @@
 import type { GameState, PlayerStats, Equipment } from '../../shared/types/game';
-import { PLAYER_GROWTH } from './progression';
 /**
  * 游戏全局配置对象
  * - INITIAL_STATE: 全部游戏状态的初始快照
  *   用于新存档创建、重置以及在计算中作为基准值。
  *   其他模块例如 "playerStats.ts" 会引用此对象获取基础数值。
  */
+export const PLAYER_GROWTH = {
+  baseAttack: 50,
+  attackPerLevel: 5,
+  baseHp: 300,
+  hpPerLevel: 20,
+  baseDefense: 5,
+  defensePerLevel: 2,
+  baseCritRate: 5,
+  xpPerLevel: 100,
+};
+
 const basePlayerStats: PlayerStats = {
   level: 1, xp: 0, attack: PLAYER_GROWTH.baseAttack,
-  hp: PLAYER_GROWTH.baseHp,
-  defense: PLAYER_GROWTH.baseDefense,
+  hp:         PLAYER_GROWTH.baseHp,
+  defense:    PLAYER_GROWTH.baseDefense,
   critRate: `${PLAYER_GROWTH.baseCritRate}`, // 百分数字符串形式
   damageBonus: 0, lifesteal: 0,
   thorns: 0, elemental: 0, attackSpeed: 0, gold: 0,

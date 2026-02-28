@@ -56,7 +56,7 @@ function PlayerPanelInner({ gameState }: PlayerPanelProps) {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.08 }}
-        className="p-3 relative overflow-hidden border-b border-stone-800/60"
+        className="p-3 relative overflow-visible border-b border-stone-800/60"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-fuchsia-500/5" />
         <div className="absolute top-0 left-0 w-8 h-px bg-gradient-to-r from-amber-600/50 to-transparent" />
@@ -91,7 +91,7 @@ function PlayerPanelInner({ gameState }: PlayerPanelProps) {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
-        className="p-3 relative overflow-hidden flex-1"
+        className="p-3 relative overflow-visible flex-1"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-red-900/5 to-transparent" />
         <div className="absolute top-0 left-0 w-8 h-px bg-gradient-to-r from-amber-600/50 to-transparent" />

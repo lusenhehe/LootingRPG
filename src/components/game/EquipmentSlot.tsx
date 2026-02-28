@@ -76,7 +76,7 @@ function EquipmentTooltipInner({ item, position, onClose }: EquipmentTooltipProp
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: 5 }}
       transition={{ duration: 0.15 }}
-      className={`absolute z-[150] w-64 p-3 rounded-sm border ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
+      className={`absolute z-tooltip-fixed w-64 p-3 rounded-sm border ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
       style={position === 'click' ? { position: 'fixed', zIndex: 9999 } : undefined}
       onClick={(e) => e.stopPropagation()}
     >
@@ -223,15 +223,15 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect }: EquipmentSlotP
             {getSlotLabel(slot)}
           </span>
         )}
-      </div>
 
-      <AnimatePresence>
-        {showTooltip === 'hover' && item && (
-          <div className="absolute z-[100] left-full top-0 ml-2 pointer-events-none">
-            <EquipmentTooltip item={item} position="hover" onClose={() => {}} />
-          </div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence>
+          {showTooltip === 'hover' && item && (
+            <div className="absolute z-tooltip left-full top-0 ml-2 pointer-events-auto">
+              <EquipmentTooltip item={item} position="hover" onClose={() => {}} />
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

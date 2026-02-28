@@ -7,7 +7,6 @@ import { PlayerPanel } from './PlayerPanel';
 import { BattleView } from './BattleView';
 import DebugPanel from './DebugPanel';
 import { memo } from 'react';
-
 interface GameScreenProps {
   gameState: GameState;
   activeTab: ActiveTab;
@@ -41,6 +40,7 @@ interface GameScreenProps {
   onSelectForgeItem: (id: string) => void;
   onUnequip: (slot: string) => void;
   onDebugAddItems?: (quality: string, slot: string, count: number, level?: number) => void;
+  onOpenSimulator?: () => void;
 }
 
 function GameScreenInner({
@@ -73,6 +73,7 @@ function GameScreenInner({
   onSelectForgeItem,
   onUnequip,
   onDebugAddItems,
+  onOpenSimulator,
 }: GameScreenProps) {
   return (
     <div className="flex flex-col h-screen bg-stone-950 overflow-hidden relative">
@@ -93,10 +94,10 @@ function GameScreenInner({
       />
 
       <main className="flex flex-1 min-h-0 overflow-hidden relative">
-        <div className="w-56 flex-shrink-0 h-full min-h-0 border-r border-stone-800/40">
+        <div className="w-56 h-full border-r border-stone-800/40">
           <PlayerPanel gameState={gameState} onUnequip={onUnequip} />
         </div>
-        <div className="flex-1 h-full relative min-h-0 p-3">
+        <div className="flex-1 h-full relative min-h-0">
           {battleSession ? (
             <BattleView
               session={battleSession}
@@ -128,11 +129,14 @@ function GameScreenInner({
           )}
         </div>
       </main>
-      <DebugPanel onAddItems={(items) => {
-        if (onDebugAddItems) {
-          items.forEach((it) => onDebugAddItems(it.quality, it.slot, 1, it.level));
-        }
-      }} />
+      <DebugPanel
+        onAddItems={(items) => {
+          if (onDebugAddItems) {
+            items.forEach((it) => onDebugAddItems(it.quality, it.slot, 1, it.level));
+          }
+        }}
+        onOpenSimulator={onOpenSimulator}
+      />
     </div>
   );
 }

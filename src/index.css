@@ -18,6 +18,35 @@
   --color-quality-epic: #991B1B;
   --color-quality-legendary: #F59E0B;
   --color-quality-mythic: #DC2626;
+
+  /* Z-Index Scale */
+  --z-base: 0;             /* 基础层*/
+  --z-decor: 5;            /* 装饰 */
+  --z-content: 10;         /* 内容 */
+  --z-overlay: 20;         /* 覆盖层 */
+  --z-dropdown: 30;        /* 下拉菜单 */
+  --z-sticky: 40;          /* 粘性元素 */
+  --z-modal-backdrop: 45;  /* 模态背景 */
+  --z-modal: 50;      /* 模态窗口 */  
+  --z-tooltip: 100;   /* 工具提示 */
+  --z-tooltip-fixed: 150; /* 固定工具提示 */
+  --z-popover: 200;   /* 弹出层 */
+  --z-max: 9999;      /* 最大层 */
+}
+
+@layer utilities {
+  .z-decor          { z-index: var(--z-decor); }
+  .z-content        { z-index: var(--z-content); }
+  .z-overlay        { z-index: var(--z-overlay); }
+  .z-dropdown       { z-index: var(--z-dropdown); }
+  .z-sticky         { z-index: var(--z-sticky); }
+  .z-modal-backdrop { z-index: var(--z-modal-backdrop); }
+  .z-modal          { z-index: var(--z-modal); }
+  .z-tooltip        { z-index: var(--z-tooltip); }
+  .z-tooltip-fixed  { z-index: var(--z-tooltip-fixed); }
+  .z-popover        { z-index: var(--z-popover); }
+  .z-max            { z-index: var(--z-max); }
+  .z-scope          { position: relative; isolation: isolate; }
 }
 
 @layer base {
@@ -444,12 +473,12 @@
   background: rgba(59, 130, 246, 0.55);
 }
 
-.quality-common { color: var(--color-quality-common); }
-.quality-uncommon { color: var(--color-quality-uncommon); }
-.quality-rare { color: var(--color-quality-rare); }
-.quality-epic { color: var(--color-quality-epic); }
+.quality-common    { color: var(--color-quality-common); }
+.quality-uncommon  { color: var(--color-quality-uncommon); }
+.quality-rare      { color: var(--color-quality-rare); }
+.quality-epic      { color: var(--color-quality-epic); }
 .quality-legendary { color: var(--color-quality-legendary); }
-.quality-mythic { color: var(--color-quality-mythic); }
+.quality-mythic    { color: var(--color-quality-mythic); }
 
 .bg-quality-common { background-color: var(--color-quality-common); }
 .bg-quality-uncommon { background-color: var(--color-quality-uncommon); }
@@ -568,6 +597,7 @@
   background: linear-gradient(180deg, rgba(28, 25, 23, 0.95) 0%, rgba(10, 9, 8, 0.98) 100%);
   border: 1px solid #44403C;
   position: relative;
+  isolation: isolate;
 }
 
 .fantasy-panel::before {
@@ -658,6 +688,37 @@
   background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
   pointer-events: none;
   z-index: 10;
+}
+
+/* ── 地图环境粒子动画 ────────────────────────────────────────── */
+/* 通用上浮消散（萤火/尘埃/余烬） */
+@keyframes map-particle-float {
+  0%   { transform: translateY(0) scale(1);    opacity: 0;    }
+  18%  { opacity: 1;                                           }
+  82%  { opacity: 0.80;                                        }
+  100% { transform: translateY(-54px) scale(0.75); opacity: 0; }
+}
+/* 亡灵主题：横向漂移鬼火 */
+@keyframes map-wisp-drift {
+  0%   { transform: translate(0,     0);     opacity: 0;    }
+  15%  { opacity: 0.85;                                      }
+  50%  { transform: translate(18px, -16px);                  }
+  85%  { opacity: 0.65;                                      }
+  100% { transform: translate(6px,  -32px);  opacity: 0;    }
+}
+/* 火山主题：余烬缓慢上浮（不规则、沉重感） */
+@keyframes map-lava-ember {
+  0%   { transform: translateY(0)    scale(1);    opacity: 0;    }
+  12%  { opacity: 0.55;                                           }
+  48%  { transform: translateY(-22px) scale(0.88); opacity: 0.45; }
+  78%  { transform: translateY(-40px) scale(0.72); opacity: 0.28; }
+  100% { transform: translateY(-58px) scale(0.50); opacity: 0;    }
+}
+/* 熔岩池脉动（呼吸感，亮度周期 2.5s ~ 4s） */
+@keyframes map-lava-pool-pulse {
+  0%   { opacity: 0.72; transform: scale(1);    filter: blur(9px);  }
+  50%  { opacity: 1.00; transform: scale(1.02); filter: blur(6px);  }
+  100% { opacity: 0.72; transform: scale(1);    filter: blur(9px);  }
 }
 
 /* Ember Particles Animation */

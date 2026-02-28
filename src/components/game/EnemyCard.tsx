@@ -1,20 +1,19 @@
 import BattleUnitCardBase from './BattleUnitCardBase';
 import type { BattleUnitInstance } from '../../types/battle/BattleUnit';
 import type { BattleStatusInstance } from '../../types/battle/BattleUnit';
-import { memo } from 'react';
-import { Sword, Shield } from 'lucide-react';
+import React, { memo } from 'react';
+import { Sword, Shield, Circle, Heart, Sparkles, Skull } from 'lucide-react';
 
 const percent = (value: number, max: number) => {
   if (max <= 0) return 0;
   return Math.max(0, Math.min(100, (value / max) * 100));
 };
-
-const STATUS_ICONS: Record<string, string> = {
-  dot: '🔴',
-  hot: '💚',
-  buff: '✨',
-  debuff: '💀',
-  shield: '🛡',
+const STATUS_ICONS: Record<string, React.ReactNode> = {
+  dot: <Circle size={12} className="text-red-500" />,      // generic status dot
+  hot: <Heart size={12} className="text-green-400" />,     // healing over time
+  buff: <Sparkles size={12} className="text-yellow-300" />, // positive buff
+  debuff: <Skull size={12} className="text-gray-400" />,   // negative effect
+  shield: <Shield size={12} className="text-blue-400" />,   // shield status
 };
 
 function StatusBadge({ status }: { status: BattleStatusInstance }) {
