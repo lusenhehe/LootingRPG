@@ -1,0 +1,62 @@
+{
+  "slime_loot_t1": {
+    "comment": "史莱姆 — 甲壳护甲概率高，灼灰之刃作为兜底",
+    "entries": { "f001_slime_carapace": 3, "u001_ashen_blade": 1 }
+  },
+  "skeleton_loot_t1": {
+    "comment": "骷髅 — 碎骨短刃概率高，灼灰之刃作为兜底",
+    "entries": { "f002_bone_shiv": 3, "u001_ashen_blade": 1 }
+  },
+  "goblin_loot_t1": {
+    "comment": "哥布林 — 哥布林怪齿概率高，侦查勋章作为兜底",
+    "entries": { "f003_goblin_fang": 3, "u005_scout_medal": 1 }
+  },
+  "wolf_loot_t1": {
+    "comment": "林狼 — 狼牙项链概率高，侦查勋章作为兜底",
+    "entries": { "f004_wolf_fang_necklace": 3, "u005_scout_medal": 1 }
+  },
+  "dark_spider_loot_t2": {
+    "comment": "暗蜘蛛 — 蛛丝缚足概率高，逐风战靴作为兜底",
+    "entries": { "f005_spider_silk_boots": 2, "u003_skytrace_boots": 1 }
+  },
+  "stone_golem_loot_t2": {
+    "comment": "石巨像 — 石像肩甲概率高，永夜壁垒作为兜底",
+    "entries": { "f006_stone_pauldron": 2, "u002_warden_aegis": 1 }
+  },
+  "fire_imp_loot_t2": {
+    "comment": "炎魔 — 炎魔指环概率高，渊瞳指环作为兜底",
+    "entries": { "f007_fire_imp_ring": 2, "u004_abyss_eye_ring": 1 }
+  },
+  "ice_wolf_loot_t2": {
+    "comment": "冰狼 — 霜狼兽盔概率高，灼灰之刃作为兜底",
+    "entries": { "f008_ice_wolf_helmet": 2, "u001_ashen_blade": 1 }
+  },
+  "thunder_eagle_loot_t2": {
+    "comment": "雷鹰 — 雷鹰翼甲概率高，逐风战靴作为兜底",
+    "entries": { "f009_thunder_eagle_boots": 2, "u003_skytrace_boots": 1 }
+  },
+  "plague_mushroom_loot_t2": {
+    "comment": "瘟疫蘑菇 — 疫孢指环概率高，渊瞳指环作为兜底",
+    "entries": { "f010_plague_spore_ring": 2, "u004_abyss_eye_ring": 1 }
+  },
+  "abyss_demon_boss_loot": {
+    "comment": "深渊恶魔 — 深渊魂刃概率最高，含两件高级通用装备兜底",
+    "entries": { "b001_abyss_soul_blade": 4, "u004_abyss_eye_ring": 2, "u001_ashen_blade": 1 }
+  },
+  "venom_hydra_boss_loot": {
+    "comment": "毒九头蛇 — 九头毒冠概率最高，含壁垒与渊瞳兜底",
+    "entries": { "b002_hydra_venom_crown": 4, "u002_warden_aegis": 2, "u004_abyss_eye_ring": 1 }
+  },
+  "generic_t1": {
+    "comment": "T1通用兜底",
+    "entries": { "u001_ashen_blade": 1 }
+  },
+  "generic_t2": {
+    "comment": "T2通用兜底",
+    "entries": { "u001_ashen_blade": 1, "u005_scout_medal": 1 }
+  },
+  "boss_t1": {
+    "comment": "Boss通用兜底",
+    "entries": { "u001_ashen_blade": 2, "u004_abyss_eye_ring": 1 }
+  }
+}

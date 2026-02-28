@@ -4,6 +4,7 @@ import { QUALITY_CONFIG } from '../../config/game/equipment';
 import { getQualityLabel, getStatLabel } from '../../infra/i18n/labels';
 import type { Equipment } from '../../types/game';
 import { useTranslation } from 'react-i18next';
+import { SLOT_EMOJI_MAP } from '../../config/ui/icons';
 
 const iconMap: Record<string, ReactNode> = {
   shield: <Shield size={18} className="text-gray-400" />,
@@ -13,6 +14,8 @@ const iconMap: Record<string, ReactNode> = {
   crown: <Crown size={18} className="text-yellow-400" />,
   star: <Star size={18} className="text-red-400" />,
 };
+
+const slotEmojiMap = SLOT_EMOJI_MAP;
 
 interface ItemCardProps {
   item: Equipment;
@@ -31,13 +34,6 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
   const forgeCost = (item.enhancementLevel + 1) * 500;
   const { t, i18n } = useTranslation();
   const localeName = i18n.language.startsWith('zh') ? (item.localeNames?.zh || item.name) : (item.localeNames?.en || item.name);
-  const affixLabelMap: Record<string, string> = {
-    crit_chance: t('stat.crit'),
-    lifesteal: t('stat.lifesteal'),
-    damage_bonus: t('stat.damage'),
-    hp_bonus: t('stat.hp'),
-  };
-
   const borderClass = item.quality === 'mythic' 
     ? 'mythic-border shadow-lg shadow-red-900/30' 
     : item.quality === 'legendary' 
@@ -78,7 +74,9 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
       )}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-game-card/60 text-2xl leading-none">{item.icon || '🧰'}</div>
+          <div className="p-2 rounded-lg bg-game-card/60 text-2xl leading-none">
+            {slotEmojiMap[item.slot] || '🧰'}-{item.icon || '🧰'}
+          </div>
           <div>
             <h4 className={`font-bold text-sm ${qualityColor}`}>
               {localeName} {item.enhancementLevel > 0 ? `+${item.enhancementLevel}` : ''}
@@ -113,7 +111,7 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
               key={`${affix.type}-${affix.value}`}
               className="text-[10px] px-2 py-0.5 rounded border border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
             >
-              {affixLabelMap[affix.type] || affix.type} +{affix.value}
+              {t(`stat.${affix.type}`, affix.type)} +{affix.value}
             </span>
           ))}
         </div>

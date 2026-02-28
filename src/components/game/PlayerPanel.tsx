@@ -14,7 +14,7 @@ interface PlayerPanelProps {
   onUnequip: (slot: string) => void;
 }
 
-function PlayerPanelInner({ gameState }: PlayerPanelProps) {
+function PlayerPanelInner({ gameState, onUnequip }: PlayerPanelProps) {
   const { t } = useTranslation();
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   
@@ -110,6 +110,7 @@ function PlayerPanelInner({ gameState }: PlayerPanelProps) {
                 item={item}
                 isSelected={selectedSlot === slot}
                 onSelect={handleSlotClick}
+                onUnequip={() => onUnequip(slot)}
               />
             );
           })}

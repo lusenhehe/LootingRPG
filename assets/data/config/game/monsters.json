@@ -34,7 +34,7 @@
       "aiProfile": "simple_aggressive",
       "difficultyWeight": 1,
       "background": "monster.skeleton.background",
-      "dropdict": { "u001_ashen_blade": 1 }
+      "lootTable": "skeleton_loot_t1"
     },
     {
       "id": "goblin",
@@ -52,7 +52,7 @@
       "aiProfile": "simple_aggressive",
       "difficultyWeight": 1,
       "background": "monster.goblin.background",
-      "dropdict": { "u001_ashen_blade": 1 }
+      "lootTable": "goblin_loot_t1"
     },
     {
       "id": "wolf",
@@ -70,7 +70,7 @@
       "aiProfile": "simple_aggressive",
       "difficultyWeight": 1,
       "background": "monster.wolf.background",
-      "dropdict": { "u001_ashen_blade": 1 }
+      "lootTable": "wolf_loot_t1"
     },
     {
       "id": "dark_spider",
@@ -89,7 +89,7 @@
       "difficultyWeight": 2,
       "background": "monster.dark_spider.background",
       "tags": ["beast", "insect"],
-      "dropdict": { "u001_ashen_blade": 2 }
+      "lootTable": "dark_spider_loot_t2"
     },
     {
       "id": "stone_golem",
@@ -108,7 +108,7 @@
       "difficultyWeight": 2,
       "background": "monster.stone_golem.background",
       "tags": ["construct"],
-      "dropdict": { "u001_ashen_blade": 1 }
+      "lootTable": "stone_golem_loot_t2"
     },
     {
       "id": "fire_imp",
@@ -127,7 +127,7 @@
       "difficultyWeight": 2,
       "background": "monster.fire_imp.background",
       "tags": ["demon"],
-      "dropdict": { "u001_ashen_blade": 2 }
+      "lootTable": "fire_imp_loot_t2"
     },
     {
       "id": "ice_wolf",
@@ -146,7 +146,7 @@
       "difficultyWeight": 2,
       "background": "monster.ice_wolf.background",
       "tags": ["beast"],
-      "dropdict": { "u001_ashen_blade": 1 }
+      "lootTable": "ice_wolf_loot_t2"
     },
     {
       "id": "thunder_eagle",
@@ -165,7 +165,7 @@
       "difficultyWeight": 2,
       "background": "monster.thunder_eagle.background",
       "tags": ["beast", "flying"],
-      "dropdict": { "u001_ashen_blade": 2 }
+      "lootTable": "thunder_eagle_loot_t2"
     },
     {
       "id": "plague_mushroom",
@@ -184,7 +184,7 @@
       "difficultyWeight": 2,
       "background": "monster.plague_mushroom.background",
       "tags": ["plant"],
-      "dropdict": { "u001_ashen_blade": 1 }
+      "lootTable": "plague_mushroom_loot_t2"
     }
   ],
   "boss": [
@@ -204,6 +204,7 @@
       "aiProfile": "simple_aggressive",
       "difficultyWeight": 5,
       "background": "monster.abyss_demon.background",
+      "lootTable": "abyss_demon_boss_loot",
       "bossIdentity": {
         "theme": "abyss",
         "introLineKey": "boss.abyss_demon.introLine",
@@ -240,7 +241,7 @@
       "difficultyWeight": 5,
       "background": "monster.venom_hydra.background",
       "tags": ["beast", "boss"],
-      "dropdict": { "u001_ashen_blade": 5 },
+      "lootTable": "venom_hydra_boss_loot",
       "bossIdentity": {
         "theme": "venom",
         "introLineKey": "boss.venom_hydra.introLine",

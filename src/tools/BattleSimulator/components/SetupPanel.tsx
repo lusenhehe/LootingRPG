@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { PlayerPreset, MapScaleConfig, BaselineOverride } from '../types';
 import type { SimulationContext } from '../../../domains/simulator/model/simulationContext';
+import type { SimulationDraftState } from '../../../domains/simulator/model/simulationDraftState';
 import { buildSimulationContext } from '../../../domains/simulator/model/buildSimulationContext';
 import { calcPlayerBaseStats, calcDisplayStats } from '../../../domains/player/model/playerGrowth';
 import { DEFAULT_MAP_SCALE } from '../../../domains/simulator/model/types';
@@ -183,7 +184,7 @@ export function SetupPanel({ onStart, isRunning }: SetupPanelProps) {
       iterations,
     } as const;
 
-    const context = buildSimulationContext(draft as any);
+    const context = buildSimulationContext(draft as SimulationDraftState);
     onStart(context);
   };
 
@@ -469,36 +470,36 @@ export function SetupPanel({ onStart, isRunning }: SetupPanelProps) {
         </div>
         {useBaselineOverride && baselineOverride && (
           <div className="grid grid-cols-3 gap-2">
-            {[['hp','HP'], ['attack','攻击'], ['defense','防御']].map(([k, label]) => (
-              <div key={String(k)}>
-                <label className="block text-xs text-gray-400 mb-1">基线：{label}</label>
+            {(['hp','attack','defense'] as const).map((k) => (
+              <div key={k}>
+                <label className="block text-xs text-gray-400 mb-1">基线：{k === 'hp' ? 'HP' : k === 'attack' ? '攻击' : '防御'}</label>
                 <div className="grid grid-cols-2 gap-1">
                   <input
                     type="number"
                     className={inputCls}
-                    value={(baselineOverride as any)[k].baseline}
+                    value={baselineOverride[k].baseline}
                     onChange={(e) => {
                       const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
                       setBaselineOverride({
-                        ...(baselineOverride as any),
-                        [k]: { ...(baselineOverride as any)[k], baseline: v },
+                        ...baselineOverride,
+                        [k]: { ...baselineOverride[k], baseline: v },
                       });
                     }}
                   />
                   <input
                     type="number"
                     className={inputCls}
-                    value={(baselineOverride as any)[k].levelAdder}
+                    value={baselineOverride[k].levelAdder}
                     onChange={(e) => {
                       const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
                       setBaselineOverride({
-                        ...(baselineOverride as any),
-                        [k]: { ...(baselineOverride as any)[k], levelAdder: v },
+                        ...baselineOverride,
+                        [k]: { ...baselineOverride[k], levelAdder: v },
                       });
                     }}
                   />
                 </div>
-                <div className="text-xs text-gray-500 mt-1">原始：{BASELINE_STATS[(k as 'hp'|'attack'|'defense')].baseline} + n * {BASELINE_STATS[(k as 'hp'|'attack'|'defense')].levelAdder}</div>
+                <div className="text-xs text-gray-500 mt-1">原始：{BASELINE_STATS[k].baseline} + n * {BASELINE_STATS[k].levelAdder}</div>
               </div>
             ))}
           </div>

@@ -2,19 +2,10 @@ import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Equipment } from '../../shared/types/game';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, Zap, Shield, Sword, Flame, Droplets, Sparkles, AlertTriangle, User, Package, Gem } from 'lucide-react';
+import { Star, Zap, Shield, Sword, Flame, Droplets, Sparkles, AlertTriangle, User, Package, Gem, ArrowDown } from 'lucide-react';
 import { getSlotLabel } from '../../infra/i18n/labels';
 import { SLOT_CONFIG } from '../../config/game/equipment';
-
-const qualityColors: Record<string, { bg: string; border: string; text: string; glow: string }> = {
-  common:   { bg: 'from-stone-600 to-stone-700', border: 'border-stone-500', text: 'text-stone-300', glow: 'shadow-stone-500/20' },
-  uncommon: { bg: 'from-green-700 to-green-800', border: 'border-green-500', text: 'text-green-300', glow: 'shadow-green-500/30' },
-  rare:     { bg: 'from-blue-700 to-blue-800', border: 'border-blue-400', text: 'text-blue-300', glow: 'shadow-blue-500/30' },
-  epic:     { bg: 'from-red-700 to-red-800', border: 'border-red-500', text: 'text-red-300', glow: 'shadow-red-500/40' },
-  legendary:{ bg: 'from-amber-600 to-amber-700', border: 'border-amber-400', text: 'text-amber-300', glow: 'shadow-amber-500/50' },
-  mythic:   { bg: 'from-purple-700 to-purple-800', border: 'border-purple-400', text: 'text-purple-300', glow: 'shadow-purple-500/50' },
-};
-
+import { SLOT_EMOJI_MAP, QUALITY_STYLE_MAP_TOOLTIP } from '../../config/ui/icons';
 const slotTypeIconMap: Record<string, React.ReactNode> = {
   sword:   <Sword   size={14} className="text-amber-400" />,
   user:    <User    size={14} className="text-gray-300"  />,
@@ -23,11 +14,11 @@ const slotTypeIconMap: Record<string, React.ReactNode> = {
   gem:     <Gem     size={14} className="text-blue-400"  />,
   shield:  <Shield  size={14} className="text-gray-400"  />,
 };
-
 interface EquipmentTooltipProps {
   item: Equipment;
   position: 'hover' | 'click';
   onClose: () => void;
+  onUnequip?: () => void;
 }
 
 const affixLabels: Record<string, string> = {
@@ -61,14 +52,17 @@ const affixIcons: Record<string, React.ReactNode> = {
   fireDmg: <Flame size={10} />,
 };
 
-function EquipmentTooltipInner({ item, position, onClose }: EquipmentTooltipProps) {
-  const { i18n } = useTranslation();
+function EquipmentTooltipInner({ item, position, onClose, onUnequip }: EquipmentTooltipProps) {
+  const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('zh') ? 'zh' : 'en';
   const displayName = item.localeNames?.[lang] || item.name;
-  const quality = qualityColors[item.quality] || qualityColors.common;
+  const quality = QUALITY_STYLE_MAP_TOOLTIP[item.quality] || QUALITY_STYLE_MAP_TOOLTIP.common;
   
   const mainStatValue = item.attributes[item.mainStat] || 0;
   const otherAttrs = Object.entries(item.attributes).filter(([key]) => key !== item.mainStat);
+
+  const qualityLabel = t(`quality.${item.quality}`, item.quality.charAt(0).toUpperCase() + item.quality.slice(1));
+  const slotLabel = getSlotLabel(item.slot);
 
   return (
     <motion.div
@@ -76,34 +70,41 @@ function EquipmentTooltipInner({ item, position, onClose }: EquipmentTooltipProp
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: 5 }}
       transition={{ duration: 0.15 }}
-      className={`absolute z-tooltip-fixed w-64 p-3 rounded-sm border ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
+      className={`absolute z-tooltip-fixed w-64 p-3 rounded-sm border-2 ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
       style={position === 'click' ? { position: 'fixed', zIndex: 9999 } : undefined}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="absolute -top-px left-4 w-4 h-px bg-current opacity-50" />
-      <div className="absolute -bottom-px right-4 w-4 h-px bg-current opacity-50" />
+      <div className="absolute -top-px left-4 w-6 h-px" style={{ backgroundColor: quality.hexColor, opacity: 0.6 }} />
+      <div className="absolute -bottom-px right-4 w-6 h-px" style={{ backgroundColor: quality.hexColor, opacity: 0.6 }} />
       
       <div className="flex items-start gap-2 mb-2">
-        <span className="text-2xl leading-none">{item.icon}</span>
+        <span className="text-2xl leading-none">
+          {SLOT_EMOJI_MAP[item.slot] || '🧰'}-{item.icon}
+        </span>
         <div className="flex-1 min-w-0">
           <div className={`font-display font-bold text-sm ${quality.text} truncate`}>
             {displayName}
           </div>
-          <div className="text-[10px] text-stone-400 uppercase tracking-wider">
-            Lv.{item.level} • {item.slot}
+          <div className="text-[10px] text-stone-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span style={{ color: quality.hexColor }}>◆</span>
+            {qualityLabel}
+            <span className="text-stone-600">•</span>
+            Lv.{item.level}
+            <span className="text-stone-600">•</span>
+            {slotLabel}
           </div>
         </div>
       </div>
 
       {item.enhancementLevel > 0 && (
         <div className="mb-2 px-1.5 py-0.5 bg-red-900/50 border border-red-500/50 rounded-sm">
-          <span className="text-red-300 font-mono text-xs font-bold">+{item.enhancementLevel}</span>
+          <span className="text-red-300 font-mono text-xs font-bold">+{item.enhancementLevel} {t('tooltip.enhancement', 'Enhancement')}</span>
         </div>
       )}
 
       <div className="space-y-1 mb-2">
         <div className="flex items-center justify-between px-1.5 py-1 bg-black/30 rounded-sm border border-white/5">
-          <span className="text-[10px] text-stone-400 uppercase">Main Stat</span>
+          <span className="text-[10px] text-stone-400 uppercase">{t('tooltip.mainStat', 'Main Stat')}</span>
           <span className={`font-mono font-bold text-sm ${quality.text}`}>
             +{mainStatValue} {item.mainStat}
           </span>
@@ -113,7 +114,7 @@ function EquipmentTooltipInner({ item, position, onClose }: EquipmentTooltipProp
           <div key={key} className="flex items-center justify-between px-1.5 py-1 bg-black/20 rounded-sm">
             <span className="text-[10px] text-stone-500 uppercase flex items-center gap-1">
               {affixIcons[key]}
-              {affixLabels[key] || key}
+              {t(`stat.${key}`, affixLabels[key] || key)}
             </span>
             <span className="font-mono text-xs text-stone-300">+{value}</span>
           </div>
@@ -122,14 +123,39 @@ function EquipmentTooltipInner({ item, position, onClose }: EquipmentTooltipProp
 
       {item.affixes && item.affixes.length > 0 && (
         <div className="pt-2 border-t border-white/10">
-          <div className="text-[9px] text-stone-500 uppercase mb-1">Affixes</div>
+          <div className="text-[9px] text-stone-500 uppercase mb-1">{t('tooltip.affixes', 'Affixes')}</div>
           {item.affixes.map((affix, idx) => (
             <div key={idx} className="text-[10px] text-amber-300/80">
-              {affix.type}: +{affix.value}
+              {t(`stat.${affix.type}`, affix.type)}: +{affix.value}
             </div>
           ))}
         </div>
       )}
+
+      {item.special && (
+        <div className="mt-2 pt-2 border-t border-white/10">
+          <div className="text-[9px] text-stone-500 uppercase mb-1">{t('tooltip.special', 'Special')}</div>
+          <div className="text-[10px] text-purple-300">{item.special}</div>
+        </div>
+      )}
+
+      {onUnequip && (
+        <div className="mt-2 pt-2 border-t border-white/10">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              onUnequip();
+              onClose();
+            }}
+            className="w-full px-2 py-1.5 rounded-sm bg-stone-800/60 hover:bg-stone-700/60 border border-stone-600/50 text-stone-300 text-xs flex items-center justify-center gap-1.5 transition-colors"
+          >
+            <ArrowDown size={12} />
+            {t('tooltip.unequip', 'Unequip')}
+          </motion.button>
+        </div>
+      )}
+
       {position === 'click' && (
         <button
           onClick={onClose}
@@ -149,9 +175,10 @@ interface EquipmentSlotProps {
   item: Equipment | null;
   isSelected: boolean;
   onSelect: (slot: string) => void;
+  onUnequip?: () => void;
 }
 
-function EquipmentSlotInner({ slot, item, isSelected, onSelect }: EquipmentSlotProps) {
+function EquipmentSlotInner({ slot, item, isSelected, onSelect, onUnequip }: EquipmentSlotProps) {
   const [showTooltip, setShowTooltip] = useState<'hover' | null>(null);
   
   const qualityClass = item ? {
@@ -163,6 +190,12 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect }: EquipmentSlotP
     mythic:   'equip-slot-mythic',
   }[item.quality] || 'border-stone-700' : '';
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!item) return;
+    onSelect(slot);
+  };
+
   const handleMouseEnter = () => {
     if (item) {
       setShowTooltip('hover');
@@ -171,11 +204,6 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect }: EquipmentSlotP
 
   const handleMouseLeave = () => {
     setShowTooltip(null);
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onSelect(slot);
   };
 
   return (
@@ -196,7 +224,9 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect }: EquipmentSlotP
       >
         {item ? (
           <div className="flex flex-col items-center">
-            <span className="text-3xl leading-none">{item.icon || '🧰'}</span>
+            <span className="text-3xl leading-none">
+              {SLOT_EMOJI_MAP[item.slot] || '🧰'}-{item.icon || '🧰'}
+            </span>
             {item.enhancementLevel > 0 && (
               <span className="absolute top-0.5 right-0.5 text-[8px] font-mono text-red-400 bg-red-950/50 px-1 rounded-sm">
                 +{item.enhancementLevel}
@@ -215,11 +245,19 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect }: EquipmentSlotP
             {getSlotLabel(slot)}
           </span>
         )}
-
+{/* 
         <AnimatePresence>
           {showTooltip === 'hover' && item && (
             <div className="absolute z-tooltip left-full top-0 ml-2 pointer-events-auto">
-              <EquipmentTooltip item={item} position="hover" onClose={() => {}} />
+              <EquipmentTooltip item={item} position="hover" onClose={() => {}} onUnequip={onUnequip} />
+            </div>
+          )}
+        </AnimatePresence> */}
+
+        <AnimatePresence>
+          {isSelected && item && (
+            <div className="absolute z-tooltip top-full left-0 mt-2 pointer-events-auto">
+              <EquipmentTooltip item={item} position="click" onClose={() => onSelect('')} onUnequip={onUnequip} />
             </div>
           )}
         </AnimatePresence>

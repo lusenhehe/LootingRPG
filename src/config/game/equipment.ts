@@ -76,6 +76,10 @@ export interface EquipmentTemplate {
   icon: string;
   nameZh: string;
   nameEn: string;
+  /** 装备专属描述文本（中文），展示于物品卡片 */
+  descriptionZh: string;
+  /** 装备专属描述文本（英文），展示于物品卡片 */
+  descriptionEn: string;
   attributes: Record<string, number>;
   affixes: Array<{ type: string; value: number }>;
   levelOffset: number;
@@ -195,8 +199,10 @@ export const getEquipmentTemplates = (): EquipmentTemplate[] => {
       slot:    row.slot?.trim()    || 'Error',
       quality: row.quality?.trim() || 'Error',
       icon:    row.icon?.trim()    || 'Error',
-      nameZh:  row.name_zh?.trim() || row.name_en?.trim() || `装备${id}`,
-      nameEn:  row.name_en?.trim() || row.name_zh?.trim() || `装备${id}`,
+      nameZh:    row.name_zh?.trim()    || row.name_en?.trim()    || `装备${id}`,
+      nameEn:    row.name_en?.trim()    || row.name_zh?.trim()    || `装备${id}`,
+      descriptionZh: row.description_zh?.trim() || row.description_en?.trim() || '',
+      descriptionEn: row.description_en?.trim() || row.description_zh?.trim() || '',
       attributes: parseJsonObject(row.attributes || ''),
       affixes:    parseAffixes(row.affixes || ''),
       levelOffset: Math.floor(Number(row.levelOffset) || 0),

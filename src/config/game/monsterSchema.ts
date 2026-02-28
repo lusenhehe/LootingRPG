@@ -41,7 +41,6 @@ export interface RawMonsterData {
   lootTable?: string;
   difficultyWeight?: number;
   background?: string;
-  dropdict?: Record<string, number>;
 }
 export interface RawBossData extends RawMonsterData {
   bossIdentity?: {

@@ -304,7 +304,6 @@ export default function MapViewport({
     onClearFocus?.();
   }, [focusNodeId, selectedChapter, onClearFocus]);
 
-  const themeStyles = chapterThemeStyles[selectedChapter.theme as keyof typeof chapterThemeStyles];
   const bgLayers = getMapBackgroundLayers(selectedChapter.theme);
   const canvasWidth = getCanvasWidth(selectedChapter.nodes.length);
 

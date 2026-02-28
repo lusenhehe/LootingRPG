@@ -6,6 +6,9 @@ import type { Equipment, GameState } from '../../../types/game';
 import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { calculateEnchantCost, previewEnchant } from '../../../domains/inventory/services/equipment';
+import { SLOT_EMOJI_MAP } from '../../../config/ui/icons';
+
+const slotEmojiMap = SLOT_EMOJI_MAP;
 
 
 interface ForgeTabProps {
@@ -87,7 +90,9 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <p className={`text-sm font-bold truncate flex items-center gap-1 ${QUALITY_CONFIG[item.quality]?.color || 'text-gray-200'}`}>
-                  <span className="text-base leading-none">{item.icon || '🧰'}</span>
+                  <span className="text-base leading-none">
+                    {slotEmojiMap[item.slot] || '🧰'}-{item.icon || '🧰'}
+                  </span>
                   {item.name} {item.enhancementLevel > 0 ? `+${item.enhancementLevel}` : ''}
                 </p>
                 <p className="text-[10px] text-gray-500 mt-1">{getSlotLabel(item.slot)} · {source}</p>
@@ -125,17 +130,11 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
             <h4 className="text-xs text-gray-400 mb-1">{t('label.affixes') || 'Affixes'}</h4>
             <div className="flex flex-col gap-2">
               {selected.affixes.map((affix, idx) => {
-                const labelMap: Record<string, string> = {
-                  crit_chance: t('stat.crit'),
-                  lifesteal: t('stat.lifesteal'),
-                  damage_bonus: t('stat.damage'),
-                  hp_bonus: t('stat.hp'),
-                };
                 const isLocked = lockedTypes.includes(affix.type);
                 return (
                   <div key={`${affix.type}-${idx}`} className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      <span className="text-[12px] px-2 py-1 rounded border border-white/10 bg-game-card/20 text-gray-200">{labelMap[affix.type] || affix.type}</span>
+                      <span className="text-[12px] px-2 py-1 rounded border border-white/10 bg-game-card/20 text-gray-200">{t(`stat.${affix.type}`, affix.type)}</span>
                       <span className="font-mono text-gray-200">+{affix.value}</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -144,7 +143,7 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
                         onClick={() => toggleLock(affix.type)}
                         className={`px-2 py-1 rounded ${isLocked ? 'bg-red-800 text-white' : 'bg-game-card/10 text-gray-200'} text-xs`}
                       >
-                        {isLocked ? t('ui.forge.lock') || 'Lock' : t('ui.forge.unlock') || 'Lock'}
+                        {isLocked ? t('ui.forge.lock') || 'Lock' : t('ui.forge.unlock') || 'Unlock'}
                       </button>
                     </div>
                   </div>

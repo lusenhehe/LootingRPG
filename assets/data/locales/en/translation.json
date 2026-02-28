@@ -72,6 +72,17 @@
   "stat.elemental": "Elemental",
 
   "stat.damage": "Damage Bonus",
+  "stat.dodge": "Dodge",
+  "stat.block": "Block",
+  "stat.thorns": "Thorns",
+  "stat.fireDmg": "Fire DMG",
+  "stat.iceDmg": "Ice DMG",
+  "stat.lightningDmg": "Lightning DMG",
+  "stat.poisonDmg": "Poison DMG",
+  "stat.fireRes": "Fire RES",
+  "stat.iceRes": "Ice RES",
+  "stat.lightningRes": "Lightning RES",
+  "stat.poisonRes": "Poison RES",
 
   "monster": {
     "skeleton": {
@@ -172,7 +183,9 @@
   "label.boss": "BOSS",
   "label.monster": "Monster",
   
-  "codex.title": "Monster Codex",
+  "codex.title": "Codex",
+  "codex.mainTab.monster": "Bestiary",
+  "codex.mainTab.equipment": "Equipment",
   "codex.tab.normal": "Normal",
   "codex.tab.boss": "Boss",
   "codex.listTitle": "Monster List",
@@ -187,15 +200,17 @@
   "codex.background": "Background",
   "codex.bossLevelLabel": "Boss-level enemy",
   "codex.counterGoal": "Counter Goal",
-  "codex.tacticsTitle": "Strategy Hints",
   "codex.backgroundFallback": "This monster's history is fragmented and incomplete.",
-  "codex.hints": {
-    "bossIntro": "This is a boss encounter — focus your build around a single tactical core rather than spreading resources.",
-    "normalIntro": "This is a regular encounter — prefer stable, general-purpose builds for consistent progression.",
-    "counterGoal": "This enemy has a clear counter-goal; focus on one advantage dimension to strengthen.",
-    "simple": "This enemy has a simple mechanic — balanced offense and defense usually suffices."
-  },
-  "tabs.inventory": "Inventory",
+  "codex.drops": "Drop Items",
+  "codex.noDrops": "No drop information",
+  "codex.dropWeight": "Weight",
+  "codex.equip.title": "Equipment Codex",
+  "codex.equip.listTitle": "Equipment List",
+  "codex.equip.detailTitle": "Equipment Details",
+  "codex.equip.selectItem": "Select an item to view details",
+  "codex.equip.filterAll": "All",
+  "codex.equip.description": "Description",
+  "tabs.inventory": "Backpack",
   "tabs.forge": "Forge",
   "tabs.codex": "Codex",
   "battle.title": "Battle",
@@ -311,5 +326,10 @@
   "message.not_enough_gold_enchant": "Not enough gold to enchant.",
   "message.no_secondary_stats": "This item has no secondary stats to reroll.",
   "message.not_enough_gold_reroll": "Not enough gold to reroll.",
-  "message.reroll_complete": "Reroll complete: {{name}} reset {{count}} secondary stats"
+  "message.reroll_complete": "Reroll complete: {{name}} reset {{count}} secondary stats",
+  "tooltip.mainStat": "Main Stat",
+  "tooltip.affixes": "Affixes",
+  "tooltip.special": "Special",
+  "tooltip.enhancement": "Enhancement",
+  "tooltip.unequip": "Unequip"
 }

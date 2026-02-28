@@ -67,12 +67,12 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
   const mapSize = [8, 3]; // cols, rows
 
   return (
-    <div className="fantasy-panel rounded-sm p-4 flex flex-col h-[72vh] max-h-[900px] min-h-[480px] gap-3 relative overflow-hidden">
+    <div className="fantasy-panel rounded-sm p-4 flex flex-col h-[90vh] max-h-[900px] min-h-[480px] gap-3 relative overflow-auto">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-amber-700/30 rounded-tl-lg" />
-        <div className="absolute top-0 right-0 w-20 h-20 border-r-2 border-t-2 border-amber-700/30 rounded-tr-lg" />
-        <div className="absolute bottom-0 left-0 w-20 h-20 border-l-2 border-b-2 border-amber-700/30 rounded-bl-lg" />
-        <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-amber-700/30 rounded-br-lg" />
+        <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-amber-700/30    " />
+        <div className="absolute top-0 right-0 w-20 h-20 border-r-2 border-t-2 border-amber-700/30   " />
+        <div className="absolute bottom-0 left-0 w-20 h-20 border-l-2 border-b-2 border-amber-700/30 " />
+        <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-amber-700/30" />
         
         <div className="absolute inset-0 bg-gradient-to-br from-red-950/10 via-transparent to-amber-950/5" />
       </div>
@@ -123,19 +123,8 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
 
       <TurnOrderBar session={session} />
 
-      <div className="relative z-10 rounded-sm border border-stone-800/60 bg-stone-950/50 overflow-hidden">        
-        <div 
-          className="absolute inset-0 pointer-events-none "
-          style={{
-            backgroundSize: `${cellSize}px ${cellSize}px`,
-            backgroundImage: `
-              linear-gradient(to right, rgba(180, 83, 9, 0.08) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(180, 83, 9, 0.08) 1px, transparent 1px)
-            `,
-          }}
-        />
-
-        <div className="relative overflow-hidden" style={{ width: `${cellSize * mapSize[0]}px`, height: `${cellSize * mapSize[1]}px` }}>
+      <div className="relative z-10 border border-stone-800/60 bg-stone-950/50">        
+        <div className="relative overflow-auto" style={{ width: `${cellSize * mapSize[0]}px`, height: `${cellSize * mapSize[1]}px` }}>
           <div
             className="grid"
             style={{

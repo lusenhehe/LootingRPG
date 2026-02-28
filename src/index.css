@@ -363,14 +363,14 @@
 
 .equip-slot-mythic {
   position: relative;
-  box-shadow: 0 0 18px rgba(220, 38, 38, 0.8);
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.8);
 }
 .equip-slot-mythic::before {
   content: '';
   position: absolute;
   inset: -2px;
   border-radius: inherit;
-  border: 2px solid rgba(220, 38, 38, 0.6);
+  border: 2px solid rgba(168, 85, 247, 0.6);
   animation: pulse-glow 1.5s ease-in-out infinite;
   z-index: -1;
 }

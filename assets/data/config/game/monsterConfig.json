@@ -9,9 +9,9 @@
     "boss":    { "hp": 1.8, "attack": 1.3, "defense": 1.25 }
   },
   "baselineStats": {
-    "hp":      { "baseline": 120, "levelAdder": 14 },
-    "attack":  { "baseline": 16, "levelAdder": 1.35 },
-    "defense": { "baseline": 7, "levelAdder": 0.72 }
+    "hp":      { "baseline": 100, "levelAdder": 14 },
+    "attack":  { "baseline": 10, "levelAdder": 1.35 },
+    "defense": { "baseline": 4, "levelAdder": 1 }
   },
   "threatTypes":  [ "burst_punish", "sustain_pressure", "tank_breaker", "attrition" ],
   "counterStatKeys": [ "attack" , "defense" , "hp" , "elemental" , "lifesteal" , "thorns" , "attackSpeed"],

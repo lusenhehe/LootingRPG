@@ -150,6 +150,7 @@ export interface Equipment {
     zh?: string;
     en?: string;
   };
+  special?: string;
 }
 
 export type BattleSessionStatus = 'fighting' | 'victory' | 'defeat';

@@ -2,7 +2,14 @@ import type { Monster, MonsterScalingProfile} from '../../shared/types/game';
 import { type RawMonsterData, type RawBossData } from '../../config/game/monsterSchema';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../battle/services/monsterScaling';
 import monsterConfig from '@data/config/game/monsters.json';
+import lootTableConfig from '@data/config/game/lootTable.json';
 import { t } from 'i18next';
+
+const resolveLootTable = (tableId?: string): Record<string, number> => {
+  if (!tableId) return {};
+  const table = (lootTableConfig as Record<string, { entries: Record<string, number> }>)[tableId];
+  return table?.entries ?? {};
+};
 
 const { normal: rawNormal, boss: rawBoss } = monsterConfig;
 const isBossData = (m: RawMonsterData | RawBossData): m is RawBossData => {
@@ -65,8 +72,7 @@ const toMonster = (monster: RawMonsterData | RawBossData): Monster => {
     attack:  previewStats.attack,
     defense: previewStats.defense,
     name: t(`monster.${monster.id}.name`, { defaultValue: monster.id ?? 'unknown_monster' }),
-    dropdict: Object.fromEntries( Object.entries(monster.dropdict ?? {})
-      .map(([id, chance]) => [id, chance]))
+    dropdict: resolveLootTable(monster.lootTable),
   } as Monster;
 };
 
