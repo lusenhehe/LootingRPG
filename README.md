@@ -3,6 +3,9 @@
 2. 终端运行 `npm install`
 3. 终端运行 `npm run dev`
 
+**查看差异**
+git show HEAD --diff-filter=AM > commit_detail.txt
+
 **怎么构建android端** 
 1. 下载Android Stduio (如果没有的话)
    "https://developer.android.google.cn/studio"

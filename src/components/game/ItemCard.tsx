@@ -35,7 +35,6 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
     crit_chance: t('stat.crit'),
     lifesteal: t('stat.lifesteal'),
     damage_bonus: t('stat.damage'),
-    thorns: t('trait.thorns'),
     hp_bonus: t('stat.hp'),
   };
 
@@ -119,9 +118,6 @@ export function ItemCard({ item, onEquip, onSell, onForge, loading, readonly, hi
           ))}
         </div>
       )}
-
-      {item.special && <p className="text-[10px] text-red-400 italic leading-tight">★ {item.special}</p>}
-
       {!readonly && (
         <div className="flex gap-2 pt-1">
           <button onClick={onEquip} disabled={loading} className="flex-1 py-1.5 bg-red-900/20 hover:bg-red-800 text-red-400 hover:text-white text-[10px] font-bold rounded-lg transition-all border border-red-700/20 cursor-pointer hover:scale-105">{t('button.equip')}</button>

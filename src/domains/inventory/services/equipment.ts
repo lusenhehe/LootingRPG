@@ -49,7 +49,6 @@ const buildFromTemplate = (template: EquipmentTemplate, playerLevel: number): Eq
   }));
 
   const name = localeKey === 'zh' ? template.nameZh : template.nameEn;
-  const special = localeKey === 'zh' ? template.specialZh : template.specialEn;
 
   return {
     id: `${template.id}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
@@ -63,7 +62,6 @@ const buildFromTemplate = (template: EquipmentTemplate, playerLevel: number): Eq
     enhancementLevel: 0,
     mainStat: inferMainStat(attributes, template.slot),
     equipped: false,
-    special,
     localeNames: {
       zh: template.nameZh,
       en: template.nameEn,

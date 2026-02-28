@@ -104,7 +104,7 @@ const buildEnemyUnit = (
       attack: finalMonster.attack,
       defense: finalMonster.defense,
     },
-    skills: monster.skillSet ?? [],
+    skills: monster.skills ?? [],
     passives: [],
     elements: [],
     tags: [monster.monsterType],

@@ -1,7 +1,7 @@
 import type { EntityStats } from '../../config/game/monsterSchema';
 import type { BattleUnitInstance, IListenerRegistry } from '../../types/battle/BattleUnit';
 export type { Monster } from '../../config/game/monsterSchema';
-export type { MonsterTrait, MonsterBaseStats, MonsterScalingProfile, ThreatType, BossIdentity, BossCounterGoal, CounterStatKey, EntityStats, ScalingProfileStats } from '../../config/game/monsterSchema';
+export type { MonsterBaseStats, MonsterScalingProfile, ThreatType, BossIdentity, BossCounterGoal, CounterStatKey, EntityStats, ScalingProfileStats } from '../../config/game/monsterSchema';
 
 export type BattlePhase = 'player_input' | 'resolving' | 'enemy_turn' | 'finished';
 
@@ -142,7 +142,6 @@ export interface Equipment {
   quality: string;
   slot: string;
   attributes: Record<string, number>;
-  special?: string;
   affixes: EquipmentAffixValue[];
   enhancementLevel: number;
   mainStat: string;

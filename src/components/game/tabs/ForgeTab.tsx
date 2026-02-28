@@ -129,7 +129,6 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
                   crit_chance: t('stat.crit'),
                   lifesteal: t('stat.lifesteal'),
                   damage_bonus: t('stat.damage'),
-                  thorns: t('trait.thorns'),
                   hp_bonus: t('stat.hp'),
                 };
                 const isLocked = lockedTypes.includes(affix.type);
@@ -154,9 +153,6 @@ export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, on
             </div>
           </div>
         )}
-
-        {selected.special && <p className="text-xs text-red-400 italic">★ {selected.special}</p>}
-
         <div className="grid grid-cols-1 gap-3 pt-2">
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-400">{t('ui.forge.preview_times') || 'Preview'}</label>

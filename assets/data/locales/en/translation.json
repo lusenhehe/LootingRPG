@@ -171,22 +171,7 @@
 
   "label.boss": "BOSS",
   "label.monster": "Monster",
-
-  "trait.thorns": "Thorns",
-  "trait.lifesteal": "Lifesteal",
-  "trait.double_attack": "Double Attack",
-  "trait.shield_on_start": "Shield on start",
-  "trait.rage_on_low_hp": "Rage on low HP",
-  "trait.none": "No special traits",
-  "trait": {
-    "hints": {
-      "thorns": ["This enemy punishes burst damage; high tempo can backfire.", "A safer approach is to increase survivability and sustain, extending effective combat time."],
-      "lifesteal": ["This enemy excels at sustaining through fights; prolonging combat amplifies its advantage.", "Prepare continuous pressure to reduce its healing windows."],
-      "double_attack": ["This enemy tends to attack in quick succession, creating momentary pressure.", "Prioritize survivability and damage mitigation to avoid being overwhelmed by chains."],
-      "shield_on_start": ["This enemy starts with a strong defense; early bursts are less effective.", "Establish a steady rhythm and look for openings to break through."],
-      "rage_on_low_hp": ["This enemy becomes more dangerous in the late phase; finishing moves are critical.", "Reserve late-stage resources to avoid being outpaced in the endgame."]
-    }
-  },
+  
   "codex.title": "Monster Codex",
   "codex.tab.normal": "Normal",
   "codex.tab.boss": "Boss",
@@ -198,7 +183,6 @@
     "attack": "Attack",
     "defense": "Defense"
   },
-  "codex.traits": "Traits",
   "codex.threatTypes": "Threat Types",
   "codex.background": "Background",
   "codex.bossLevelLabel": "Boss-level enemy",

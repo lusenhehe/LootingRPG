@@ -76,8 +76,6 @@ export interface EquipmentTemplate {
   icon: string;
   nameZh: string;
   nameEn: string;
-  specialZh?: string;
-  specialEn?: string;
   attributes: Record<string, number>;
   affixes: Array<{ type: string; value: number }>;
   levelOffset: number;
@@ -199,8 +197,6 @@ export const getEquipmentTemplates = (): EquipmentTemplate[] => {
       icon:    row.icon?.trim()    || 'Error',
       nameZh:  row.name_zh?.trim() || row.name_en?.trim() || `装备${id}`,
       nameEn:  row.name_en?.trim() || row.name_zh?.trim() || `装备${id}`,
-      specialZh: row.special_zh?.trim() || row.special_en?.trim() || `Error Special`,
-      specialEn: row.special_en?.trim() || row.special_zh?.trim() || `Error Special`,
       attributes: parseJsonObject(row.attributes || ''),
       affixes:    parseAffixes(row.affixes || ''),
       levelOffset: Math.floor(Number(row.levelOffset) || 0),

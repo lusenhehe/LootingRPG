@@ -1,13 +1,25 @@
 /**
  * runSimulation.ts
  * 战斗模拟器核心服务 — 纯 TypeScript，无 React 依赖。
- * 复用现有的 BattleEngine、UnitFactory、monsterStats 等域服务，
- * 在不依赖 GameState 的情况下独立运行完整战斗模拟。
+ *
+ * 输入：SimulationContext（唯一入口，通过 buildSimulationContext() 生成）
+ * 流程：
+ *   1. buildPlayerStats(context.player)                       → 玩家战斗属性
+ *   2. buildEnemyUnit(node, mapScale, baselineOverride)       → 敌方单元列表
+ *   3. 循环 iterations 次，每次调用 BattleEngine.resolveTurn()
+ *
+ * 架构原则（见 docs/simulation-order.md）：
+ *   ✔ 成长公式唯一来源：calcDisplayStats（domains/player/model/playerGrowth）
+ *   ✔ baselineOverride 显式传参，禁止 Object.assign 注入
+ *   ✔ BattleEngine 不感知 override 存在，保持下层纯净
  */
 import type { BattleSession, PlayerStats } from '../../../shared/types/game';
 import type { BattleUnitInstance, BattleUnitSchema } from '../../../types/battle/BattleUnit';
 import type { MapNodeDef, NodeWave, MapChapterDef } from '../../map/model/chapters';
-import type { SimulationRun, WaveSnapshot, SimulationReport, SimulatorConfig, MapScaleConfig, BaselineOverride } from '../model/types';
+import type { SimulationRun, WaveSnapshot, SimulationReport, BaselineOverride } from '../model/types';
+import type { SimulationContext, SimulationMapScale } from '../model/simulationContext';
+import type { FinalMonsterCombatStats } from '../../battle/services/monsterStats';
+import { calcDisplayStats } from '../../player/model/playerGrowth';
 import { getFinalPlayerStats } from '../../player/model/combat';
 import { getFinalMonsterStats } from '../../battle/services/monsterStats';
 import { getMonsterById } from '../../monster/config';
@@ -17,29 +29,46 @@ import { registerPassiveListeners } from '../../battle/engine/skillsConfig';
 import { BattleEngine } from '../../battle/engine/BattleEngine';
 import { MAP_CHAPTERS } from '../../map/model/chapters';
 
-// ─── 内部工具 ─────────────────────────────────────────────────────────────────
+// ─── 内部：构建玩家 PlayerStats ────────────────────────────────────────────────
 
-const buildPlayerStats = (config: SimulatorConfig): PlayerStats => {
-  const { preset } = config;
-  const ov = preset.statsOverride ?? {};
-  const level = preset.level;
+/**
+ * 从 SimulationContext.player 构建 PlayerStats。
+ *
+ * 成长公式唯一来源：calcDisplayStats（domains/player/model/playerGrowth）。
+ * statsOverride 中的字段优先于公式计算值（显式覆盖）。
+ */
+const buildPlayerStats = (context: SimulationContext): PlayerStats => {
+  const { level, statsOverride } = context.player;
+  const stats = calcDisplayStats(level, statsOverride);
 
   return {
     level,
     xp: 0,
-    hp: ov.hp ?? (300 + (level - 1) * 20),
-    attack: ov.attack ?? (50 + (level - 1) * 5),
-    defense: ov.defense ?? (5 + (level - 1) * 2),
-    critRate: String(ov.critRate ?? 5),
+    hp: stats.hp,
+    attack: stats.attack,
+    defense: stats.defense,
+    critRate: String(stats.critRate),
     damageBonus: 0,
-    lifesteal: ov.lifesteal ?? 0,
-    thorns: ov.thorns ?? 0,
-    elemental: ov.elemental ?? 0,
-    attackSpeed: ov.attackSpeed ?? 0,
+    lifesteal: stats.lifesteal,
+    thorns: stats.thorns,
+    elemental: stats.elemental,
+    attackSpeed: stats.attackSpeed,
     gold: 0,
   };
 };
 
+// ─── 内部：构建单个敌方单元 ─────────────────────────────────────────────────────
+
+/**
+ * 构建单个敌方 BattleUnitInstance。
+ *
+ * 覆盖优先级（见 docs/simulation-order.md）：
+ *   1. Monster Base Stats（怪物配置文件）
+ *   2. baselineOverride → 若存在，按与原始基线的比率调整三维
+ *   3. mapScale（最终乘算，最低优先级）
+ *
+ * BattleEngine 不感知 baselineOverride 的存在，所有覆盖在此层完成。
+ */
 const buildEnemyUnit = (
   node: MapNodeDef,
   wave: NodeWave,
@@ -48,26 +77,36 @@ const buildEnemyUnit = (
   enemyIndex: number,
   playerLevel: number,
   playerFinal: ReturnType<typeof getFinalPlayerStats>,
-  scale: MapScaleConfig,
+  mapScale: SimulationMapScale,
+  baselineOverride: BaselineOverride | undefined,
 ): BattleUnitInstance => {
   const monster = getMonsterById(monsterId);
   if (!monster) throw new Error(`[Simulator] Monster '${monsterId}' not found.`);
+
   const isBoss = node.encounterType === 'boss' || monster.monsterType === 'boss';
-  let finalMonster = getFinalMonsterStats(monster, playerLevel, enemyIndex, isBoss, playerFinal, node.id) as any;
-  // 如果提供了基线覆盖，则按原始基线与目标基线的比率调整 finalMonster（三维分别缩放）
-  const baselineOverride = (scale as unknown) as { baseline?: BaselineOverride };
-  if (baselineOverride && (baselineOverride as any).baseline) {
+  let finalMonster: FinalMonsterCombatStats = getFinalMonsterStats(
+    monster, playerLevel, enemyIndex, isBoss, playerFinal, node.id,
+  );
+  // ── 覆盖优先级 2：基线覆盖（显式传参，不再通过 Object.assign 注入） ──────────
+  if (baselineOverride) {
     try {
-      const override = (baselineOverride as any).baseline as BaselineOverride;
       const orig = getMapMonsterBaselineByLevel(node.recommendedLevel);
       const desired = {
-        hp: Math.max(1, Math.floor(override.hp.baseline + (node.recommendedLevel - 1) * override.hp.levelAdder)),
-        attack: Math.max(1, Math.floor(override.attack.baseline + (node.recommendedLevel - 1) * override.attack.levelAdder)),
-        defense: Math.max(0, Math.floor(override.defense.baseline + (node.recommendedLevel - 1) * override.defense.levelAdder)),
+        hp: Math.max(1, Math.floor(
+          baselineOverride.hp.baseline + (node.recommendedLevel - 1) * baselineOverride.hp.levelAdder,
+        )),
+        attack: Math.max(1, Math.floor(
+          baselineOverride.attack.baseline + (node.recommendedLevel - 1) * baselineOverride.attack.levelAdder,
+        )),
+        defense: Math.max(0, Math.floor(
+          baselineOverride.defense.baseline + (node.recommendedLevel - 1) * baselineOverride.defense.levelAdder,
+        )),
       };
+
       const ratioHp = orig.hp > 0 ? desired.hp / orig.hp : 1;
       const ratioAtk = orig.attack > 0 ? desired.attack / orig.attack : 1;
       const ratioDef = orig.defense > 0 ? desired.defense / orig.defense : 1;
+
       finalMonster = {
         ...finalMonster,
         maxHp: Math.max(1, Math.floor(finalMonster.maxHp * ratioHp)),
@@ -75,19 +114,21 @@ const buildEnemyUnit = (
         defense: Math.max(0, Math.floor(finalMonster.defense * ratioDef)),
       };
     } catch {
-      // ignore override errors
+      // baseline override 计算失败时降级使用原始值
     }
   }
+
+  // ── 覆盖优先级 3：地图数值倍率（最终乘算） ────────────────────────────────────
   const monsterSchema: BattleUnitSchema = {
     id: `${waveId}-${monster.id}-${enemyIndex}`,
     name: monster.name,
     faction: 'monster',
     baseStats: {
-      hp: Math.max(1, Math.floor(finalMonster.maxHp * scale.hpMult)),
-      attack: Math.max(1, Math.floor(finalMonster.attack * scale.attackMult)),
-      defense: Math.max(0, Math.floor(finalMonster.defense * scale.defenseMult)),
+      hp: Math.max(1, Math.floor(finalMonster.maxHp * mapScale.hpMultiplier)),
+      attack: Math.max(1, Math.floor(finalMonster.attack * mapScale.attackMultiplier)),
+      defense: Math.max(0, Math.floor(finalMonster.defense * mapScale.defenseMultiplier)),
     },
-    skills: monster.skillSet ?? [],
+    skills: monster.skills ?? [],
     passives: [],
     elements: [],
     tags: [monster.monsterType],
@@ -107,13 +148,15 @@ const buildEnemyUnit = (
   return createBattleUnit(monsterSchema, playerLevel);
 };
 
+// ─── 内部：构建完整 BattleSession ─────────────────────────────────────────────
+
 const buildSession = (
-  config: SimulatorConfig,
+  context: SimulationContext,
   chapter: MapChapterDef,
   node: MapNodeDef,
   runIndex: number,
 ): BattleSession => {
-  const playerRawStats = buildPlayerStats(config);
+  const playerRawStats = buildPlayerStats(context);
   // encounterCount 固定为 0，确保每次模拟基准一致
   const playerFinal = getFinalPlayerStats(playerRawStats, 0);
 
@@ -124,12 +167,15 @@ const buildSession = (
 
   const enemies: BattleUnitInstance[] = [];
   let enemyIndex = 0;
-  const scale = config.mapScale ?? { hpMult: 1, attackMult: 1, defenseMult: 1 };
-  const baselineOverride: BaselineOverride | undefined = (config as any).baselineOverride;
+
   for (const { wave, waveId } of validWaves) {
     for (const wm of wave.monsters) {
-      // 将 baselineOverride 通过最后一个参数传递（临时适配）：
-      enemies.push(buildEnemyUnit(node, wave, waveId, wm.monsterId, enemyIndex, config.preset.level, playerFinal, Object.assign({}, scale, { baseline: baselineOverride } as any)));
+      enemies.push(buildEnemyUnit(
+        node, wave, waveId, wm.monsterId, enemyIndex,
+        context.player.level, playerFinal,
+        context.mapScale,             // 显式传 mapScale
+        context.baselineOverride,     // 显式传 baselineOverride（不再 Object.assign 偷塞）
+      ));
       enemyIndex++;
     }
   }
@@ -158,7 +204,7 @@ const buildSession = (
     },
   };
 
-  const playerUnit = createBattleUnit(playerSchema, config.preset.level);
+  const playerUnit = createBattleUnit(playerSchema, context.player.level);
 
   for (const passiveId of playerUnit.passives) {
     registerPassiveListeners(passiveId, playerUnit);
@@ -193,12 +239,12 @@ const buildSession = (
 const MAX_TURNS = 300; // 防止死循环
 
 const runOnce = (
-  config: SimulatorConfig,
+  context: SimulationContext,
   chapter: MapChapterDef,
   node: MapNodeDef,
   runIndex: number,
 ): SimulationRun => {
-  let session = buildSession(config, chapter, node, runIndex);
+  let session = buildSession(context, chapter, node, runIndex);
 
   const waveLabels: Map<string, string> = new Map();
   for (const enemy of session.enemies) {
@@ -263,24 +309,46 @@ const runOnce = (
 
 // ─── 多次迭代聚合 ──────────────────────────────────────────────────────────────
 
-export const runSimulation = (config: SimulatorConfig): SimulationReport => {
-  const chapter = MAP_CHAPTERS.find((c) => c.id === config.chapterId);
-  if (!chapter) throw new Error(`[Simulator] Chapter '${config.chapterId}' not found.`);
+/**
+ * 运行完整模拟并返回聚合报告。
+ *
+ * @param context - 由 buildSimulationContext(draft) 生成的唯一输入
+ */
+export const runSimulation = (context: SimulationContext): SimulationReport => {
+  if (!context || !context.player) {
+    throw new Error('[Simulator] invalid SimulationContext: missing player configuration');
+  }
+  if (typeof context.player.level !== 'number' || context.player.level <= 0) {
+    throw new Error('[Simulator] invalid SimulationContext: player.level must be a positive number');
+  }
+  const chapter = MAP_CHAPTERS.find((c) => c.id === context.chapterId);
+  if (!chapter) throw new Error(`[Simulator] Chapter '${context.chapterId}' not found.`);
 
-  const node = chapter.nodes.find((n) => n.id === config.nodeId);
-  if (!node) throw new Error(`[Simulator] Node '${config.nodeId}' not found.`);
+  const node = chapter.nodes.find((n) => n.id === context.nodeId);
+  if (!node) throw new Error(`[Simulator] Node '${context.nodeId}' not found.`);
 
   const runs: SimulationRun[] = [];
-  for (let i = 0; i < config.iterations; i++) {
+  const runErrors: string[] = [];
+  for (let i = 0; i < context.iterations; i++) {
     try {
-      runs.push(runOnce(config, chapter, node, i));
-    } catch {
-      // 某次运行失败不终止全部模拟
+      runs.push(runOnce(context, chapter, node, i));
+    } catch (err) {
+      // 收集错误但继续尝试后续运行
+      try {
+        const msg = err instanceof Error ? err.message : String(err);
+        runErrors.push(`run ${i}: ${msg}`);
+        // 同时在控制台打印完整错误对象，便于本地调试
+        // eslint-disable-next-line no-console
+        console.error(`[Simulator] runOnce failed (run ${i}):`, err);
+      } catch {
+        // ignore
+      }
     }
   }
 
   if (runs.length === 0) {
-    throw new Error('[Simulator] All simulation runs failed.');
+    const sample = runErrors.length > 0 ? runErrors[0] : 'unknown error';
+    throw new Error(`[Simulator] All simulation runs failed. Sample error: ${sample}`);
   }
 
   // 收集所有波次 ID（按顺序）
@@ -335,7 +403,7 @@ export const runSimulation = (config: SimulatorConfig): SimulationReport => {
     chapterName: chapter.name,
     nodeId: node.id,
     nodeName: node.name,
-    iterations: config.iterations,
+    iterations: context.iterations,
     actualRuns: runs.length,
     overallWinRate: (wonRuns / runs.length) * 100,
     avgTurns: Math.round(avgTurns * 10) / 10,
@@ -344,15 +412,18 @@ export const runSimulation = (config: SimulatorConfig): SimulationReport => {
   };
 };
 
-/** 异步版本：避免大量迭代阻塞 UI 主线程，分批运行后返回结果 */
-export const runSimulationAsync = (config: SimulatorConfig): Promise<SimulationReport> => {
-  return new Promise((resolve, reject) => {
+/**
+ * 异步版本：避免大量迭代阻塞 UI 主线程，分批运行后返回结果。
+ *
+ * @param context - 由 buildSimulationContext(draft) 生成的唯一输入
+ */
+export const runSimulationAsync = (context: SimulationContext): Promise<SimulationReport> =>
+  new Promise((resolve, reject) => {
     setTimeout(() => {
       try {
-        resolve(runSimulation(config));
+        resolve(runSimulation(context));
       } catch (err) {
         reject(err);
       }
     }, 0);
   });
-};

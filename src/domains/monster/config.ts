@@ -1,4 +1,4 @@
-import type { Monster, MonsterScalingProfile, MonsterTrait } from '../../shared/types/game';
+import type { Monster, MonsterScalingProfile} from '../../shared/types/game';
 import { type RawMonsterData, type RawBossData } from '../../config/game/monsterSchema';
 import { getMapMonsterBaselineByLevel, resolveMonsterTemplateStats } from '../battle/services/monsterScaling';
 import monsterConfig from '@data/config/game/monsters.json';
@@ -40,24 +40,6 @@ const localizeAdditionalFields = (
 
   return result;
 };
-
-const TRAIT_TO_SKILL: Record<string, string> = {
-  lifesteal: 'lifeSteal',
-  double_attack: 'doubleStrike',
-  thorns: 'thornAura',
-  shield_on_start: 'shieldStart',
-  rage_on_low_hp: 'rageMode',
-};
-
-const normalizeSkillSet = (
-  monster: RawMonsterData | RawBossData,
-): string[] => {
-  if (Array.isArray(monster.skillSet)) return monster.skillSet;
-  const traits: MonsterTrait[] = Array.isArray(monster.traits) ? monster.traits : [];
-  const skills = traits.map((trait) => TRAIT_TO_SKILL[trait]).filter(Boolean);
-  return Array.from(new Set(skills));
-};
-
 const toMonster = (monster: RawMonsterData | RawBossData): Monster => {
   const icons = [monster.icon as string];
   const monsterType = monster.monsterType;
@@ -78,7 +60,7 @@ const toMonster = (monster: RawMonsterData | RawBossData): Monster => {
     monsterType,
     baseStats,
     scalingProfile,
-    skillSet: normalizeSkillSet(monster),
+    skills: monster.skills,
     maxHp:   previewStats.maxHp,
     attack:  previewStats.attack,
     defense: previewStats.defense,

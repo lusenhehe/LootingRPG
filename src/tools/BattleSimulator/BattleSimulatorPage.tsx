@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import type { SimulatorConfig, SimulationReport } from './types';
+import type { SimulationReport } from './types';
+import type { SimulationContext } from '../../domains/simulator/model/simulationContext';
 import { SetupPanel } from './components/SetupPanel';
 import { ResultPanel } from './components/ResultPanel';
 import { runSimulationAsync } from '../../domains/simulator/services/runSimulation';
@@ -13,16 +14,16 @@ type PageState = 'setup' | 'running' | 'result';
 export function BattleSimulatorPage({ onClose }: BattleSimulatorPageProps) {
   const [pageState, setPageState] = useState<PageState>('setup');
   const [report, setReport] = useState<SimulationReport | null>(null);
-  const [lastConfig, setLastConfig] = useState<SimulatorConfig | null>(null);
+  const [lastContext, setLastContext] = useState<SimulationContext | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleStart = useCallback(async (config: SimulatorConfig) => {
-    setLastConfig(config);
+  const handleStart = useCallback(async (context: SimulationContext) => {
+    setLastContext(context);
     setError(null);
     setPageState('running');
 
     try {
-      const result = await runSimulationAsync(config);
+      const result = await runSimulationAsync(context);
       setReport(result);
       setPageState('result');
     } catch (err) {
@@ -84,7 +85,7 @@ export function BattleSimulatorPage({ onClose }: BattleSimulatorPageProps) {
           </div>
         )}
 
-        {pageState === 'running' && lastConfig && (
+        {pageState === 'running' && lastContext && (
           <div className="h-full flex flex-col items-center justify-center gap-6">
             <div className="relative">
               <div className="w-20 h-20 rounded-full border-4 border-blue-800 border-t-blue-400 animate-spin" />
@@ -95,16 +96,16 @@ export function BattleSimulatorPage({ onClose }: BattleSimulatorPageProps) {
             <div className="text-center">
               <p className="text-white font-medium text-lg">模拟战斗中...</p>
               <p className="text-gray-400 text-sm mt-1">
-                {lastConfig.chapterId} / {lastConfig.nodeId} · {lastConfig.iterations} 次迭代
+                {lastContext.chapterId} / {lastContext.nodeId} · {lastContext.iterations} 次迭代
               </p>
               <p className="text-gray-500 text-xs mt-1">正在运行 BattleEngine，请稍候</p>
             </div>
           </div>
         )}
 
-        {pageState === 'result' && report && lastConfig && (
+        {pageState === 'result' && report && lastContext && (
           <div className="h-full max-w-2xl mx-auto p-4">
-            <ResultPanel report={report} config={lastConfig} onReset={handleReset} />
+            <ResultPanel report={report} context={lastContext} onReset={handleReset} />
           </div>
         )}
       </main>

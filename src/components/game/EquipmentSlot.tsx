@@ -130,14 +130,6 @@ function EquipmentTooltipInner({ item, position, onClose }: EquipmentTooltipProp
           ))}
         </div>
       )}
-
-      {item.special && (
-        <div className="mt-2 pt-2 border-t border-white/10">
-          <div className="text-[9px] text-stone-500 uppercase mb-1">Special</div>
-          <div className="text-[10px] text-purple-300">{item.special}</div>
-        </div>
-      )}
-
       {position === 'click' && (
         <button
           onClick={onClose}

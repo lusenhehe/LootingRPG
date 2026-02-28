@@ -15,7 +15,6 @@
   },
   "threatTypes":  [ "burst_punish", "sustain_pressure", "tank_breaker", "attrition" ],
   "counterStatKeys": [ "attack" , "defense" , "hp" , "elemental" , "lifesteal" , "thorns" , "attackSpeed"],
-  "traits": [ "thorns" , "lifesteal" , "double_attack" , "shield_on_start" , "rage_on_low_hp"],
   "strategy": {
     "tag": [ "offense" , "defense" , "sustain"],
     "traitScoreMap": {

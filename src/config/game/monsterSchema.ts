@@ -1,5 +1,4 @@
 import monsterConfig from '@data/config/game/monsterConfig.json';
-export type MonsterTrait          = typeof monsterConfig.traits[number];
 export type ThreatType            = typeof monsterConfig.threatTypes[number];
 export type MonsterType           = typeof monsterConfig.monsterTypes[number];
 export type MonsterScalingProfile = keyof typeof monsterConfig.scalingProfileStats;
@@ -24,14 +23,23 @@ export interface RawBossCounterGoal {
 }
 export interface RawMonsterData {
   id?: string;
+  name?: string;
   icon?: string;
+  faction?: string;
   monsterType?: MonsterType;
-  baseStats?: RawMonsterBaseStats;
   scalingProfile?: string;
-  skillSet?: string[];
-  traits?: MonsterTrait[];
-  uniqueTraits?: MonsterTrait[];
+  baseStats?: RawMonsterBaseStats;
+  elements?: string[];
   threatTypes?: string[];
+  /** 新规范字段：技能列表，优先于 skillSet */
+  skills?: string[];
+  /** 新规范字段：被动列表 */
+  passives?: string[];
+  /** 新规范字段：AI 行为模式 */
+  aiProfile?: string;
+  /** 新规范字段：掉落表名称引用 */
+  lootTable?: string;
+  difficultyWeight?: number;
   background?: string;
   dropdict?: Record<string, number>;
 }
@@ -61,8 +69,6 @@ export interface BossCounterGoal {
   successText: string;
   failText: string;
 }
-//词条评分映射表
-export const traitScoreMap: Record<MonsterTrait, Partial<Record<StrategyTag, number>>> = monsterConfig.strategy.traitScoreMap;
 //**对抗目标计分表
 export const counterGoalScoreMap: Record<string, StrategyTag> = monsterConfig.strategy.counterGoalScoreMap;
 export interface Monster {
@@ -73,11 +79,10 @@ export interface Monster {
   monsterType:    MonsterType;          /// 怪物类型
   baseStats:      MonsterBaseStats;     /// 基础属性，包含hp、attack和defense
   scalingProfile: MonsterScalingProfile;/// 属性成长类型，影响属性随等级的增长方式
-  skillSet?: string[];   /// 
+  skills?: string[];   /// 怪物技能列表，包含主动技能和被动技能，优先使用新规范字段skills，兼容旧字段skillSet
   maxHp: number;  /// 
   attack: number; /// 
   defense: number;/// 
-  traits?: MonsterTrait[];/// 
   threatTypes?: ThreatType[];
   /// 怪物背景故事文本，仅用于UI显示，不影响游戏逻辑
   background?: string;  

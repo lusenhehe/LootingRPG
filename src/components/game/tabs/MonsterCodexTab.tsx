@@ -5,17 +5,9 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { BOSS_MONSTERS, NORMAL_MONSTERS } from '../../../domains/monster/services/monsterCatalog';
 import { UI_DIMENSIONS } from '../../../config/ui/tokens';
-import { traitScoreMap, counterGoalScoreMap, StrategyTag } from '../../../config/game/monsterSchema';
-import type {MonsterTrait, ThreatType } from '../../../shared/types/game';
+import { counterGoalScoreMap, StrategyTag } from '../../../config/game/monsterSchema';
+import type {ThreatType } from '../../../shared/types/game';
 import type { Monster } from '../../../shared/types/game';
-const traitColorMap: Record<MonsterTrait, string> = {
-  thorns: 'border-rose-400/30 bg-rose-500/10 text-rose-200',
-  lifesteal: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200',
-  double_attack: 'border-orange-400/30 bg-orange-500/10 text-orange-200',
-  shield_on_start: 'border-blue-400/30 bg-blue-500/10 text-blue-200',
-  rage_on_low_hp: 'border-red-400/30 bg-red-500/10 text-red-200',
-};
-
 const strategyTagStyleMap: Record<StrategyTag, string> = {
   offense: 'border-rose-400/35    bg-rose-500/10    text-rose-200',
   defense: 'border-blue-400/35    bg-blue-500/10    text-blue-200',
@@ -27,37 +19,6 @@ const threatStyleMap: Record<ThreatType, string> = {
   tank_breaker: 'border-amber-400/35 bg-amber-500/10 text-amber-200',
   attrition: 'border-cyan-400/35 bg-cyan-500/10 text-cyan-200',
 };
-
-const inferThreatTypes = (monster: Monster): ThreatType[] => {
-  if (monster.threatTypes?.length) return monster.threatTypes;
-
-  const result: ThreatType[] = [];
-  const traits = monster.traits ?? [];
-
-  if (traits.includes('thorns') || traits.includes('shield_on_start')) {
-    result.push('burst_punish');
-  }
-  if (traits.includes('double_attack') || traits.includes('rage_on_low_hp')) {
-    result.push('sustain_pressure');
-  }
-  if (traits.includes('shield_on_start') || monster.counterGoal?.stat === 'attack') {
-    result.push('tank_breaker');
-  }
-  if (traits.includes('lifesteal') || monster.counterGoal?.stat === 'hp' || monster.counterGoal?.stat === 'lifesteal') {
-    result.push('attrition');
-  }
-
-  if (monster.monsterType === 'boss' && result.length === 0) {
-    result.push('sustain_pressure');
-  }
-
-  if (result.length === 0) {
-    result.push('tank_breaker');
-  }
-
-  return result.slice(0, 2);
-};
-
 const getStrategyTags = (monster: Monster): StrategyTag[] => {
   const score: Record<StrategyTag, number> = {
     offense: 0,
@@ -68,15 +29,6 @@ const getStrategyTags = (monster: Monster): StrategyTag[] => {
     score.defense += 1;
     score.sustain += 1;
   }
-  (monster.traits ?? []).forEach((trait) => {
-    const traitScores = traitScoreMap[trait];
-    if (traitScores) {
-      Object.entries(traitScores).forEach(([key, value]) => {
-        score[key as StrategyTag] += value ?? 0;
-      });
-    }
-  });
-
   if (monster.counterGoal?.stat) {
     const tag = counterGoalScoreMap[monster.counterGoal.stat];
     if (tag) {
@@ -102,19 +54,6 @@ const getStrategyHints = (monster: Monster, t: CodexTranslator): string[] => {
     hints.push(String(t('codex.hints.normalIntro')));
   }
 
-  (monster.traits ?? []).forEach((trait) => {
-    const translateUnknown = t as unknown as (k: string, opts?: Record<string, unknown>) => unknown;
-    const traitHints: unknown = translateUnknown(`trait.hints.${trait}`, { returnObjects: true });
-
-    if (Array.isArray(traitHints)) {
-      traitHints.forEach((text) => {
-        if (typeof text === 'string' && !hints.includes(text)) hints.push(text);
-      });
-    } else if (typeof traitHints === 'string' && !hints.includes(traitHints)) {
-      hints.push(traitHints);
-    }
-  });
-
   if (monster.counterGoal) {
     hints.push(String(t('codex.hints.counterGoal')));
     if (monster.counterGoal.successText && !hints.includes(monster.counterGoal.successText)) {
@@ -124,33 +63,8 @@ const getStrategyHints = (monster: Monster, t: CodexTranslator): string[] => {
       hints.push(monster.counterGoal.failText);
     }
   }
-
-  if (!monster.traits?.length && !monster.counterGoal) {
-    hints.push(String(t('codex.hints.simple')));
-  }
-
   return hints.slice(0, 4);
 };
-
-function TraitTags({ traits, t }: { traits?: MonsterTrait[]; t: (k: string) => string }) {
-  if (!traits?.length) {
-    return <span className="text-[10px] text-gray-500">{t('trait.none')}</span>;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {traits.map((trait) => (
-        <span
-          key={trait}
-          className={`text-[10px] px-2 py-0.5 rounded border ${traitColorMap[trait] || 'border-red-400/30 bg-red-900/10 text-red-200'}`}
-        >
-          {t(`trait.${trait}`)}
-        </span>
-      ))}
-    </div>
-  );
-}
-
 function MonsterListItem({
   monster,
   isSelected,
@@ -203,7 +117,7 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: CodexTranslat
   const isBoss = monster.monsterType === 'boss';
   const strategyHints = getStrategyHints(monster, t);
   const strategyTags = getStrategyTags(monster);
-  const threatTypes = inferThreatTypes(monster);
+  const threatTypes = monster.threatTypes ?? [];
 
   return (
     <motion.div
@@ -279,15 +193,6 @@ function MonsterDetailPanel({ monster, t }: { monster: Monster; t: CodexTranslat
               </div>
             </motion.div>
           </div>
-
-          <div className="mb-2">
-            <div className="flex items-center gap-1 mb-1.5">
-              <Zap size={10} className="text-red-400" />
-              <span className="text-[9px] text-gray-400 uppercase">{t('codex.traits')}</span>
-            </div>
-            <TraitTags traits={monster.traits} t={t} />
-          </div>
-
           <div className="mb-2">
             <div className="flex items-center gap-1 mb-1.5">
               <Info size={10} className="text-fuchsia-300" />

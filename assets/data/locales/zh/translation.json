@@ -56,29 +56,6 @@
   "stat.thorns": "反伤",
 
 
-  "trait.thorns": "反伤",
-  "trait.lifesteal": "吸血",
-  "trait.double_attack": "二连击",
-  "trait.shield_on_start": "开局护盾",
-  "trait.rage_on_low_hp": "残血狂怒",
-  "trait.none": "无特殊词条",
-  "trait": {
-    "note": {
-      "thorns": "反伤 {{damage}}",
-      "lifesteal_enemy": "敌方吸血 +{{value}}",
-      "double_attack": "敌方二连击",
-      "shield_on_start": "开场护盾",
-      "rage_on_low_hp": "残血狂怒"
-    },
-    "hints": {
-      "thorns": ["此敌人对爆发输出有反制能力，节奏过快容易被反噬。", "更稳妥的做法是提高生存与续航，拉长有效作战时间。"],
-      "lifesteal": ["此敌人擅长在缠斗中回稳，久拖会放大其优势。", "建议准备持续压制手段，减少其恢复窗口。"],
-      "double_attack": ["此敌人有连续打击倾向，容易形成瞬时压力。", "建议优先强化容错与减伤，避免被连段带走。"],
-      "shield_on_start": ["此敌人开局防线稳固，前段硬冲收益较低。", "先建立稳定节奏，再寻找破口更容易滚起优势。"],
-      "rage_on_low_hp": ["此敌人在残局阶段威胁更高，收尾处理很关键。", "建议保留后段资源，避免在终局被反推。"]
-    }
-  },
-  
   "codex.title": "怪物图鉴",
   "codex.tab.normal": "普通",
   "codex.tab.boss": "BOSS",
@@ -86,7 +63,6 @@
   "codex.detailTitle": "详细信息",
   "codex.selectMonster": "选择怪物查看详情",
   "codex.stat": { "hp": "生命", "attack": "攻击", "defense": "防御"},
-  "codex.traits": "词条",
   "codex.threatTypes": "威胁类型",
   "codex.background": "背景传记",
   "codex.bossLevelLabel": "首领级敌人",

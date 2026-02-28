@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import type { SimulationReport, SimulatorConfig } from '../types';
-import { DEFAULT_MAP_SCALE } from '../../../domains/simulator/model/types';
+import type { SimulationReport } from '../types';
+import type { SimulationContext } from '../../../domains/simulator/model/simulationContext';
 import { WaveSummaryRow } from './WaveSummaryRow';
 
 interface ResultPanelProps {
   report: SimulationReport;
-  config: SimulatorConfig;
+  context: SimulationContext;
   onReset: () => void;
 }
 
@@ -15,19 +15,19 @@ const WinRateBadge = ({ rate }: { rate: number }) => {
   return <span className={`text-3xl font-black ${color}`}>{rate.toFixed(1)}%</span>;
 };
 
-export function ResultPanel({ report, config, onReset }: ResultPanelProps) {
+export function ResultPanel({ report, context, onReset }: ResultPanelProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const scale = config.mapScale;
+    const scale = context.mapScale;
     const scaleNote =
-      scale.hpMult !== 1 || scale.attackMult !== 1 || scale.defenseMult !== 1
-        ? `\n地图倍率：HP×${scale.hpMult}  攻击×${scale.attackMult}  防御×${scale.defenseMult}`
+      scale.hpMultiplier !== 1 || scale.attackMultiplier !== 1 || scale.defenseMultiplier !== 1
+        ? `\n地图倍率：HP×${scale.hpMultiplier}  攻击×${scale.attackMultiplier}  防御×${scale.defenseMultiplier}`
         : '';
     const lines: string[] = [
       `=== 战斗模拟报告 ===`,
       `节点：${report.chapterName} / ${report.nodeName}`,
-      `玩家：${config.preset.name}（Lv.${config.preset.level}）`,
+      `玩家：Lv.${context.player.level}`,
       `迭代：${report.actualRuns} 次${scaleNote}`,
       `通关率：${report.overallWinRate.toFixed(1)}%`,
       `平均回合：${report.avgTurns}`,
@@ -56,33 +56,33 @@ export function ResultPanel({ report, config, onReset }: ResultPanelProps) {
               {report.chapterName} / {report.nodeName}
             </div>
             <div className="text-sm text-gray-300 mt-0.5">
-              {config.preset.name}（Lv.{config.preset.level}）×{' '}
+              Lv.{context.player.level} ×{' '}
               <span className="text-blue-300">{report.actualRuns}</span> 次模拟
             </div>
             {/* 地图倍率标注 */}
-            {(config.mapScale.hpMult !== DEFAULT_MAP_SCALE.hpMult ||
-              config.mapScale.attackMult !== DEFAULT_MAP_SCALE.attackMult ||
-              config.mapScale.defenseMult !== DEFAULT_MAP_SCALE.defenseMult) && (
+            {(context.mapScale.hpMultiplier !== 1 ||
+              context.mapScale.attackMultiplier !== 1 ||
+              context.mapScale.defenseMultiplier !== 1) && (
               <div className="mt-1 flex flex-wrap gap-1 text-xs">
-                {config.mapScale.hpMult !== 1 && (
+                {context.mapScale.hpMultiplier !== 1 && (
                   <span className={`px-1.5 py-0.5 rounded font-medium ${
-                    config.mapScale.hpMult > 1 ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'
+                    context.mapScale.hpMultiplier > 1 ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'
                   }`}>
-                    HP×{config.mapScale.hpMult}
+                    HP×{context.mapScale.hpMultiplier}
                   </span>
                 )}
-                {config.mapScale.attackMult !== 1 && (
+                {context.mapScale.attackMultiplier !== 1 && (
                   <span className={`px-1.5 py-0.5 rounded font-medium ${
-                    config.mapScale.attackMult > 1 ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'
+                    context.mapScale.attackMultiplier > 1 ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'
                   }`}>
-                    攻击×{config.mapScale.attackMult}
+                    攻击×{context.mapScale.attackMultiplier}
                   </span>
                 )}
-                {config.mapScale.defenseMult !== 1 && (
+                {context.mapScale.defenseMultiplier !== 1 && (
                   <span className={`px-1.5 py-0.5 rounded font-medium ${
-                    config.mapScale.defenseMult > 1 ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'
+                    context.mapScale.defenseMultiplier > 1 ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'
                   }`}>
-                    防御×{config.mapScale.defenseMult}
+                    防御×{context.mapScale.defenseMultiplier}
                   </span>
                 )}
               </div>

@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { PlayerPreset, SimulatorConfig, MapScaleConfig, BaselineOverride } from '../types';
+import type { PlayerPreset, MapScaleConfig, BaselineOverride } from '../types';
+import type { SimulationContext } from '../../../domains/simulator/model/simulationContext';
+import { buildSimulationContext } from '../../../domains/simulator/model/buildSimulationContext';
+import { calcPlayerBaseStats, calcDisplayStats } from '../../../domains/player/model/playerGrowth';
 import { DEFAULT_MAP_SCALE } from '../../../domains/simulator/model/types';
 import { BASELINE_STATS } from '../../../config/game/monsterSchema';
 import { MAP_CHAPTERS } from '../../../domains/map/model/chapters';
@@ -39,7 +42,7 @@ const loadSaved = (): Partial<SavedSetup> => {
 const ITERATIONS_OPTIONS = [10, 50, 100, 200, 500] as const;
 
 interface SetupPanelProps {
-  onStart: (config: SimulatorConfig) => void;
+  onStart: (context: SimulationContext) => void;
   isRunning: boolean;
 }
 
@@ -120,17 +123,18 @@ export function SetupPanel({ onStart, isRunning }: SetupPanelProps) {
   const handlePresetChange = (presetId: string) => {
     setSelectedPresetId(presetId);
     const preset = presets.find((p) => p.id === presetId);
-    if (preset?.statsOverride) {
-      const ov = preset.statsOverride;
+    if (preset) {
+      const base = calcPlayerBaseStats(preset.level);
+      const ov = preset.statsOverride ?? {};
       setManualLevel(preset.level);
-      setManualHp(ov.hp ?? (300 + (preset.level - 1) * 20));
-      setManualAtk(ov.attack ?? (50 + (preset.level - 1) * 5));
-      setManualDef(ov.defense ?? (5 + (preset.level - 1) * 2));
-      setManualCrit(ov.critRate ?? 5);
-      setManualLifesteal(ov.lifesteal ?? 0);
-      setManualThorns(ov.thorns ?? 0);
-      setManualElemental(ov.elemental ?? 0);
-      setManualSpeed(ov.attackSpeed ?? 0);
+      setManualHp(ov.hp ?? base.hp);
+      setManualAtk(ov.attack ?? base.attack);
+      setManualDef(ov.defense ?? base.defense);
+      setManualCrit(ov.critRate ?? base.critRate);
+      setManualLifesteal(ov.lifesteal ?? base.lifesteal);
+      setManualThorns(ov.thorns ?? base.thorns);
+      setManualElemental(ov.elemental ?? base.elemental);
+      setManualSpeed(ov.attackSpeed ?? base.attackSpeed);
     }
   };
 
@@ -164,15 +168,23 @@ export function SetupPanel({ onStart, isRunning }: SetupPanelProps) {
 
   const handleStart = () => {
     if (!selectedChapterId || !selectedNodeId) return;
-    onStart({
-      preset: buildPreset(),
+    const preset = buildPreset();
+
+    const draft = {
       chapterId: selectedChapterId,
       nodeId: selectedNodeId,
-      iterations,
-      mapScale: { hpMult, attackMult, defenseMult },
-      // 可选基线覆盖，仅在 useBaselineOverride 为 true 时生效
+      level: preset.level,
+      statsOverride: preset.statsOverride,
+      hpMult,
+      attackMult,
+      defenseMult,
+      useBaselineOverride,
       baselineOverride: useBaselineOverride ? baselineOverride : undefined,
-    } as any);
+      iterations,
+    } as const;
+
+    const context = buildSimulationContext(draft as any);
+    onStart(context);
   };
 
   const handleSave = () => {
@@ -338,17 +350,17 @@ export function SetupPanel({ onStart, isRunning }: SetupPanelProps) {
 
         {!useManual && (() => {
           const preset = presets.find((p) => p.id === selectedPresetId);
-          const ov = preset?.statsOverride ?? {};
           const lv = preset?.level ?? 1;
+          const displayStats = calcDisplayStats(lv, preset?.statsOverride);
           return (
             <div className="mt-2 grid grid-cols-4 gap-1 text-xs text-gray-400">
               <div>等级：<span className="text-white">{lv}</span></div>
-              <div>HP：<span className="text-white">{ov.hp ?? (300 + (lv - 1) * 20)}</span></div>
-              <div>攻击：<span className="text-white">{ov.attack ?? (50 + (lv - 1) * 5)}</span></div>
-              <div>防御：<span className="text-white">{ov.defense ?? (5 + (lv - 1) * 2)}</span></div>
-              {ov.critRate ? <div>暴击：<span className="text-white">{ov.critRate}%</span></div> : null}
-              {ov.lifesteal ? <div>吸血：<span className="text-white">{ov.lifesteal}%</span></div> : null}
-              {ov.thorns ? <div>反伤：<span className="text-white">{ov.thorns}%</span></div> : null}
+              <div>HP：<span className="text-white">{displayStats.hp}</span></div>
+              <div>攻击：<span className="text-white">{displayStats.attack}</span></div>
+              <div>防御：<span className="text-white">{displayStats.defense}</span></div>
+              {displayStats.critRate > 5 ? <div>暴击：<span className="text-white">{displayStats.critRate}%</span></div> : null}
+              {displayStats.lifesteal > 0 ? <div>吸血：<span className="text-white">{displayStats.lifesteal}%</span></div> : null}
+              {displayStats.thorns > 0 ? <div>反伤：<span className="text-white">{displayStats.thorns}%</span></div> : null}
             </div>
           );
         })()}
