@@ -1,9 +1,8 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { lazy, Suspense, memo } from 'react';
-import { Trophy } from 'lucide-react';
+import { Trophy, Map } from 'lucide-react';
 import type { ActiveTab, GameState, MapProgressState } from '../../types/game';
-import { TabButton } from '../ui/TabButton';
 import type { MapChapterDef, MapNodeDef } from '../../config/map/ChapterData';
 
 const InventoryTab = lazy(() => import('./tabs/InventoryTab').then(m => ({ default: m.InventoryTab })));
@@ -14,6 +13,8 @@ const MapTab = lazy(() => import('./tabs/MapTab').then(m => ({ default: m.MapTab
 interface GamePanelProps {
   gameState: GameState;
   activeTab: ActiveTab;
+  playerName: string;
+  playerStats: GameState['playerStats'];
   loading: boolean;
   focusMapNode: string | null;
   onClearFocusMapNode: () => void;
@@ -30,11 +31,14 @@ interface GamePanelProps {
   onReroll: (id: string, lockTypes?: string[]) => void;
   forgeSelectedId: string | null;
   onSelectForgeItem: (id: string) => void;
+  onUnequip: (slot: string) => void;
 }
 
 function GamePanelInner({
   gameState,
   activeTab,
+  playerName,
+  playerStats,
   loading,
   focusMapNode,
   onClearFocusMapNode,
@@ -51,13 +55,14 @@ function GamePanelInner({
   onReroll,
   forgeSelectedId,
   onSelectForgeItem,
+  onUnequip,
 }: GamePanelProps) {
   const { t } = useTranslation();
   const inventoryItems = gameState.backpack
     .filter((item) => !item.equipped)
     .map((item) => ({ ...item, equipped: false }));
   return (
-    <div className="fantasy-panel rounded-lg overflow-hidden h-full min-h-0 shadow-2xl shadow-black/60 relative flex flex-col">
+    <div className="dark-stage-shell overflow-hidden h-full min-h-0 relative flex flex-col">
       <div className="absolute inset-0 bg-gradient-to-br from-red-950/20 via-transparent to-amber-950/10 pointer-events-none" />
       
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" 
@@ -66,18 +71,7 @@ function GamePanelInner({
         }}
       />
 
-      <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-amber-700/40 rounded-tl-lg" />
-      <div className="absolute top-0 right-0 w-16 h-16 border-r-2 border-t-2 border-amber-700/40 rounded-tr-lg" />
-      <div className="absolute bottom-0 left-0 w-16 h-16 border-l-2 border-b-2 border-amber-700/40 rounded-bl-lg" />
-      <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-amber-700/40 rounded-br-lg" />
-      
-      <div className="flex border-b border-stone-800 relative z-10 shrink-0">
-        <TabButton active={activeTab === 'map'} onClick={() => onSetTab('map')} label={t('map.explore')} />
-        <TabButton active={activeTab === 'inventory'} onClick={() => onSetTab('inventory')} label={t('tabs.inventory')} />
-        <TabButton active={activeTab === 'forge'} onClick={() => onSetTab('forge')} label={t('tabs.forge')} />
-        <TabButton active={activeTab === 'codex'} onClick={() => onSetTab('codex')} label={t('tabs.codex')} />
-      </div>
-        <div className="p-4 overflow-hidden relative z-10 flex-1 min-h-0">
+        <div className={`${activeTab === 'map' ? 'p-0' : 'p-4'} overflow-hidden relative z-10 flex-1 min-h-0`}>
           <AnimatePresence mode="wait">
             {activeTab === 'inventory' && (
               <motion.div 
@@ -98,6 +92,8 @@ function GamePanelInner({
                   onQuickSellByQualityRange={onQuickSellByQualityRange}
                   autoSellQualities={autoSellQualities}
                   onToggleAutoSellQuality={onToggleAutoSellQuality}
+                  gameState={gameState}
+                  onUnequip={onUnequip}
                 />
                 </Suspense>
               </motion.div>
@@ -114,9 +110,13 @@ function GamePanelInner({
                   className="h-full"
                 >
                   <MapTab
+                    activeTab={activeTab}
+                    playerName={playerName}
+                    playerStats={playerStats}
                     playerLevel={gameState.playerStats.level}
                     loading={loading}
                     progress={mapProgress}
+                    onSetTab={onSetTab}
                     onSelectChapter={onSelectMapChapter}
                     onEnterNode={onEnterMapNode}
                     focusNodeId={focusMapNode}
@@ -165,8 +165,19 @@ function GamePanelInner({
           </AnimatePresence>
         </div>
 
-        <div className="bg-game-bg/80 border-t border-game-border/50 h-16 px-3 flex items-center justify-between text-[10px] font-mono text-gray-500 relative z-10 shrink-0">
-          <div className="flex gap-4">
+        <div className="bg-black/45 border-t border-amber-900/25 h-16 px-3 flex items-center justify-between text-[10px] font-mono text-gray-500 relative z-overlay shrink-0 backdrop-blur-[2px]">
+          <div className="flex gap-1.5">
+            {activeTab !== 'map' && (
+              <button
+                onClick={() => onSetTab('map')}
+                className="px-2.5 py-1.5 clip-corner-8 border border-amber-700/40 text-amber-200 bg-amber-900/20 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Map size={11} /> {t('map.explore')}
+              </button>
+            )}
+          </div>
+
+          <div className="flex gap-3">
             <motion.span 
               whileHover={{ scale: 1.05 }}
               className="flex items-center gap-1 cursor-default"
@@ -194,17 +205,6 @@ function GamePanelInner({
               </div>
             </motion.span>
           </div>
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-2"
-          >
-            <motion.div 
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-2 h-2 rounded-full bg-green-500" 
-            />
-            <span className="text-green-500/70">READY</span>
-          </motion.div>
         </div>
       </div>
   );

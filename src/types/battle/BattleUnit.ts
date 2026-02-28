@@ -60,6 +60,14 @@ export interface IListenerRegistry {
   has(id: string): boolean;
 }
 
+/** 敌人下一回合的预告意图，供 UI 展示 */
+export interface BattleUnitIntent {
+  type: 'attack' | 'heavy_attack' | 'skill' | 'defend' | 'buff'
+  label: string
+  /** 预估伤害（仅 attack/heavy_attack 有值） */
+  estimatedDamage?: number
+}
+
 export interface BattleUnitInstance {
   id: string
   name: string
@@ -67,6 +75,11 @@ export interface BattleUnitInstance {
   level: number
   baseStats: BaseStats
   currentHp: number
+  /** 当前能量（0–maxEnergy）；玩家单位专用，敌人暂不使用 */
+  currentEnergy: number
+  maxEnergy: number
+  /** 各技能剩余冷却回合数 Record<skillId, remainingTurns> */
+  skillCooldowns: Record<string, number>
   derivedStats: BattleDerivedStats
   skills: string[]
   passives: string[]
@@ -76,6 +89,8 @@ export interface BattleUnitInstance {
   statuses?: BattleStatusInstance[]
   /** 注册的事件监听器（技能、被动、状态、装备效果） */
   listeners?: BattleListenerDef[]
+  /** 敌人下一回合意图（由 TurnManager 在每回合结束时设置） */
+  nextIntent?: BattleUnitIntent
   meta?: Record<string, unknown>
 }
 
@@ -90,5 +105,7 @@ export interface BattleUnitSchema {
   tags?: string[]
   aiProfile?: string
   derivedStats?: BattleDerivedStats
+  /** 初始最大能量（默认 100） */
+  maxEnergy?: number
   meta?: Record<string, unknown>
 }

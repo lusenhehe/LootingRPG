@@ -101,6 +101,24 @@ function EnemyCardInner({ enemy, isActive = false, isSelected = false, onClick }
           </div>
         )}
 
+        {/* 意图预告徽章 */}
+        {enemy.nextIntent && isAlive && (
+          <div
+            className={`mb-0.5 px-1 py-0.5 rounded text-[7px] leading-tight text-center font-mono shrink-0 ${
+              enemy.nextIntent.type === 'heavy_attack'
+                ? 'bg-red-900/60 text-red-300 border border-red-700/40'
+                : enemy.nextIntent.type === 'defend'
+                ? 'bg-blue-900/50 text-blue-300 border border-blue-700/30'
+                : 'bg-stone-900/60 text-stone-400 border border-stone-700/30'
+            }`}
+          >
+            {enemy.nextIntent.label}
+            {enemy.nextIntent.estimatedDamage != null && (
+              <span className="text-red-400 ml-1">≈{enemy.nextIntent.estimatedDamage}</span>
+            )}
+          </div>
+        )}
+
         <div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
           <div className="leading-none" style={{ fontSize: 'clamp(1rem, 2.6vw, 2rem)' }}>
             {icon}

@@ -2,6 +2,11 @@
   "poison_blade": {
     "id": "poison_blade",
     "name": "Poison Blade",
+    "displayName": "毒刃",
+    "description": "造成物理伤害并附加持续3回合的中毒效果",
+    "icon": "🗡️",
+    "energyCost": 50,
+    "cooldown": 3,
     "nodes": [
       {
         "id": "poison_blade:deal_damage",
@@ -32,6 +37,11 @@
   "flame_shield": {
     "id": "flame_shield",
     "name": "Flame Shield",
+    "displayName": "火焰护盾",
+    "description": "为自身施加持续3回合的火焰护盾，吸收基于最大生命的伤害",
+    "icon": "🔥",
+    "energyCost": 35,
+    "cooldown": 4,
     "nodes": [
       {
         "id": "flame_shield:apply_shield",

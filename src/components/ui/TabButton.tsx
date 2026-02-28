@@ -11,10 +11,10 @@ export const TabButton = React.memo(function TabButton({ active, onClick, label 
   return (
     <button
       onClick={onClick}
-      className={`relative px-5 py-3.5 text-xs font-display font-semibold uppercase tracking-wider transition-all duration-250 cursor-pointer group ${
+      className={`relative px-5 py-3 text-xs font-display font-semibold uppercase tracking-wider transition-all duration-250 cursor-pointer group clip-corner-8 ${
         active 
-          ? 'text-amber-400 bg-gradient-to-b from-red-900/20 via-red-900/10 to-transparent border-t border-x border-amber-900/30' 
-          : 'text-stone-500 hover:text-stone-300 hover:bg-stone-800/30 border-t border-transparent'
+          ? 'text-amber-400 bg-gradient-to-b from-red-900/30 via-red-950/15 to-transparent border border-amber-900/35' 
+          : 'text-stone-500 hover:text-stone-300 hover:bg-stone-800/30 border border-transparent'
       }`}
     >
       <span className="relative z-10 flex items-center gap-2">

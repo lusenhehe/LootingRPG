@@ -33,7 +33,7 @@ function AppHeaderInner({
   const expPercent = Math.min(100, (playerStats.xp / expNeeded) * 100);
   return (
     <header
-      className="flex items-center justify-between h-14 px-4 border-b border-stone-800/60 bg-gradient-to-b from-stone-950 via-stone-900/95 to-stone-950 shadow-lg shadow-black/50 relative overflow-hidden"
+      className="flex items-center justify-between h-14 px-4 border-b border-amber-900/25 bg-gradient-to-b from-[#120e09] via-stone-950 to-[#090705] shadow-lg shadow-black/70 relative overflow-hidden dark-emboss-header"
     >
       <div className="absolute inset-0 bg-gradient-to-r from-amber-950/5 via-transparent to-red-950/5 pointer-events-none" />
       
@@ -46,7 +46,7 @@ function AppHeaderInner({
           </div>
           <div className="absolute -inset-1 bg-amber-500/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
-        <span className="text-sm font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm tracking-wide">
+        <span className="text-sm font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 drop-shadow-sm tracking-wide text-embossed">
           LOOT GRINDER
         </span>
       </div>
@@ -60,9 +60,9 @@ function AppHeaderInner({
             <span className="text-sm font-medium text-stone-300">{playerName}</span>
             <span className="px-1.5 py-0.5 text-xs font-mono text-amber-400 border border-amber-700/30 rounded-sm">Lv.{playerStats.level}</span>
           </div>
-          <div className="w-32 h-2 rounded-sm bg-stone-800 border border-stone-700/50 overflow-hidden">
+          <div className="w-32 h-2 bg-stone-900 border border-amber-900/40 overflow-hidden clip-corner-8">
             <motion.div
-              className="h-full bg-gradient-to-r from-amber-700 via-amber-600 to-amber-500 relative"
+              className="h-full relative xp-flame-flow"
               initial={{ width: 0 }}
               animate={{ width: `${expPercent}%` }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -89,7 +89,7 @@ function AppHeaderInner({
           </div>
           <div className={`${commonStyles.statBadge} bg-amber-900/20 border-amber-700/30`}> 
             <Coins size={11} className="text-amber-400" />
-            <span className="text-amber-300 font-mono font-semibold">{gold.toLocaleString()}</span>
+            <span className="text-amber-300 font-mono font-semibold gold-pulse">{gold.toLocaleString()}</span>
           </div>
         </div>
       </div>

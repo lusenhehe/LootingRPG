@@ -17,6 +17,7 @@ const slotTypeIconMap: Record<string, React.ReactNode> = {
 interface EquipmentTooltipProps {
   item: Equipment;
   position: 'hover' | 'click';
+  anchor?: { x: number; y: number };
   onClose: () => void;
   onUnequip?: () => void;
 }
@@ -52,7 +53,7 @@ const affixIcons: Record<string, React.ReactNode> = {
   fireDmg: <Flame size={10} />,
 };
 
-function EquipmentTooltipInner({ item, position, onClose, onUnequip }: EquipmentTooltipProps) {
+function EquipmentTooltipInner({ item, position, anchor, onClose, onUnequip }: EquipmentTooltipProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('zh') ? 'zh' : 'en';
   const displayName = item.localeNames?.[lang] || item.name;
@@ -70,8 +71,12 @@ function EquipmentTooltipInner({ item, position, onClose, onUnequip }: Equipment
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: 5 }}
       transition={{ duration: 0.15 }}
-      className={`absolute z-tooltip-fixed w-64 p-3 rounded-sm border-2 ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
-      style={position === 'click' ? { position: 'fixed', zIndex: 9999 } : undefined}
+      className={`z-tooltip-fixed w-64 p-3 rounded-sm border-2 ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
+      style={
+        position === 'click' && anchor
+          ? { position: 'fixed', left: anchor.x + 10, top: anchor.y + 10 }
+          : { position: 'absolute' }
+      }
       onClick={(e) => e.stopPropagation()}
     >
       <div className="absolute -top-px left-4 w-6 h-px" style={{ backgroundColor: quality.hexColor, opacity: 0.6 }} />
@@ -179,8 +184,7 @@ interface EquipmentSlotProps {
 }
 
 function EquipmentSlotInner({ slot, item, isSelected, onSelect, onUnequip }: EquipmentSlotProps) {
-  const [showTooltip, setShowTooltip] = useState<'hover' | null>(null);
-  
+  const [tooltipAnchor, setTooltipAnchor] = useState<{ x: number; y: number } | null>(null);
   const qualityClass = item ? {
     common:   'border-quality-common',
     uncommon: 'equip-slot-uncommon',
@@ -193,28 +197,17 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect, onUnequip }: Equ
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!item) return;
+    setTooltipAnchor({ x: e.clientX, y: e.clientY });
     onSelect(slot);
-  };
-
-  const handleMouseEnter = () => {
-    if (item) {
-      setShowTooltip('hover');
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setShowTooltip(null);
   };
 
   return (
     <div 
       className="relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
       <div 
-        className={`relative aspect-square rounded-sm border flex flex-col items-center justify-center transition-all duration-200 cursor-pointer ${
+        className={`relative aspect-square clip-corner-8 border flex flex-col items-center justify-center transition-all duration-200 cursor-pointer dark-equip-slot ${
           isSelected 
             ? 'ring-2 ring-red-700 ring-offset-1 ring-offset-stone-950' 
             : item 
@@ -233,10 +226,10 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect, onUnequip }: Equ
               </span>
             )}
             {item.quality === 'legendary' && (
-              <div className="absolute inset-0 rounded-sm legendary-shine pointer-events-none" />
+              <div className="absolute inset-0 clip-corner-8 legendary-shine pointer-events-none" />
             )}
             {item.quality === 'mythic' && (
-              <div className="absolute inset-0 rounded-sm mythic-glow pointer-events-none" />
+              <div className="absolute inset-0 clip-corner-8 mythic-glow pointer-events-none" />
             )}
           </div>
         ) : (
@@ -248,7 +241,7 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect, onUnequip }: Equ
 {/* 
         <AnimatePresence>
           {showTooltip === 'hover' && item && (
-            <div className="absolute z-tooltip left-full top-0 ml-2 pointer-events-auto">
+            <div className="absolute z-tooltip top-full left-0 mt-2 pointer-events-auto">
               <EquipmentTooltip item={item} position="hover" onClose={() => {}} onUnequip={onUnequip} />
             </div>
           )}
@@ -256,8 +249,14 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect, onUnequip }: Equ
 
         <AnimatePresence>
           {isSelected && item && (
-            <div className="absolute z-tooltip top-full left-0 mt-2 pointer-events-auto">
-              <EquipmentTooltip item={item} position="click" onClose={() => onSelect('')} onUnequip={onUnequip} />
+            <div className="pointer-events-auto">
+              <EquipmentTooltip
+                item={item}
+                position="click"
+                anchor={tooltipAnchor ?? undefined}
+                onClose={() => onSelect('')}
+                onUnequip={onUnequip}
+              />
             </div>
           )}
         </AnimatePresence>

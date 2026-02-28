@@ -3,22 +3,28 @@ import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData'
 import { Star, ChevronDown, Mountain, Lock } from 'lucide-react';
 import { MAP_CHAPTERS } from '../../../config/map/ChapterData';
 import type { MapProgressState } from '../../../shared/types/game';
+import type { ActiveTab } from '../../../types/game';
+import type { PlayerStats } from '../../../types/game';
 import { themeColors } from '../../../config/map/mapNode';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import MapViewport from '../map/MapViewport';
 import { useMemo, useState, memo } from 'react';
 interface MapTabProps {
+  activeTab: ActiveTab;
+  playerName: string;
+  playerStats: PlayerStats;
   playerLevel: number;
   loading: boolean;
   progress: MapProgressState;
+  onSetTab: (tab: ActiveTab) => void;
   onSelectChapter: (chapterId: string) => void;
   onEnterNode: (node: MapNodeDef, chapter: MapChapterDef) => void;
   focusNodeId?: string | null;
   onClearFocus?: () => void;
 }
 
-function MapTabInner({ playerLevel, loading, progress, onSelectChapter, onEnterNode, focusNodeId, onClearFocus }: MapTabProps) {
+function MapTabInner({ activeTab, playerName, playerStats, playerLevel, loading, progress, onSetTab, onSelectChapter, onEnterNode, focusNodeId, onClearFocus }: MapTabProps) {
   const { t } = useTranslation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const normalizedProgress = useMemo(() => normalizeMapProgress(progress, MAP_CHAPTERS), [progress]);
@@ -53,13 +59,45 @@ function MapTabInner({ playerLevel, loading, progress, onSelectChapter, onEnterN
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className="h-full flex flex-col min-h-0"
+      className="h-full min-h-0 relative flex flex-col"
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="absolute top-3 left-4 right-4 z-overlay flex items-center justify-end gap-3 pointer-events-none">
+        <div className="flex items-center gap-2 text-xs pointer-events-auto bg-black/45 border border-amber-900/30 px-2.5 py-1 clip-corner-8">
+          <Star size={12} className="text-amber-400" fill="currentColor" />
+          <span className="text-stone-400">{totalStars}</span>
+          <span className="text-stone-600">|</span>
+          <span className="text-stone-500">{selectedChapter.levelRange}</span>
+          <span className="text-stone-600">|</span>
+          <span style={{ color: chapterThemeColors.primaryLight }}>{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
+          <span className="text-stone-600">|</span>
+          <span className="px-1.5 py-0.5 rounded font-medium" style={{ 
+            backgroundColor: `${chapterThemeColors.primary}22`, 
+            color: chapterThemeColors.primaryLight 
+          }}>
+            {Math.round((selectedChapterProgress.cleared / selectedChapterProgress.total) * 100)}%
+          </span>
+        </div>
+      </div>
+      <MapViewport
+        activeTab={activeTab}
+        playerName={playerName}
+        playerStats={playerStats}
+        playerLevel={playerLevel}
+        loading={loading}
+        normalizedProgress={normalizedProgress}
+        selectedChapter={selectedChapter}
+        onSetTab={onSetTab}
+        onEnterNode={onEnterNode}
+        focusNodeId={focusNodeId}
+        onClearFocus={onClearFocus}
+      />
+      
+      {/* dropdown moved to bottom-right */}
+      <div className="absolute bottom-16 right-4 z-overlay">
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-stone-900/60 backdrop-blur-sm rounded-lg border transition-all cursor-pointer hover:bg-stone-800/60"
+            className="flex items-center gap-2 px-3 py-1.5 bg-black/55 backdrop-blur-sm clip-corner-8 border transition-all cursor-pointer hover:bg-stone-800/60 pointer-events-auto"
             style={{ borderColor: `${chapterThemeColors.primary}33` }}
           >
             <Mountain size={16} style={{ color: chapterThemeColors.primaryLight }} />
@@ -75,7 +113,7 @@ function MapTabInner({ playerLevel, loading, progress, onSelectChapter, onEnterN
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
-                  className="absolute top-full mt-1 left-0 z-dropdown bg-stone-900/95 backdrop-blur-xl rounded-lg border border-white/10 shadow-xl py-1 min-w-[220px]"
+                  className="absolute bottom-full mb-1 right-0 z-dropdown bg-stone-950/95 backdrop-blur-xl clip-corner-8 border border-white/10 shadow-xl py-1 min-w-[220px] pointer-events-auto"
                 >
                   {MAP_CHAPTERS.map((chapter) => {
                     const unlocked = normalizedProgress.unlockedChapters.includes(chapter.id);
@@ -102,34 +140,7 @@ function MapTabInner({ playerLevel, loading, progress, onSelectChapter, onEnterN
             )}
           </AnimatePresence>
         </div>
-
-        <div className="flex items-center gap-2 text-xs">
-          <Star size={12} className="text-amber-400" fill="currentColor" />
-          <span className="text-stone-400">{totalStars}</span>
-          <span className="text-stone-600">|</span>
-          <span className="text-stone-500">{selectedChapter.levelRange}</span>
-          <span className="text-stone-600">|</span>
-          <span style={{ color: chapterThemeColors.primaryLight }}>{selectedChapterProgress.cleared}/{selectedChapterProgress.total}</span>
-          <span className="text-stone-600">|</span>
-          <span className="px-1.5 py-0.5 rounded font-medium" style={{ 
-            backgroundColor: `${chapterThemeColors.primary}22`, 
-            color: chapterThemeColors.primaryLight 
-          }}>
-            {Math.round((selectedChapterProgress.cleared / selectedChapterProgress.total) * 100)}%
-          </span>
-        </div>
       </div>
-
-      <MapViewport
-        playerLevel={playerLevel}
-        loading={loading}
-        normalizedProgress={normalizedProgress}
-        selectedChapter={selectedChapter}
-        selectedChapterProgress={selectedChapterProgress}
-        onEnterNode={onEnterNode}
-        focusNodeId={focusNodeId}
-        onClearFocus={onClearFocus}
-      />
     </motion.div>
   );
 }

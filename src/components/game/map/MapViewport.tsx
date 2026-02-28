@@ -1,14 +1,14 @@
 import MapNode from './MapNode';
 import { motion } from 'motion/react';
 import { useRef, useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Mountain} from 'lucide-react';
+import { Package, Hammer, BookOpen, Coins } from 'lucide-react';
 import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData';
 import type { MapProgressState } from '../../../shared/types/game';
+import type { ActiveTab } from '../../../types/game';
+import type { PlayerStats } from '../../../types/game';
 import type { ChapterTheme } from '../../../config/map/mapNode';
 import { isNodeCleared, isNodeUnlocked,} from '../../../domains/map/services/progress';
 import { clampMapOffset, getZigzagNodePosition, chapterThemeStyles, getCanvasWidth, NODE_MARGIN_X, NODE_SPACING_X } from './MapConfig';
-import { themeHeaderColors} from '../../../config/map/mapNode';
 import { getMapBackgroundLayers } from './mapBackgroundFactory';
 
 // ─── 环境粒子配置 ─────────────────────────────────────────────────────────────
@@ -36,6 +36,20 @@ const THEME_PARTICLES: Record<string, ParticleDef[]> = {
     [64, 58, 3,   6,   18], [80, 43, 4,   1.5, 15], [22, 28, 3,   8,   19],
   ],
 };
+
+const AIR_PARTICLES: ParticleDef[] = [
+  [6, 15, 1.5, 0, 14],
+  [14, 24, 2, 1.8, 12],
+  [21, 58, 1.5, 0.7, 16],
+  [33, 36, 2, 2.3, 13],
+  [41, 72, 1.8, 3.2, 15],
+  [53, 18, 2.2, 0.4, 11],
+  [62, 48, 1.7, 2.9, 17],
+  [70, 66, 1.4, 1.1, 14],
+  [79, 30, 2, 4.1, 12],
+  [87, 52, 1.6, 0.9, 16],
+  [93, 22, 1.4, 3.8, 13],
+];
 
 const PARTICLE_COLORS: Record<string, string> = {
   '林地': 'rgba(138, 210, 88,  0.82)',
@@ -154,11 +168,14 @@ function renderGapDecoration(
 
 // ─── 路径样式 ─────────────────────────────────────────────────────────────────
 interface MapViewportProps {
+  activeTab: ActiveTab;
+  playerName: string;
+  playerStats: PlayerStats;
   playerLevel: number;
   loading: boolean;
   normalizedProgress: MapProgressState;
   selectedChapter: MapChapterDef;
-  selectedChapterProgress: { cleared: number; total: number; completed: boolean };
+  onSetTab: (tab: ActiveTab) => void;
   onEnterNode: (node: MapNodeDef, chapter: MapChapterDef) => void;
   focusNodeId?: string | null;
   onClearFocus?: () => void;
@@ -208,50 +225,80 @@ const getPathFilter = (type: string, isCleared: boolean): string => {
 };
 
 export default function MapViewport({
+  activeTab,
+  playerName,
+  playerStats,
   playerLevel,
   loading,
   normalizedProgress,
   selectedChapter,
-  selectedChapterProgress,
+  onSetTab,
   onEnterNode,
   focusNodeId,
   onClearFocus,
 }: MapViewportProps) {
-  const { t } = useTranslation();
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [, setHoveredNode] = useState<string | null>(null);
   const mapViewportRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dragging: boolean; x: number; y: number }>({ dragging: false, x: 0, y: 0 });
   // ── 流畅拖拽：绕过 React 渲染，直接操作 DOM ─────────────────────────
   const offsetRef    = useRef({ x: 0, y: 0 });
+  const viewportRectRef = useRef<DOMRect | null>(null); // cache dimensions
   const canvasDivRef = useRef<HTMLDivElement | null>(null);
   const patternDivRef = useRef<HTMLDivElement | null>(null);
+  const detailDivRef = useRef<HTMLDivElement | null>(null);
+  const hazeDivRef = useRef<HTMLDivElement | null>(null);
   const rafIdRef     = useRef<number | null>(null);
-  const themeColors = themeHeaderColors[selectedChapter.theme];
   const pathStyles = getPathStyles(selectedChapter.theme);
+
+  const applyDepthTransforms = (x: number) => {
+    // 全部改为平面 translateX 视差，避免 3D 合成树带来的 Electron 生产包卡顿
+    if (canvasDivRef.current) {
+      canvasDivRef.current.style.transform = `translateX(${x}px)`;
+    }
+    // patternDivRef 内部有子 div(.map-pattern-inner) 负责背景，
+    // 这里只做视差位移，backgroundPosition 不再每帧修改（paint → composite）
+    if (patternDivRef.current) {
+      patternDivRef.current.style.transform = `translateX(${x * 0.18}px)`;
+    }
+    if (detailDivRef.current) {
+      detailDivRef.current.style.transform = `translateX(${x * 0.1}px)`;
+    }
+    if (hazeDivRef.current) {
+      hazeDivRef.current.style.transform = `translateX(${x * 0.06}px)`;
+    }
+  };
 
   // 把 offset state 变化（focus 跳转等）同步到 DOM
   useEffect(() => {
     offsetRef.current = offset;
-    if (canvasDivRef.current)  canvasDivRef.current.style.transform  = `translateX(${offset.x}px)`;
-    if (patternDivRef.current) patternDivRef.current.style.backgroundPosition = `${offset.x}px 55px`;
+    applyDepthTransforms(offset.x);
   }, [offset]);
   
   useEffect(() => {
     const el = mapViewportRef.current;
     if (!el) return;
+
+    // record initial viewport size and update on resize
+    const updateRect = () => {
+      viewportRectRef.current = el.getBoundingClientRect();
+    };
+    updateRect();
+    window.addEventListener('resize', updateRect);
+
     const handler = (e: WheelEvent) => {
       e.preventDefault();
     };
     el.addEventListener('wheel', handler, { passive: false });
     return () => {
       el.removeEventListener('wheel', handler);
+      window.removeEventListener('resize', updateRect);
     };
   }, []); // 只注册一次，避免每帧重绑
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
-    if (target.closest('[data-map-node="1"]')) return;
+    if (target.closest('[data-map-node="1"]') || target.closest('[data-map-ui="1"]')) return;
     // 阻止浏览器原生 drag-and-drop（否则会触发禁止光标 + pointercancel）
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -266,14 +313,20 @@ export default function MapViewport({
     }
     const dx = event.clientX - dragRef.current.x;
     dragRef.current.x = event.clientX;
-    const viewport = mapViewportRef.current?.getBoundingClientRect() ?? null;
-    const next = clampMapOffset({ x: offsetRef.current.x + dx, y: 0 }, viewport, selectedChapter.nodes.length);
+
+    const viewport = viewportRectRef.current;
+    // 如果还没缓存（极少数场景）再取一次
+    if (!viewport && mapViewportRef.current) {
+      viewportRectRef.current = mapViewportRef.current.getBoundingClientRect();
+    }
+
+    const nodeCount = selectedChapter.nodes.length;
+    const next = clampMapOffset({ x: offsetRef.current.x + dx, y: 0 }, viewport, nodeCount);
     offsetRef.current = next;
     // RAF：单帧只提交一次 DOM 写入，避免重渲染卡顿
     if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
     rafIdRef.current = requestAnimationFrame(() => {
-      if (canvasDivRef.current)  canvasDivRef.current.style.transform  = `translateX(${offsetRef.current.x}px)`;
-      if (patternDivRef.current) patternDivRef.current.style.backgroundPosition = `${offsetRef.current.x}px 55px`;
+      applyDepthTransforms(offsetRef.current.x);
       rafIdRef.current = null;
     });
   };
@@ -309,108 +362,75 @@ export default function MapViewport({
 
   return (
     <section 
-      className="flex-1 min-h-0 border rounded-xl bg-stone-950 p-3 flex flex-col overflow-hidden relative"
-      style={{ borderColor: themeColors.border.replace('/30', ''), background: '#0a0a0a' }}
+      className="flex-1 min-h-0 bg-stone-950 flex flex-col overflow-hidden relative dark-map-stage"
+      style={{ background: '#0a0a0a' }}
     >
-      <header className="mb-3 pb-3 relative z-10 flex items-center justify-between" style={{ borderBottom: `1px solid ${themeColors.border.replace('/30', '')}` }}>
-        <div className="flex items-center gap-3">
-          <div 
-            className="w-9 h-9 rounded flex items-center justify-center border"
-            style={{ 
-              background: `linear-gradient(135deg, ${themeColors.primary}-900/40 0%, ${themeColors.primary}-950/60 100%)`,
-              borderColor: `${themeColors.primary}-700/50`,
-            }}
-          >
-            <Mountain size={18} className={`text-${themeColors.primary}-300`} />
-          </div>
-          <div>
-            <h3 className="text-base font-display font-bold" style={{ color: themeColors.text === 'stone' ? '#e7e5e4' : `var(--color-${themeColors.primary}-200)` }}>
-              {t(`map.${selectedChapter.id}`)}
-            </h3>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded border" style={{ backgroundColor: `${themeColors.primary}-950/30`, borderColor: `${themeColors.primary}-800/30` }}>
-          <span className="text-[11px]" style={{ color: themeColors.text === 'stone' ? '#a8a29e' : `var(--color-${themeColors.primary}-300)` }}>
-            {selectedChapter.levelRange}
-          </span>
-          <span style={{ color: themeColors.text === 'stone' ? '#57534e' : `var(--color-${themeColors.primary}-700)` }}>·</span>
-          <span className="text-[11px] font-medium" style={{ color: themeColors.text === 'stone' ? '#d6d3d1' : `var(--color-${themeColors.primary}-200)` }}>
-            {t('map.level', { level: playerLevel })}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col items-end gap-1">
-            <span className="text-[10px] font-medium" style={{ color: themeColors.text === 'stone' ? '#a8a29e' : `var(--color-${themeColors.primary}-300)` }}>
-              {t('map.progress')} {selectedChapterProgress.cleared}/{selectedChapterProgress.total}
-            </span>
-            <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${themeColors.primary}-950/50` }}>
-              <motion.div 
-                className="h-full rounded-full"
-                style={{ backgroundColor: themeColors.primary === 'stone' ? '#a8a29e' : `var(--color-${themeColors.primary}-500)` }}
-                initial={{ width: 0 }}
-                animate={{ width: `${(selectedChapterProgress.cleared / selectedChapterProgress.total) * 100}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              />
-            </div>
-          </div>
-          <div 
-            className="w-10 h-10 rounded flex items-center justify-center border"
-            style={{ 
-              background: `linear-gradient(135deg, ${themeColors.primary}-900/30 0%, ${themeColors.primary}-950/50 100%)`,
-              borderColor: `${themeColors.primary}-700/40`,
-            }}
-          >
-            <span className="text-sm font-bold" style={{ color: themeColors.text === 'stone' ? '#d6d3d1' : `var(--color-${themeColors.primary}-200)` }}>
-              {Math.round((selectedChapterProgress.cleared / selectedChapterProgress.total) * 100)}%
-            </span>
-          </div>
-        </div>
-      </header>
-
       <div
         ref={mapViewportRef}
-        className="flex-1 min-h-0 rounded-xl border relative overflow-hidden cursor-grab active:cursor-grabbing"
+        className="flex-1 min-h-0 relative overflow-hidden cursor-grab active:cursor-grabbing map-3d-viewport"
         style={{
           background: bgLayers.base,
-          borderColor: themeColors.border.replace('/30', ''),
         }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
       >
-        {/* pattern 层：SVG 瓦片纹理（砖缝/根脉/熔岩裂缝/骨裂），screen 混合，backgroundPosition 由 ref 驱动跟随滚动 */}
+        <div className="absolute inset-0 pointer-events-none map-breathing-fog" />
+
+        <div data-map-ui="1" className="absolute top-3 left-3 z-overlay pointer-events-auto">
+          <div className="px-3 py-1.5 clip-corner-8 border border-amber-900/35 bg-black/50 backdrop-blur-[2px]">
+            <div className="text-xs font-display text-amber-200">{playerName}</div>
+            <div className="mt-0.5 flex items-center gap-2 text-[10px] text-stone-300 font-mono">
+              <span>Lv.{playerStats.level}</span>
+              <span>ATK {playerStats.attack}</span>
+              <span>HP {playerStats.hp}</span>
+              <span>DEF {playerStats.defense}</span>
+              <span className="flex items-center gap-1 text-amber-300"><Coins size={10} />{playerStats.gold.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* pattern 层：SVG 瓦片纹理，用内部子 div 承载背景避免每帧修改 backgroundPosition（paint） */}
         <div
           ref={patternDivRef}
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: bgLayers.pattern,
-            backgroundRepeat: 'repeat',
-            backgroundPosition: '0px 55px',
-            opacity: 0.85,
-            mixBlendMode: 'screen',
-          }}
-        />
-        {/* detail 层：纹理条纹，screen 混合在深色底上才可见（soft-light 在暗底 = 无效）*/}
+          className="absolute inset-0 pointer-events-none map-3d-layer map-3d-pattern overflow-hidden"
+          style={{ opacity: 0.85, mixBlendMode: 'screen' }}
+        >
+          {/* 子 div 宽度略大以覆盖视差滑动范围；backgroundPosition 静态，不修改 */}
+          <div
+            className="absolute inset-y-0"
+            style={{
+              left: '-20%',
+              right: '-20%',
+              backgroundImage: bgLayers.pattern,
+              backgroundRepeat: 'repeat',
+              backgroundPosition: '0px 55px',
+            }}
+          />
+        </div>
+        {/* detail 层：纹理条纹，screen 混合在深色底上才可见 */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: bgLayers.detail,
-            opacity: 0.9,
-            mixBlendMode: 'screen',
-          }}
-        />
-        {/* haze 层：大面积色雾，略低透明度 */}
+          ref={detailDivRef}
+          className="absolute inset-0 pointer-events-none map-3d-layer map-3d-detail overflow-hidden"
+          style={{ opacity: 0.9, mixBlendMode: 'screen' }}
+        >
+          <div
+            className="absolute inset-y-0"
+            style={{ left: '-15%', right: '-15%', backgroundImage: bgLayers.detail }}
+          />
+        </div>
+        {/* haze 层：大面积色雾 */}
         <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: bgLayers.haze,
-            opacity: 0.75,
-            mixBlendMode: 'screen',
-          }}
-        />
+          ref={hazeDivRef}
+          className="absolute inset-0 pointer-events-none map-3d-layer map-3d-haze overflow-hidden"
+          style={{ opacity: 0.75, mixBlendMode: 'screen' }}
+        >
+          <div
+            className="absolute inset-y-0"
+            style={{ left: '-10%', right: '-10%', backgroundImage: bgLayers.haze }}
+          />
+        </div>
 
         {/* ── 火山专属：脉动熔岩池（深度对比，呼吸感）────────────────── */}
         {selectedChapter.theme === '火山' && (
@@ -486,6 +506,24 @@ export default function MapViewport({
           ))}
         </div>
 
+        {/* ── 空气尘粒层（更明显但低干扰）──────────────────────────── */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {AIR_PARTICLES.map(([px, py, size, delay, dur], i) => (
+            <div
+              key={`air-${i}`}
+              className="absolute rounded-full map-air-particle"
+              style={{
+                left: `${px}%`,
+                top: `${py}%`,
+                width: size,
+                height: size,
+                animationDelay: `${delay}s`,
+                animationDuration: `${dur}s`,
+              }}
+            />
+          ))}
+        </div>
+
         {/* ── 滚动边缘提示（左右渐隐，暗示可拖动）───────────────────── */}
         <div
           className="absolute top-0 left-0 bottom-0 w-14 pointer-events-none z-10"
@@ -496,10 +534,31 @@ export default function MapViewport({
           style={{ background: `linear-gradient(to left, ${bgLayers.vignette.match(/rgba\([^)]+\)/)?.[0] ?? 'rgba(0,0,0,0.5)'} 0%, transparent 100%)` }}
         />
 
+        <div data-map-ui="1" className="absolute bottom-4 right-4 z-overlay flex items-center gap-2 pointer-events-auto">
+          <button
+            onClick={() => onSetTab('inventory')}
+            className={`px-2.5 py-1.5 clip-corner-8 border flex items-center gap-1.5 transition-colors cursor-pointer ${activeTab === 'inventory' ? 'border-amber-700/40 text-amber-200 bg-amber-900/20' : 'border-stone-800/60 text-stone-300 bg-black/45 hover:text-stone-100'}`}
+          >
+            <Package size={11} /> 背包仓库
+          </button>
+          <button
+            onClick={() => onSetTab('forge')}
+            className={`px-2.5 py-1.5 clip-corner-8 border flex items-center gap-1.5 transition-colors cursor-pointer ${activeTab === 'forge' ? 'border-amber-700/40 text-amber-200 bg-amber-900/20' : 'border-stone-800/60 text-stone-300 bg-black/45 hover:text-stone-100'}`}
+          >
+            <Hammer size={11} /> 强化中心
+          </button>
+          <button
+            onClick={() => onSetTab('codex')}
+            className={`px-2.5 py-1.5 clip-corner-8 border flex items-center gap-1.5 transition-colors cursor-pointer ${activeTab === 'codex' ? 'border-amber-700/40 text-amber-200 bg-amber-900/20' : 'border-stone-800/60 text-stone-300 bg-black/45 hover:text-stone-100'}`}
+          >
+            <BookOpen size={11} /> 图鉴
+          </button>
+        </div>
+
         {/* ── 可滚动画布内容（宽度 = 所有节点所需像素宽度）─────────── */}
         <div
           ref={canvasDivRef}
-          className="absolute top-0 left-0 h-full z-content"
+          className="absolute top-0 left-0 h-full z-content map-canvas-3d"
           style={{ width: `${canvasWidth}px` }}
         >
           {/* 路径 + 地标装饰 SVG */}

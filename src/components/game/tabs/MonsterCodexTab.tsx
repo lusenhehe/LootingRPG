@@ -445,18 +445,18 @@ function MonsterCodexSection({ t, lang, templates }: { t: TFunction; lang: 'zh' 
   const currentList = activeTab === 'normal' ? NORMAL_MONSTERS : BOSS_MONSTERS;
 
   return (
-    <div className="h-full flex flex-col gap-2">
+    <div className="">
       {/* 普通/BOSS tab */}
-      <div className="flex gap-1 bg-game-bg/50 p-0.5 rounded-lg border border-game-border/30 shrink-0 w-fit">
+      <div className="border border-game-border/30">
         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
           onClick={() => { setActiveTab('normal'); const first = NORMAL_MONSTERS[0]; if (first) setSelectedMonsterId(first.id); }}
-          className={`px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${activeTab === 'normal' ? 'bg-red-900/30 text-red-300 border border-red-700/30' : 'text-gray-400 hover:text-gray-200'}`}
+          className={`px-2.5 py-1  text-[10px] font-medium transition-all ${activeTab === 'normal' ? 'bg-red-900/30 text-red-300 border border-red-700/30' : 'text-gray-400 hover:text-gray-200'}`}
         >
           <Skull size={10} className="inline mr-1" />{t('codex.tab.normal')} ({NORMAL_MONSTERS.length})
         </motion.button>
         <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
           onClick={() => { setActiveTab('boss'); const first = BOSS_MONSTERS[0]; if (first) setSelectedMonsterId(first.id); }}
-          className={`px-2.5 py-1 rounded-md text-[10px] font-medium transition-all ${activeTab === 'boss' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/30' : 'text-gray-400 hover:text-gray-200'}`}
+          className={`px-2.5 py-1  text-[10px] font-medium transition-all ${activeTab === 'boss' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/30' : 'text-gray-400 hover:text-gray-200'}`}
         >
           <Crown size={10} className="inline mr-1" />{t('codex.tab.boss')} ({BOSS_MONSTERS.length})
         </motion.button>
@@ -465,8 +465,8 @@ function MonsterCodexSection({ t, lang, templates }: { t: TFunction; lang: 'zh' 
       {/* 主内容 */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-10 gap-2 overflow-hidden">
         {/* 怪物列表 */}
-        <div className="border border-game-border/50 rounded-xl bg-game-bg/40 p-2 flex flex-col h-full min-h-0 lg:col-span-3">
-          <div className="flex items-center gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider shrink-0">
+        <div className="border border-game-border/50 rounded-xl bg-game-bg/40 p-2 flex flex-col h-full min-h-0 lg:col-span-2">
+          <div className="flex gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider shrink-0">
             <Info size={12} />
             <span>{t('codex.listTitle')}</span>
           </div>
@@ -485,13 +485,13 @@ function MonsterCodexSection({ t, lang, templates }: { t: TFunction; lang: 'zh' 
         </div>
 
         {/* 怪物详情 */}
-        <div className="border border-game-border/50 rounded-xl bg-game-bg/30 p-2 flex flex-col h-full min-h-0 lg:col-span-7 overflow-hidden">
-          <div className="flex items-center gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider shrink-0">
+        <div className="border border-game-border/50 bg-game-bg/30 p-2 flex flex-col h-full min-h-0 lg:col-span-8 overflow-hidden">
+          <div className="flex gap-2 mb-2 text-[10px] text-gray-400 uppercase tracking-wider">
             <Heart size={12} className="text-red-400" />
             <span>{t('codex.detailTitle')}</span>
           </div>
-          <div className="flex-1 min-h-0 flex gap-2 overflow-hidden">
-            <div className="flex-1 overflow-y-auto scrollbar-thin min-h-0">
+          <div className="flex">
+            <div className="flex-1 overflow-y-auto scrollbar-thin min-h-0 overflow-hidden">
               <AnimatePresence mode="wait">
                 {selectedMonster ? (
                   <MonsterDetailPanel

@@ -207,3 +207,12 @@ export const createCustomEquipment = (quality: string, slot: string, playerLevel
 
   return buildFromTemplate(selected, playerLevel);
 };
+
+export const createCustomEquipmentByTemplateId = (templateId: string, playerLevel = 1): Equipment => {
+  const templates = getEquipmentTemplates();
+  const selected = templates.find((template) => template.id === templateId);
+  if (!selected) {
+    return buildFromTemplate(pickTemplateOrThrow(templates), playerLevel);
+  }
+  return buildFromTemplate(selected, playerLevel);
+};

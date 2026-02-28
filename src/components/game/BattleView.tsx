@@ -6,7 +6,11 @@ import BattleUnitCardBase from './BattleUnitCardBase';
 import TurnOrderBar from './TurnOrderBar';
 import { memo, useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sword, Swords, Skull, ChevronRight, Scroll } from 'lucide-react';
+import { Sword, Swords, Skull, ChevronRight, Scroll, Zap } from 'lucide-react';
+import skillsJson from '@data/config/game/skills.json';
+
+type SkillMeta = { energyCost?: number; cooldown?: number; displayName?: string; description?: string; icon?: string };
+const SKILLS_META: Record<string, SkillMeta> = skillsJson as unknown as Record<string, SkillMeta>;
 
 interface BattleViewProps {
   session: BattleSession;
@@ -67,7 +71,9 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
   const mapSize = [8, 3]; // cols, rows
 
   return (
-    <div className="fantasy-panel rounded-sm p-4 flex flex-col h-[90vh] max-h-[900px] min-h-[480px] gap-3 relative overflow-auto">
+    <div className="fantasy-panel rounded-sm 
+    p-4 flex flex-col h-[100vh] gap-3 relative 
+    overflow-auto">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-amber-700/30    " />
         <div className="absolute top-0 right-0 w-20 h-20 border-r-2 border-t-2 border-amber-700/30   " />
@@ -211,6 +217,23 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
             <Swords size={12} /> Actions
           </div>
 
+          {/* 能量条 */}
+          {isFighting && (
+            <div className="mt-0.5">
+              <div className="flex items-center justify-between text-[9px] text-stone-500 mb-0.5">
+                <span className="flex items-center gap-1"><Zap size={8} className="text-indigo-400" />能量</span>
+                <span className="font-mono text-indigo-300">{session.player.currentEnergy}/{session.player.maxEnergy}</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-stone-900 border border-stone-800/60 overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-indigo-600 to-violet-500 rounded-full"
+                  animate={{ width: `${(session.player.currentEnergy / Math.max(1, session.player.maxEnergy)) * 100}%` }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                />
+              </div>
+            </div>
+          )}
+
           <AnimatePresence mode="wait">
             {isFighting && (
               <motion.div
@@ -260,30 +283,45 @@ function BattleViewInner({ session, onAttack, onRetreat, onSkill }: BattleViewPr
             ↩ Retreat
           </motion.button>
 
-          {onSkill && isFighting && (
+          {onSkill && isFighting && session.player.skills.length > 0 && (
             <div className="mt-1 pt-2 border-t border-stone-800/50">
               <div className="text-[9px] text-stone-600 uppercase tracking-wider mb-1.5">Skills</div>
-              <div className="flex flex-col gap-1">
-                <motion.button
-                  type="button"
-                  onClick={() => handleSkill('poison_blade')}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full px-2 py-1.5 rounded-sm bg-gradient-to-r from-green-900/40 to-green-800/30 border border-green-700/30 text-green-300 text-xs hover:border-green-600/50 transition-all flex items-center gap-1.5"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                  Poison Blade
-                </motion.button>
-                <motion.button
-                  type="button"
-                  onClick={() => handleSkill('flame_shield')}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full px-2 py-1.5 rounded-sm bg-gradient-to-r from-orange-900/40 to-orange-800/30 border border-orange-700/30 text-orange-300 text-xs hover:border-orange-600/50 transition-all flex items-center gap-1.5"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Flame Shield
-                </motion.button>
+              <div className="flex flex-col gap-1.5">
+                {session.player.skills.map((skillId) => {
+                  const meta = SKILLS_META[skillId] ?? {};
+                  const cost = meta.energyCost ?? 0;
+                  const cd = session.player.skillCooldowns[skillId] ?? 0;
+                  const noEnergy = session.player.currentEnergy < cost;
+                  const disabled = cd > 0 || noEnergy;
+                  const skillIcon = meta.icon ?? '✨';
+                  const name = meta.displayName ?? skillId;
+                  return (
+                    <motion.button
+                      key={skillId}
+                      type="button"
+                      onClick={() => !disabled && handleSkill(skillId)}
+                      whileHover={disabled ? {} : { scale: 1.02 }}
+                      whileTap={disabled ? {} : { scale: 0.97 }}
+                      disabled={disabled}
+                      title={meta.description ?? name}
+                      className={`w-full px-2 py-1.5 rounded-sm border text-xs transition-all flex items-start gap-1.5 text-left ${
+                        disabled
+                          ? 'bg-stone-900/40 border-stone-800/30 text-stone-600 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-indigo-900/30 to-violet-900/20 border-indigo-700/30 text-indigo-200 hover:border-indigo-500/50'
+                      }`}
+                    >
+                      <span className="mt-px shrink-0">{skillIcon}</span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block font-medium leading-tight truncate">{name}</span>
+                        <span className={`flex items-center gap-1.5 text-[9px] mt-0.5 ${disabled ? 'text-stone-700' : 'text-indigo-400/70'}`}>
+                          <Zap size={8} />
+                          <span className={noEnergy && !disabled || (noEnergy && cd === 0) ? 'text-red-400' : ''}>{cost}</span>
+                          {cd > 0 && <span className="ml-auto text-amber-500/80">CD {cd}</span>}
+                        </span>
+                      </span>
+                    </motion.button>
+                  );
+                })}
               </div>
             </div>
           )}

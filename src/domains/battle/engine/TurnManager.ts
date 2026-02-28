@@ -17,6 +17,8 @@ const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   statuses: unit.statuses ? unit.statuses.map((s) => ({ ...s })) : undefined,
   // Shallow-clone listeners array; listener closures reference IDs (strings), not objects
   listeners: unit.listeners ? [...unit.listeners] : undefined,
+  // Deep-clone skillCooldowns
+  skillCooldowns: { ...unit.skillCooldowns },
   meta: unit.meta ? { ...unit.meta } : undefined,
 });
 
@@ -116,13 +118,21 @@ export const resolveTurn = (
   resolveAction(nextSession, playerAction, eventBus);
   const playerActionEvents = eventBus.drainEvents();
   resolveEffects(nextSession, playerActionEvents, eventBus);
+
+  // ── 普攻积累 25 能量（技能消耗能量后能量不会额外再增加）────────────────────
+  if (playerAction.type === 'basic_attack') {
+    const ENERGY_GAIN = 25;
+    nextSession.player.currentEnergy = Math.min(
+      nextSession.player.maxEnergy,
+      nextSession.player.currentEnergy + ENERGY_GAIN,
+    );
+  }
   updateBattleOutcome(nextSession);
   if (nextSession.status !== 'fighting') {
     eventBus.emit({ type: 'turn_end' });
     nextSession.events.push(...eventBus.drainEvents());
     return nextSession;
   }
-
   advanceWaveIfNeeded(nextSession);
   aliveEnemies = getCurrentWaveAliveEnemies(nextSession);
   if (aliveEnemies.length === 0) {
@@ -151,6 +161,39 @@ export const resolveTurn = (
   updateBattleOutcome(nextSession);
   if (nextSession.status === 'fighting') {
     nextSession.phase = 'player_input';
+  }
+
+  // ── 回合结束：Tick 玩家技能冷却 ─────────────────────────────────────────────
+  for (const skillId of Object.keys(nextSession.player.skillCooldowns)) {
+    const cd = nextSession.player.skillCooldowns[skillId];
+    if (cd > 0) {
+      nextSession.player.skillCooldowns[skillId] = cd - 1;
+    }
+  }
+
+  // ── 为下回合存活敌人生成意图预告 ─────────────────────────────────────────────
+  const nextWaveEnemies = getCurrentWaveAliveEnemies(nextSession);
+  for (const enemy of nextWaveEnemies) {
+    const atkEst = Math.floor(enemy.baseStats.attack);
+    const roll = Math.random();
+    if (roll < 0.18) {
+      enemy.nextIntent = {
+        type: 'heavy_attack',
+        label: '💥 蓄力重击',
+        estimatedDamage: Math.floor(atkEst * 1.8),
+      };
+    } else if (roll < 0.30) {
+      enemy.nextIntent = {
+        type: 'defend',
+        label: '🛡️ 防御姿态',
+      };
+    } else {
+      enemy.nextIntent = {
+        type: 'attack',
+        label: '⚔️ 普通攻击',
+        estimatedDamage: atkEst,
+      };
+    }
   }
 
   eventBus.emit({ type: 'turn_end' });

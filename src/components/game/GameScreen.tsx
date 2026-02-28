@@ -1,9 +1,7 @@
 import type { ActiveTab, BattleSession, GameState } from '../../types/game';
 import type { MapProgressState } from '../../types/game';
 import type { MapChapterDef, MapNodeDef } from '../../config/map/ChapterData';
-import { AppHeader } from './AppHeader';
 import { GamePanel } from './GamePanel';
-import { PlayerPanel } from './PlayerPanel';
 import { BattleView } from './BattleView';
 import DebugPanel from './DebugPanel';
 import { memo } from 'react';
@@ -76,28 +74,15 @@ function GameScreenInner({
   onOpenSimulator,
 }: GameScreenProps) {
   return (
-    <div className="flex flex-col h-screen bg-stone-950 overflow-hidden relative">
+    <div className="flex flex-col h-screen bg-stone-950 overflow-hidden relative dark-game-shell">
       <div className="absolute inset-0 pointer-events-none opacity-[0.015]" 
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
-      
-      <AppHeader
-        gold={gameState.playerStats.gold}
-        playerName={playerName}
-        playerStats={gameState.playerStats}
-        onExportSave={onExportSave}
-        onImportSave={onImportSave}
-        onLogout={onLogout}
-        onReset={onReset}
-      />
 
       <main className="flex flex-1 min-h-0 overflow-hidden relative">
-        <div className="w-56 h-full border-r border-stone-800/40">
-          <PlayerPanel gameState={gameState} onUnequip={onUnequip} />
-        </div>
-        <div className="flex-1 h-full relative min-h-0">
+        <div className="flex-1 h-full relative min-h-0 z-content">
           {battleSession ? (
             <BattleView
               session={battleSession}
@@ -109,6 +94,8 @@ function GameScreenInner({
             <GamePanel
               gameState={gameState}
               activeTab={activeTab}
+              playerName={playerName}
+              playerStats={gameState.playerStats}
               loading={loading}
               focusMapNode={focusMapNode}
               onClearFocusMapNode={onClearFocusMapNode}
@@ -125,6 +112,7 @@ function GameScreenInner({
               onReroll={onReroll}
               forgeSelectedId={forgeSelectedId}
               onSelectForgeItem={onSelectForgeItem}
+              onUnequip={onUnequip}
             />
           )}
         </div>

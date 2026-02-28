@@ -38,6 +38,7 @@ interface PlayerCardProps {
 
 function PlayerCardInner({ session, isActive = false }: PlayerCardProps) {
   const hpRatio = percent(session.player.currentHp, session.player.baseStats.hp);
+  const energyRatio = percent(session.player.currentEnergy, Math.max(1, session.player.maxEnergy));
   const playerName = session.player.name || 'PLAYER';
   const hpText = `${Math.max(0, Math.round(session.player.currentHp))}/${Math.max(1, Math.round(session.player.baseStats.hp))}`;
   const statuses = session.player.statuses ?? [];
@@ -82,11 +83,23 @@ function PlayerCardInner({ session, isActive = false }: PlayerCardProps) {
           HP {hpText}
         </div>
 
+        {/* HP 条 */}
         <div className="h-1.5 rounded-sm bg-gray-900/80 overflow-hidden shrink-0">
           <div
             className="h-full bg-emerald-500 transition-all duration-300"
             style={{ width: `${hpRatio}%` }}
           />
+        </div>
+
+        {/* 能量条 */}
+        <div className="h-1 rounded-sm bg-gray-900/80 overflow-hidden shrink-0 mt-0.5">
+          <div
+            className="h-full bg-indigo-500 transition-all duration-500"
+            style={{ width: `${energyRatio}%` }}
+          />
+        </div>
+        <div className="text-center text-[8px] text-indigo-400/70 font-mono shrink-0 leading-tight">
+          ⚡ {session.player.currentEnergy}/{session.player.maxEnergy}
         </div>
       </div>
     </BattleUnitCardBase>

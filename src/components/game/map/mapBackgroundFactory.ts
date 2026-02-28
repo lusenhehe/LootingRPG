@@ -33,98 +33,18 @@ export interface MapBackgroundLayers {
 const svgUrl = (svg: string): string =>
   `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\s+/g, ' ').trim())}")`;
 
+import { forestLayers } from './backgrounds/forest';
+import { dungeonLayers } from './backgrounds/dungeon';
+import { volcanoLayers } from './backgrounds/volcano';
+import { undeadLayers } from './backgrounds/undead';
+import { fallbackLayers } from './backgrounds/fallback';
 
-// ─── 林地 ─────────────────────────────────────────────────────────────────────
-const forestLayers: MapBackgroundLayers = {
-  // 暗绿底色：顶部偏青，底部趋向深黑棕，模拟苔藓覆盖的腐泥地面
-  base: 'linear-gradient(170deg, #0e1a0f 0%, #0b130a 50%, #080d07 100%)',
 
-  // SVG 瓦片：根系网络 + 地面碎石
-  // 80×80 单元：两条贝塞尔根脉（横/纵各一），四粒随机碎石
-  pattern: svgUrl(
-    "<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>" +
-      // 横向主根脉，S 形曲线
-      "<path d='M0,40 Q20,30 40,40 Q60,50 80,40' fill='none' stroke='rgba(65,105,45,0.40)' stroke-width='1.6'/>" +
-      // 纵向次根脉
-      "<path d='M40,0 Q30,20 40,40 Q50,60 40,80' fill='none' stroke='rgba(55,88,38,0.35)' stroke-width='1.4'/>" +
-      // 边缘辅助细根（让瓦片拼接时有连贯感）
-      "<path d='M0,20 Q10,28 20,22' fill='none' stroke='rgba(70,55,30,0.28)' stroke-width='1'/>" +
-      "<path d='M60,58 Q70,52 80,60' fill='none' stroke='rgba(70,55,30,0.25)' stroke-width='1'/>" +
-      // 苔藓/碎石圆点
-      "<circle cx='22' cy='22' r='2.5' fill='rgba(90,70,40,0.28)'/>" +
-      "<circle cx='60' cy='18' r='1.8' fill='rgba(75,115,52,0.25)'/>" +
-      "<circle cx='65' cy='62' r='2.2' fill='rgba(68,100,48,0.22)'/>" +
-      "<circle cx='16' cy='60' r='1.5' fill='rgba(95,75,42,0.26)'/>" +
-      "<circle cx='46' cy='14' r='1.2' fill='rgba(100,80,45,0.20)'/>" +
-    "</svg>"
-  ),
 
-  // 局部光照区：模拟树冠间隙漏下的光斑 + 右下角阴影
-  detail: [
-    'radial-gradient(ellipse 52% 36% at 22% 68%, rgba(100, 75, 32, 0.32) 0%, transparent 100%)',
-    'radial-gradient(ellipse 42% 30% at 78% 28%, rgba(68, 108, 48, 0.28) 0%, transparent 100%)',
-    'radial-gradient(ellipse 30% 22% at 50% 50%, rgba(55,  90, 40, 0.20) 0%, transparent 100%)',
-  ].join(','),
 
-  // 大范围树冠投影色调 + 角落苔绿晕
-  haze: [
-    'radial-gradient(ellipse 65% 50% at 18% 12%, rgba(48, 92, 36, 0.24) 0%, transparent 100%)',
-    'radial-gradient(ellipse 55% 45% at 84% 80%, rgba(72, 118, 50, 0.20) 0%, transparent 100%)',
-  ].join(','),
 
-  // 边缘压暗：深绿色调晕影，强化林中封闭感
-  vignette:
-    'radial-gradient(ellipse at center, transparent 42%, rgba(3, 10, 3, 0.55) 100%)',
-};
 
-// ─── 地牢 ─────────────────────────────────────────────────────────────────────
-const dungeonLayers: MapBackgroundLayers = {
-  // 冷蓝灰底色：暗石板颜色
-  base: 'linear-gradient(180deg, #0c0e15 0%, #0a0c12 52%, #08090e 100%)',
-
-  // SVG 瓦片：交错砖缝图案 (64×48)
-  // 第一行两个砖块，第二行偏移半砖，形成标准错缝砌砖
-  pattern: svgUrl(
-    "<svg xmlns='http://www.w3.org/2000/svg' width='64' height='48'>" +
-      // 水平砖缝（行分隔线）
-      "<line x1='0' y1='24' x2='64' y2='24' stroke='rgba(0,0,0,0.70)' stroke-width='2'/>" +
-      // 第一行竖缝（x=32）
-      "<line x1='32' y1='0'  x2='32' y2='24' stroke='rgba(0,0,0,0.70)' stroke-width='2'/>" +
-      // 第二行竖缝（偏移 16，形成错缝）
-      "<line x1='0'  y1='24' x2='0'  y2='48' stroke='rgba(0,0,0,0.70)' stroke-width='2'/>" +
-      "<line x1='16' y1='24' x2='16' y2='48' stroke='rgba(0,0,0,0.70)' stroke-width='2'/>" +
-      "<line x1='48' y1='24' x2='48' y2='48' stroke='rgba(0,0,0,0.70)' stroke-width='2'/>" +
-      // 砖块上边缘高光（模拟顶光漫反射）
-      "<line x1='2'  y1='2'  x2='30' y2='2'  stroke='rgba(152,162,182,0.28)' stroke-width='1'/>" +
-      "<line x1='34' y1='2'  x2='62' y2='2'  stroke='rgba(152,162,182,0.22)' stroke-width='1'/>" +
-      "<line x1='2'  y1='26' x2='14' y2='26' stroke='rgba(152,162,182,0.24)' stroke-width='1'/>" +
-      "<line x1='18' y1='26' x2='46' y2='26' stroke='rgba(152,162,182,0.26)' stroke-width='1'/>" +
-      "<line x1='50' y1='26' x2='62' y2='26' stroke='rgba(152,162,182,0.20)' stroke-width='1'/>" +
-      // 砖面漫反射填充（极低 alpha，仅体现质感差异）
-      "<rect x='2'  y='2'  width='28' height='20' fill='rgba(140,150,170,0.07)'/>" +
-      "<rect x='34' y='2'  width='28' height='20' fill='rgba(130,140,160,0.05)'/>" +
-      "<rect x='18' y='26' width='28' height='20' fill='rgba(145,155,175,0.08)'/>" +
-    "</svg>"
-  ),
-
-  // 中心火把/灯笼暖光 + 角落渗水印迹
-  detail: [
-    'radial-gradient(ellipse 38% 26% at 28% 52%, rgba(88, 78, 58, 0.30) 0%, transparent 100%)',
-    'radial-gradient(ellipse 30% 22% at 72% 48%, rgba(80, 72, 55, 0.25) 0%, transparent 100%)',
-    'radial-gradient(ellipse 25% 18% at 50% 20%, rgba(130, 145, 175, 0.22) 0%, transparent 100%)',
-  ].join(','),
-
-  // 顶部幽冷光渗入 + 底部腐锈沉积
-  haze: [
-    'radial-gradient(ellipse 72% 44% at 50% 0%,   rgba(132, 148, 185, 0.22) 0%, transparent 100%)',
-    'radial-gradient(ellipse 48% 38% at 12% 88%,  rgba(112,  85,  60, 0.18) 0%, transparent 100%)',
-  ].join(','),
-
-  // 边缘压暗：深蓝灰晕影，模拟石窟纵深
-  vignette:
-    'radial-gradient(ellipse at center, transparent 40%, rgba(4, 5, 14, 0.58) 100%)',
-};
-
+/*
 // ─── 火山 ─────────────────────────────────────────────────────────────────────
 // 设计关键词：压迫 · 焦黑 · 脉动 · 爆裂前兆 · 邪火感
 // 色板：背景暗 #140403 | 岩石 #2a0a05 | 裂缝暗 #6b1400 | 裂缝亮 #ff4a00 | 熔岩核心 #ff8a2b
@@ -254,7 +174,9 @@ const volcanoLayers: MapBackgroundLayers = {
   vignette:
     'radial-gradient(ellipse at center, transparent 28%, rgba(8,1,0,0.86) 100%)',
 };
+*/
 
+/*
 // ─── 亡灵 ─────────────────────────────────────────────────────────────────────
 const undeadLayers: MapBackgroundLayers = {
   // 深紫黑底色，接近腐败沙漠夜晚
@@ -301,7 +223,9 @@ const undeadLayers: MapBackgroundLayers = {
   vignette:
     'radial-gradient(ellipse at center, transparent 40%, rgba(5, 3, 12, 0.58) 100%)',
 };
+*/
 
+/*
 // ─── 兜底 ─────────────────────────────────────────────────────────────────────
 const fallbackLayers: MapBackgroundLayers = {
   base: 'linear-gradient(180deg, #0d0d0d 0%, #0a0a0a 100%)',
@@ -315,6 +239,7 @@ const fallbackLayers: MapBackgroundLayers = {
   haze:   'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(160, 160, 160, 0.10) 0%, transparent 100%)',
   vignette: 'radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.50) 100%)',
 };
+*/
 
 export const getMapBackgroundLayers = (theme: ChapterTheme): MapBackgroundLayers => {
   if (theme === '林地') return forestLayers;

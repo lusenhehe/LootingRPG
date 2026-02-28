@@ -61,12 +61,12 @@ export default function MapNode({
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: nodeIndex * 0.05, duration: 0.3 }}
-        whileHover={disabled ? {} : { scale: 1.05, y: -4 }}
-        whileTap={disabled ? {} : { scale: 0.95 }}
+        whileHover={disabled ? {} : { scale: 1.08, y: -8, rotateX: -12, rotateY: 8 }}
+        whileTap={disabled ? {} : { scale: 0.96, rotateX: 0, rotateY: 0 }}
         onHoverStart={() => onHoverStart?.()}
         onHoverEnd={() => onHoverEnd?.()}
         onClick={() => !disabled && onEnterNode(node, selectedChapter)}
-        className={`relative cursor-pointer ${overlayStyle.overlay}`}
+        className={`relative cursor-pointer map-node-3d ${overlayStyle.overlay}`}
         style={{ filter: overlayStyle.glowFilter }}
       >
         <div className="relative flex flex-col items-center">
@@ -93,7 +93,7 @@ export default function MapNode({
               ${encounterStyle.size} 
               bg-gradient-to-b ${encounterStyle.bgGradient}
               ${encounterStyle.ringColor} ring-2
-              flex items-center justify-center
+              flex items-center justify-center map-node-orb
               ${encounterStyle.shape}
             `}
             style={{ borderStyle: 'solid' }}
@@ -105,7 +105,7 @@ export default function MapNode({
           </motion.div>
 
           <div className="mt-2">
-            <span className="text-[10px] font-semibold whitespace-nowrap" style={{ color: themeColorConfig.primary }}>
+            <span className="text-[10px] font-semibold whitespace-nowrap map-node-label-3d" style={{ color: themeColorConfig.primary }}>
               {node.name}
             </span>
           </div>

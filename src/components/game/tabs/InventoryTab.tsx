@@ -3,10 +3,11 @@ import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
 import { getQualityLabel, getSlotLabel, getStatLabel } from '../../../infra/i18n/labels';
 import { SLOT_EMOJI_MAP, QUALITY_STYLE_MAP_ENHANCED} from '../../../config/ui/icons';
 import { useMemo, useState, useCallback, memo } from 'react';
-import type { Equipment } from '../../../types/game';
+import type { Equipment, GameState } from '../../../types/game';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import type { ReactNode } from 'react';
+import { PlayerPanel } from '../PlayerPanel';
 
 const iconMap: Record<string, ReactNode> = {
   shield:  <Shield  size={14} className="text-gray-400" />,
@@ -194,10 +195,12 @@ function ItemDetailPanel({
 // ─── 主组件 ─────────────────────────────────────────────────────────────────
 interface InventoryTabProps {
   items: Equipment[];
+  gameState: GameState;
   loading: boolean;
   onEquip: (id: string) => void;
   onSell: (id: string) => void;
   onForge: (id: string) => void;
+  onUnequip: (slot: string) => void;
   onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
   autoSellQualities: Record<string, boolean>;
   onToggleAutoSellQuality: (quality: string) => void;
@@ -208,10 +211,12 @@ type SortOrder = 'asc' | 'desc';
 
 function InventoryTabInner({
   items,
+  gameState,
   loading,
   onEquip,
   onSell,
   onForge,
+  onUnequip,
   onQuickSellByQualityRange,
   autoSellQualities,
   onToggleAutoSellQuality,
@@ -340,42 +345,46 @@ function InventoryTabInner({
 
       {/* ── 主体：网格背包 + 详情面板 ── */}
       <div className="flex-1 min-h-0 flex gap-2">
-        {/* 左侧 RPG 方格网格 */}
-        <div className="flex-1 min-h-0 overflow-y-auto pr-1">
-          {sortedItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-600">
-              <Package size={40} className="mb-2 opacity-20" />
-              <p className="text-xs">{t('message.empty_inventory')}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-1.5">
-              {sortedItems.map((item) => (
-                <BackpackCell
-                  key={item.id}
-                  item={item}
-                  isSelected={selectedId === item.id}
-                  onClick={() => setSelectedId(selectedId === item.id ? null : item.id)}
-                />
-              ))}
-            </div>
-          )}
+        <div className="w-56 shrink-0 min-h-0 hidden lg:block dark-floating-panel">
+          <PlayerPanel gameState={gameState} onUnequip={onUnequip} />
         </div>
 
-        {/* 右侧详情面板 */}
-        <AnimatePresence mode="wait">
-          {selectedItem && (
-            <div key={selectedItem.id} className="w-52 shrink-0 min-h-0">
-              <ItemDetailPanel
-                item={selectedItem}
-                loading={loading}
-                onEquip={handleEquip}
-                onSell={handleSell}
-                onForge={handleForge}
-                onClose={() => setSelectedId(null)}
-              />
-            </div>
-          )}
-        </AnimatePresence>
+        <div className="flex-1 min-h-0 flex gap-2">
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+            {sortedItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-600">
+                <Package size={40} className="mb-2 opacity-20" />
+                <p className="text-xs">{t('message.empty_inventory')}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-1.5">
+                {sortedItems.map((item) => (
+                  <BackpackCell
+                    key={item.id}
+                    item={item}
+                    isSelected={selectedId === item.id}
+                    onClick={() => setSelectedId(selectedId === item.id ? null : item.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <AnimatePresence mode="wait">
+            {selectedItem && (
+              <div key={selectedItem.id} className="w-52 shrink-0 min-h-0">
+                <ItemDetailPanel
+                  item={selectedItem}
+                  loading={loading}
+                  onEquip={handleEquip}
+                  onSell={handleSell}
+                  onForge={handleForge}
+                  onClose={() => setSelectedId(null)}
+                />
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.div>
   );

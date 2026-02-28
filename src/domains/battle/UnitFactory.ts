@@ -9,6 +9,7 @@ export function createBattleUnit(
   data: BattleUnitSchema,
   level: number
 ): BattleUnitInstance {
+  const maxEnergy = data.maxEnergy ?? 100;
   return {
     id: data.id,
     name: data.name,
@@ -16,6 +17,9 @@ export function createBattleUnit(
     level,
     baseStats: { ...data.baseStats },
     currentHp: data.baseStats.hp,
+    currentEnergy: 0,
+    maxEnergy,
+    skillCooldowns: {},
     derivedStats: {
       damageReduction: data.derivedStats?.damageReduction ?? 0,
       critRate: data.derivedStats?.critRate,
