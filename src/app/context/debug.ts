@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react';
 
 export interface DebugContextValue {
   handleDebugAddItems: (quality: string, slot: string, count: number, level?: number) => void;
+  handleDebugAddItemList: (items: import('../../shared/types/game').Equipment[]) => void;
 }
 
 export const DebugContext = createContext<DebugContextValue | undefined>(undefined);

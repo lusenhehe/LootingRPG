@@ -165,8 +165,8 @@ let cachedTemplates: EquipmentTemplate[] | null = null;
  * 从 embedded CSV 文本中读取装备模板并缓存。
  * csvRaw 由 Vite 的 `?raw` 导入提供。
  */
-export const getEquipmentTemplates = (): EquipmentTemplate[] => {
-  if (cachedTemplates) {
+export const getEquipmentTemplates = (forceReload = false): EquipmentTemplate[] => {
+  if (!forceReload && cachedTemplates) {
     return cachedTemplates;
   }
 
@@ -212,4 +212,9 @@ export const getEquipmentTemplates = (): EquipmentTemplate[] => {
 
   cachedTemplates = templates;
   return templates;
+};
+
+// 调试时可能需要刷新缓存，导出辅助函数
+export const clearEquipmentTemplatesCache = () => {
+  cachedTemplates = null;
 };

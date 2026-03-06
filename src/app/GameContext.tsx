@@ -27,7 +27,6 @@ import { MiscContext, type MiscContextValue } from './context/misc';
 import { StateContext, type StateContextValue } from './context/state';
 
 // ---  GameState  --------------------------------------------------
-
 export interface GameContextValue
   extends AuthContextValue,
     LogContextValue,
@@ -38,9 +37,7 @@ export interface GameContextValue
     DebugContextValue,
     MiscContextValue,
     StateContextValue {}
-
 const GameContext = createContext<GameContextValue | undefined>(undefined);
-
 export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
   const [gameState, dispatchGameState] = useReducer(
     rootReducer,
@@ -144,7 +141,7 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
     }
   }, [setLoading, setLogs, setMapProgress]);
 
-  const { handleDebugAddItems } = useDebug({ gameState, dispatchGameState, addLog });
+  const { handleDebugAddItems, handleDebugAddItemList } = useDebug({ gameState, dispatchGameState, addLog });
 
   const authValue: AuthContextValue = {
     profiles,
@@ -199,6 +196,7 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
 
   const debugValue: DebugContextValue = {
     handleDebugAddItems,
+    handleDebugAddItemList,
   };
 
   const miscValue: MiscContextValue = {

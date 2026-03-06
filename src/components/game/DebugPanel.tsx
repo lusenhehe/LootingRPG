@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo } from 'react';
-import { getEquipmentTemplates } from '../../config/game/equipment';
+import { getEquipmentTemplates, clearEquipmentTemplatesCache } from '../../config/game/equipment';
 import type { Equipment } from '../../shared/types/game';
 import { createCustomEquipmentByTemplateId } from '../../domains/inventory/services/equipment';
 interface DebugPanelProps {
@@ -7,7 +7,8 @@ interface DebugPanelProps {
   onOpenSimulator?: () => void;
 }
 function DebugPanelInner({ onAddItems, onOpenSimulator }: DebugPanelProps) {
-  const templates = getEquipmentTemplates();
+  // load templates into state so we can refresh if necessary
+  const [templates, setTemplates] = useState(() => getEquipmentTemplates());
   const [visible, setVisible] = useState(true);
   const [open, setOpen] = useState(false);
   const [templateId, setTemplateId] = useState(templates[0]?.id ?? '');
@@ -30,6 +31,13 @@ function DebugPanelInner({ onAddItems, onOpenSimulator }: DebugPanelProps) {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // if list changes and current id no longer exists, pick first
+  React.useEffect(() => {
+    if (templates.length > 0 && !templates.find((t) => t.id === templateId)) {
+      setTemplateId(templates[0].id);
+    }
+  }, [templates, templateId]);
+
   if (!visible) return null;
 
   const selectedTemplate = templates.find((template) => template.id === templateId) ?? null;
@@ -43,6 +51,25 @@ function DebugPanelInner({ onAddItems, onOpenSimulator }: DebugPanelProps) {
     }
     onAddItems(items);
     setOpen(false);
+  };
+
+  const handleAddAll = () => {
+    // re-read templates in case cache was stale
+    const list = getEquipmentTemplates();
+    if (list.length === 0) return;
+    const lvl = Math.floor(level);
+    const items: Equipment[] = list.map((template) =>
+      createCustomEquipmentByTemplateId(template.id, lvl),
+    );
+    onAddItems(items);
+    setOpen(false);
+  };
+
+  const handleReloadTemplates = () => {
+    clearEquipmentTemplatesCache();
+    const fresh = getEquipmentTemplates(true);
+    setTemplates(fresh);
+    console.log('[DebugPanel] reloaded templates', fresh.map((t) => t.id));
   };
 
   return (
@@ -66,6 +93,13 @@ function DebugPanelInner({ onAddItems, onOpenSimulator }: DebugPanelProps) {
       {open && (
         <div className="mt-2 w-64 p-3 bg-game-bg border border-game-border rounded-lg shadow-xl">
           <div className="mb-2 text-sm font-bold">Debug - 添加装备 (显示/隐藏)</div>
+          <div className="mb-1 text-xs text-stone-400">
+            模板数量：{templates.length} <button
+              className="ml-2 text-blue-300 underline"
+              onClick={handleReloadTemplates}
+              title="从 CSV 重新加载"
+            >刷新</button>
+          </div>
 
           <label className="block text-xs text-gray-400">装备ID</label>
           <select className="w-full mb-2 p-1 bg-transparent border rounded" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
@@ -88,9 +122,18 @@ function DebugPanelInner({ onAddItems, onOpenSimulator }: DebugPanelProps) {
           <label className="block text-xs text-gray-400">等级</label>
           <input className="w-full mb-3 p-1 bg-transparent border rounded" type="number" min={1} max={999} value={level} onChange={(e) => setLevel(Number(e.target.value))} />
 
-          <div className="flex gap-2">
-            <button className="flex-1 py-1 bg-green-600 text-white rounded" onClick={handleAdd}>添加</button>
-            <button className="flex-1 py-1 bg-gray-600 text-white rounded" onClick={() => setOpen(false)}>取消</button>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <button className="flex-1 py-1 bg-green-600 text-white rounded" onClick={handleAdd}>添加</button>
+              <button className="flex-1 py-1 bg-gray-600 text-white rounded" onClick={() => setOpen(false)}>取消</button>
+            </div>
+            <button
+              className="w-full py-1 bg-yellow-600 text-white rounded text-xs"
+              onClick={handleAddAll}
+              title="添加每种模板一个"
+            >
+              一键添加所有装备
+            </button>
           </div>
         </div>
       )}

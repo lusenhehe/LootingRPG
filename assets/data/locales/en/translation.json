@@ -75,6 +75,11 @@
   "stat.dodge": "Dodge",
   "stat.block": "Block",
   "stat.thorns": "Thorns",
+  "stat.crit_chance": "Crit Chance",
+  "stat.damage_bonus": "Damage Bonus",
+  "stat.hp_bonus": "HP Bonus",
+  "stat.attackSpeed": "Attack Speed",
+  "stat.actionSpeed": "Action Speed",
   "stat.fireDmg": "Fire DMG",
   "stat.iceDmg": "Ice DMG",
   "stat.lightningDmg": "Lightning DMG",
@@ -240,7 +245,8 @@
   },
   "player": {
     "affixBonuses": "Affix Bonuses",
-    "currentEquipment": "Current Equipment"
+    "currentEquipment": "Current Equipment",
+    "tacticalRole": "Tactical Commander"
   },
   "login.title": "Player Login",
   "login.subtitle": "Select an existing profile to continue your adventure",
@@ -274,6 +280,9 @@
   "message.empty_inventory": "Inventory is empty",
   "label.equipped": "Equipped",
   "label.backpack": "Backpack",
+  "label.score": "Score",
+  "label.currentEquipment": "Current",
+  "label.newEquipment": "New",
   "ui.forgeCenter": "Forge Center",
   "ui.no_forge_items": "No items to forge",
   "button.enchant": "Enchant",
@@ -331,5 +340,9 @@
   "tooltip.affixes": "Affixes",
   "tooltip.special": "Special",
   "tooltip.enhancement": "Enhancement",
-  "tooltip.unequip": "Unequip"
+  "tooltip.unequip": "Unequip",
+  "tooltip.baseStats": "Base Stats",
+  "tooltip.tacticalStats": "Tactical Stats",
+  "tooltip.compare": "Equipment Compare",
+  "message.noCompareTarget": "No equipment is currently equipped in this slot."
 }

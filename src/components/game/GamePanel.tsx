@@ -5,7 +5,7 @@ import { Trophy, Map } from 'lucide-react';
 import { useMapContext } from '../../app/context/map';
 import { useStateContext } from '../../app/context/state';
 
-const InventoryTab = lazy(() => import('./tabs/InventoryTab').then(m => ({ default: m.InventoryTab })));
+const InventoryTab = lazy(() => import('./inventory/InventoryTab').then(m => ({ default: m.InventoryTab })));
 const ForgeTab = lazy(() => import('./tabs/ForgeTab').then(m => ({ default: m.ForgeTab })));
 const MonsterCodexTab = lazy(() => import('./tabs/MonsterCodexTab').then(m => ({ default: m.MonsterCodexTab })));
 const MapTab = lazy(() => import('./tabs/MapTab').then(m => ({ default: m.MapTab })));

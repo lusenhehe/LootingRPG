@@ -31,5 +31,17 @@ export function useDebug({ gameState, dispatchGameState, addLog }: UseDebugParam
     [gameState, dispatchGameState, addLog],
   );
 
-  return { handleDebugAddItems } as const;
+  const handleDebugAddItemList = useCallback(
+    (items: Equipment[]) => {
+      if (items.length === 0) return;
+      dispatchGameState({
+        type: 'DEBUG/ADD_ITEMS',
+        payload: { ...gameState, backpack: [...gameState.backpack, ...items] },
+      });
+      addLog(`[Debug] Added ${items.length} custom items to backpack`);
+    },
+    [gameState, dispatchGameState, addLog],
+  );
+
+  return { handleDebugAddItems, handleDebugAddItemList } as const;
 }

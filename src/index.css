@@ -158,6 +158,17 @@
   }
 }
 
+@keyframes inventory-rarity-breathe {
+  0%, 100% {
+    transform: scale(1);
+    filter: saturate(1);
+  }
+  50% {
+    transform: scale(1.015);
+    filter: saturate(1.08);
+  }
+}
+
 .fantasy-text {
   animation: shadow-pulse 4s ease-in-out infinite;
 }
@@ -296,6 +307,10 @@
   animation: legendary-shine 2.5s ease-in-out infinite;
   border: 2px solid rgba(245, 158, 11, 0.7);
   position: relative;
+}
+
+.inventory-rarity-breathe {
+  animation: inventory-rarity-breathe 2.2s ease-in-out infinite;
 }
 
 .legendary-border::before {
