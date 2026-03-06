@@ -1,8 +1,31 @@
 import BattleUnitCardBase from './BattleUnitCardBase';
 import type { BattleUnitInstance } from '../../types/battle/BattleUnit';
 import type { BattleStatusInstance } from '../../types/battle/BattleUnit';
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
+import { motion } from 'motion/react';
 import { Sword, Shield, Circle, Heart, Sparkles, Skull } from 'lucide-react';
+import battleAnimJson from '@data/config/game/battleAnimations.json';
+import battleUiJson from '@data/config/game/battleUi.json';
+
+const ANIM_CFG = battleAnimJson as unknown as Record<string, Record<string, { cssClass: string; durationMs: number }>>;
+const UI_CFG = battleUiJson as unknown as {
+  enemyCard?: {
+    attackMotion?: {
+      xStart?: number;
+      xEnd?: number;
+      scaleFrom?: number;
+      scaleTo?: number;
+      durationSec?: number;
+      defaultDuration?: number;
+      travelToPlayerRatio?: number;
+      travelToPlayerYRatio?: number;
+      minTravelPx?: number;
+      maxTravelPx?: number;
+      maxTravelYPx?: number;
+    };
+    deathMotion?: { durationSec?: number };
+  }
+};
 
 const percent = (value: number, max: number) => {
   if (max <= 0) return 0;
@@ -32,11 +55,22 @@ function StatusBadge({ status }: { status: BattleStatusInstance }) {
 
 interface EnemyCardProps {
   enemy: BattleUnitInstance;
+  currentTurn?: number;
+  attackTravelPx?: number;
+  attackTravelYPx?: number;
   isActive?: boolean;
   isSelected?: boolean;
   onClick?: (enemyId: string) => void;
+  onHover?: (enemyId: string | null) => void;
+  dragAim?: boolean;
+  dragInvalid?: boolean;
+  /** 支持被攻击拖拽目标，需要传入 onAttackDrag */
+  onAttackDragStart?: (enemyId: string, x: number, y: number) => void;
 }
-function EnemyCardInner({ enemy, isActive = false, isSelected = false, onClick }: EnemyCardProps) {
+function EnemyCardInner({ enemy, currentTurn = 0, attackTravelPx = 320, attackTravelYPx = 0, isActive = false, isSelected = false, onClick, onHover, dragAim, dragInvalid }: EnemyCardProps) {
+  const _ = ANIM_CFG; // ensure import is used
+  const handleMouseEnter = useCallback(() => onHover?.(enemy.id), [onHover, enemy.id]);
+  const handleMouseLeave = useCallback(() => onHover?.(null), [onHover]);
   const icon = typeof enemy.meta?.icon === 'string' ? enemy.meta.icon : '👾';
 
   const hpPercent = percent(enemy.currentHp, enemy.baseStats.hp);
@@ -63,13 +97,63 @@ function EnemyCardInner({ enemy, isActive = false, isSelected = false, onClick }
   const selectedRing = isSelected && !isActive
     ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-black/30 shadow-[0_0_10px_2px_rgba(251,191,36,0.5)] scale-[1.03]'
     : '';
+  const dragAimRing = dragAim
+    ? 'ring-2 ring-green-400 ring-offset-1 ring-offset-black/30 shadow-[0_0_14px_3px_rgba(74,222,128,0.6)] scale-[1.04]'
+    : '';
 
   const isAlive = enemy.currentHp > 0;
   const clickable = isAlive && onClick ? 'cursor-pointer hover:brightness-110' : '';
 
+  const attackAnimClass = isActive ? (ANIM_CFG.enemyAttack?.baseAttack?.cssClass ?? '') : '';
+  const lastAttackTurn = typeof enemy.meta?.lastAttackTurn === 'number' ? enemy.meta.lastAttackTurn : -1;
+  const lastDeathTurn = typeof enemy.meta?.lastDeathTurn === 'number' ? enemy.meta.lastDeathTurn : -1;
+  const shouldAttackAnimate = lastAttackTurn === currentTurn;
+  const shouldDeathAnimate = !isAlive && lastDeathTurn >= 0 && currentTurn >= lastDeathTurn;
+  const attackMotion = UI_CFG.enemyCard?.attackMotion;
+  const attackDurationSec = attackMotion?.durationSec ?? ((ANIM_CFG.enemyAttack?.baseAttack?.durationMs ?? 380) / 1000);
+  const startX = attackMotion?.xStart ?? -12;
+  const endX = attackMotion?.xEnd ?? 0;
+  const startScale = attackMotion?.scaleFrom ?? 1.02;
+  const endScale = attackMotion?.scaleTo ?? 1;
+  const fallbackDuration = attackMotion?.defaultDuration ?? 0.38;
+  const maxTravelPx = attackMotion?.maxTravelPx ?? 560;
+  const minTravelPx = attackMotion?.minTravelPx ?? 260;
+  const maxTravelYPx = attackMotion?.maxTravelYPx ?? 120;
+  const clampedTravel = Math.max(minTravelPx, Math.min(maxTravelPx, attackTravelPx));
+  const clampedTravelY = Math.max(-maxTravelYPx, Math.min(maxTravelYPx, attackTravelYPx));
+  const deathDurationSec = UI_CFG.enemyCard?.deathMotion?.durationSec ?? 0.6;
+
   return (
+    <div
+      data-enemy-id={enemy.id}
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {dragInvalid && (
+        <div className="absolute inset-0 z-10 rounded pointer-events-none bg-red-500/20 ring-2 ring-red-500/60" />
+      )}
+    <motion.div
+      key={`${enemy.id}-${lastAttackTurn}-${lastDeathTurn}`}
+      initial={shouldAttackAnimate ? { x: startX, scale: startScale } : false}
+      animate={
+        shouldDeathAnimate
+          ? {
+              opacity: [1, 1, 0],
+              scale: [1, 1.06, 0.72],
+              x: [0, -8, -22],
+              y: [0, 10, 26],
+              rotate: [0, -2, -7],
+              filter: ['saturate(1)', 'saturate(1.2)', 'grayscale(1) blur(1px)'],
+            }
+          : shouldAttackAnimate
+          ? { x: [0, -clampedTravel, endX], y: [0, clampedTravelY, 0], scale: [1, startScale, endScale] }
+          : { x: 0, y: 0, scale: 1, opacity: 1, rotate: 0, filter: 'none' }
+      }
+      transition={{ duration: shouldDeathAnimate ? deathDurationSec : (shouldAttackAnimate ? attackDurationSec : fallbackDuration), ease: 'easeOut' }}
+    >
     <BattleUnitCardBase
-      className={`w-full p-0 duration-100 ${borderColor} ${activeRing} ${selectedRing} ${clickable}`}
+      className={`w-full p-0 duration-100 ${borderColor} ${activeRing} ${selectedRing} ${clickable} ${dragAimRing} ${attackAnimClass}`}
       onClick={isAlive && onClick ? () => onClick(enemy.id) : undefined}
       subtitle={
         <div className="flex min-w-0 bg-transparent">
@@ -144,6 +228,8 @@ function EnemyCardInner({ enemy, isActive = false, isSelected = false, onClick }
         </div>
       </div>
     </BattleUnitCardBase>
+    </motion.div>
+    </div>
   );
 }
 

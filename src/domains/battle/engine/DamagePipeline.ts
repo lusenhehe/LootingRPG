@@ -15,14 +15,26 @@ export interface DamageContext {
   modifiers: DamageModifier[];
 }
 
-export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): void => {
+/** 伤害计算分解，供 ActionResolver 构建详细日志 */
+export interface DamageBreakdown {
+  rawAttack: number;
+  rawDefense: number;
+  effectiveDefense: number;
+  elementalPen: number;
+  didCrit: boolean;
+  critMultiplier: number;
+  /** 所有 modifier 后、floor 前的伤害 */
+  computedDamage: number;
+  finalDamage: number;
+}
+
+export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): DamageBreakdown => {
   const didCrit = Math.random() < (ctx.source.derivedStats.critRate ?? 0);
   ctx.critMultiplier = computeCritMultiplier(didCrit, 0.6);
 
-  const effectiveDefense = computeEffectiveDefense(
-    ctx.target.baseStats.defense,
-    ctx.source.derivedStats.elementalBonus ?? 0,
-  );
+  const elementalPen = ctx.source.derivedStats.elementalBonus ?? 0;
+  const rawDefense = ctx.target.baseStats.defense;
+  const effectiveDefense = computeEffectiveDefense(rawDefense, elementalPen);
 
   ctx.baseDamage = computeDamage(
     ctx.source.baseStats.attack,
@@ -34,7 +46,7 @@ export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): voi
     modifier.apply(ctx);
   }
 
-  const appliedDamage = Math.max(1, Math.floor(ctx.baseDamage));
+  const finalDamage = Math.max(1, Math.floor(ctx.baseDamage));
 
   eventBus.emit({
     type: 'before_damage',
@@ -46,19 +58,19 @@ export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): voi
     type: 'apply_damage',
     sourceId: ctx.source.id,
     targetId: ctx.target.id,
-    amount: appliedDamage,
+    amount: finalDamage,
   });
 
   eventBus.emit({
     type: 'after_damage',
     sourceId: ctx.source.id,
     targetId: ctx.target.id,
-    amount: appliedDamage,
+    amount: finalDamage,
   });
 
   const effectiveLifesteal = computeEffectiveLifesteal(ctx.source.derivedStats.lifestealRate ?? 0);
   if (effectiveLifesteal > 0) {
-    const heal = Math.floor(appliedDamage * effectiveLifesteal);
+    const heal = Math.floor(finalDamage * effectiveLifesteal);
     if (heal > 0) {
       eventBus.emit({
         type: 'apply_heal',
@@ -71,7 +83,7 @@ export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): voi
 
   const thornsRate = clamp(ctx.target.derivedStats.thornsRate ?? 0, 0, 0.4);
   if (thornsRate > 0) {
-    const reflectDamage = Math.floor(appliedDamage * thornsRate);
+    const reflectDamage = Math.floor(finalDamage * thornsRate);
     if (reflectDamage > 0) {
       eventBus.emit({
         type: 'apply_damage',
@@ -81,4 +93,15 @@ export const resolveDamage = (ctx: DamageContext, eventBus: BattleEventBus): voi
       });
     }
   }
+
+  return {
+    rawAttack: ctx.source.baseStats.attack,
+    rawDefense,
+    effectiveDefense: Math.round(effectiveDefense),
+    elementalPen,
+    didCrit,
+    critMultiplier: ctx.critMultiplier,
+    computedDamage: ctx.baseDamage,
+    finalDamage,
+  };
 };

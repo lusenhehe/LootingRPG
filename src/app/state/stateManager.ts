@@ -1,5 +1,5 @@
 import { createFreshInitialState, normalizeGameState } from './index';
-import type { GameState } from '../../types/game';
+import type { GameState } from '../../shared/types/game';
 
 /**
  * State Manager - Unified interface for all game state operations

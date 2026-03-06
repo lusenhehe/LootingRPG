@@ -35,6 +35,8 @@ function handleApplyDamage(
 ): UnitDiedEvent | undefined {
   const target = findUnit(session, event.targetId);
   if (!target) return;
+  // 已死亡单位不再受伤（防止 DoT/连锁反应无限循环）
+  if (target.currentHp <= 0) return;
 
   let remaining = event.amount;
 
@@ -76,6 +78,10 @@ function handleUnitDied(session: BattleSession, event: UnitDiedEvent): void {
   const unit = findUnit(session, event.unitId);
   if (!unit) return;
   unit.currentHp = 0;
+  unit.meta = {
+    ...(unit.meta ?? {}),
+    lastDeathTurn: session.turn,
+  };
   session.logs.push(`[Battle] ${unit.name} defeated.`);
 }
 
@@ -112,6 +118,8 @@ export function resolveEffects(
     // ── Phase 2: Apply base effect ────────────────────────────────────────
     switch (event.type) {
       case 'apply_damage': {
+        const targetBeforeDamage = findUnit(session, event.targetId);
+        const wasAlive = targetBeforeDamage ? targetBeforeDamage.currentHp > 0 : false;
         const deathEvent = handleApplyDamage(session, event);
         if (deathEvent) {
           pendingEvents.push(deathEvent);
@@ -121,7 +129,8 @@ export function resolveEffects(
             victimId: event.targetId,
           });
         }
-        if (eventBus) {
+        // 仅在目标活着时才检查元素反应，避免死亡后重复触发反应链
+        if (eventBus && wasAlive) {
           maybeEmitElementReaction(session, event.sourceId, event.targetId, eventBus);
         }
         break;

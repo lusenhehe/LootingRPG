@@ -1,0 +1,21 @@
+{
+  "turnManager": {
+    "log": {
+      "maxLines": 120
+    },
+    "player": {
+      "basicAttack": {
+        "energyGain": 25
+      }
+    },
+    "enemy": {
+      "heavyAttack": {
+        "damageMultiplier": 1.8
+      },
+      "intentProbabilities": {
+        "heavyAttack": 0.18,
+        "defend": 0.12
+      }
+    }
+  }
+}

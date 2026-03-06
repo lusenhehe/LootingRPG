@@ -905,6 +905,75 @@
   mix-blend-mode: screen;
 }
 
+@keyframes map-reward-spark {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+  20% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -12px, 0) scale(1.15);
+  }
+}
+
+@keyframes map-cta-breathe {
+  0%, 100% {
+    filter: brightness(1);
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    filter: brightness(1.07);
+    transform: translateZ(0) scale(1.01);
+  }
+}
+
+@keyframes map-reward-coin-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.36));
+  }
+  50% {
+    filter: drop-shadow(0 0 11px rgba(251, 191, 36, 0.68));
+  }
+}
+
+.map-stage-detail-overlay {
+  background-image:
+    radial-gradient(circle at 25% 20%, rgba(24, 34, 22, 0.12), transparent 45%),
+    radial-gradient(circle at 75% 75%, rgba(130, 72, 22, 0.08), transparent 42%);
+}
+
+.map-stage-detail-panel {
+  box-shadow:
+    0 0 28px rgba(180, 83, 9, 0.16),
+    inset 0 0 14px rgba(0, 0, 0, 0.5);
+}
+
+.map-reward-spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(252, 211, 77, 0.95) 0%, rgba(251, 191, 36, 0.35) 70%, transparent 100%);
+  animation: map-reward-spark 2.6s ease-in-out infinite;
+}
+
+.map-reward-coin {
+  animation: map-reward-coin-glow 1.8s ease-in-out infinite;
+}
+
+.map-challenge-cta {
+  animation: map-cta-breathe 2.4s ease-in-out infinite;
+}
+
+.map-challenge-cta:hover {
+  box-shadow:
+    0 0 26px rgba(245, 158, 11, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
 /* Ember Particles Animation */
 @keyframes ember-rise {
   0% {

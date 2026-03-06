@@ -38,12 +38,14 @@ interface PlayerCardProps {
 
 function PlayerCardInner({ session, isActive = false }: PlayerCardProps) {
   const hpRatio = percent(session.player.currentHp, session.player.baseStats.hp);
-  const energyRatio = percent(session.player.currentEnergy, Math.max(1, session.player.maxEnergy));
   const playerName = session.player.name || 'PLAYER';
   const hpText = `${Math.max(0, Math.round(session.player.currentHp))}/${Math.max(1, Math.round(session.player.baseStats.hp))}`;
   const statuses = session.player.statuses ?? [];
 
-  const activeRing = isActive
+  const isAlive = session.player.currentHp > 0;
+
+  /** 仅在「处理中」阶段显示荧光边框，避免玩家等待时一直有选中感 */
+  const activeRing = isActive && session.phase === 'resolving'
     ? 'ring-2 ring-indigo-400 ring-offset-1 ring-offset-black/30 shadow-[0_0_12px_2px_rgba(129,140,248,0.5)]'
     : '';
 
@@ -91,16 +93,7 @@ function PlayerCardInner({ session, isActive = false }: PlayerCardProps) {
           />
         </div>
 
-        {/* 能量条 */}
-        <div className="h-1 rounded-sm bg-gray-900/80 overflow-hidden shrink-0 mt-0.5">
-          <div
-            className="h-full bg-indigo-500 transition-all duration-500"
-            style={{ width: `${energyRatio}%` }}
-          />
-        </div>
-        <div className="text-center text-[8px] text-indigo-400/70 font-mono shrink-0 leading-tight">
-          ⚡ {session.player.currentEnergy}/{session.player.maxEnergy}
-        </div>
+
       </div>
     </BattleUnitCardBase>
   );

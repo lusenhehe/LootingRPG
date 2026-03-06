@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { lazy, Suspense, memo } from 'react';
 import { Trophy, Map } from 'lucide-react';
-import type { ActiveTab, GameState, MapProgressState } from '../../types/game';
+import type { ActiveTab, GameState, MapProgressState } from '../../shared/types/game';
 import type { MapChapterDef, MapNodeDef } from '../../config/map/ChapterData';
 
 const InventoryTab = lazy(() => import('./tabs/InventoryTab').then(m => ({ default: m.InventoryTab })));

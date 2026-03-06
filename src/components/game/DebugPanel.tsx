@@ -1,6 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
 import { getEquipmentTemplates } from '../../config/game/equipment';
-import type { Equipment } from '../../types/game';
+import type { Equipment } from '../../shared/types/game';
 import { createCustomEquipmentByTemplateId } from '../../domains/inventory/services/equipment';
 interface DebugPanelProps {
   onAddItems: (items: Equipment[]) => void;

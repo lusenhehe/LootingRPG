@@ -3,12 +3,11 @@ import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
 import { getQualityLabel, getSlotLabel, getStatLabel } from '../../../infra/i18n/labels';
 import { SLOT_EMOJI_MAP, QUALITY_STYLE_MAP_ENHANCED} from '../../../config/ui/icons';
 import { useMemo, useState, useCallback, memo } from 'react';
-import type { Equipment, GameState } from '../../../types/game';
+import type { Equipment, GameState } from '../../../shared/types/game';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import type { ReactNode } from 'react';
 import { PlayerPanel } from '../PlayerPanel';
-
 const iconMap: Record<string, ReactNode> = {
   shield:  <Shield  size={14} className="text-gray-400" />,
   zap:     <Zap     size={14} className="text-emerald-400" />,
@@ -344,12 +343,12 @@ function InventoryTabInner({
       </section>
 
       {/* ── 主体：网格背包 + 详情面板 ── */}
-      <div className="flex-1 min-h-0 flex gap-2">
+      <div className="flex-1 min-h-0 flex gap-2 overflow-h-hidden">
         <div className="w-56 shrink-0 min-h-0 hidden lg:block dark-floating-panel">
           <PlayerPanel gameState={gameState} onUnequip={onUnequip} />
         </div>
 
-        <div className="flex-1 min-h-0 flex gap-2">
+        <div className="flex-2 min-h-0">
           <div className="flex-1 min-h-0 overflow-y-auto pr-1">
             {sortedItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-600">
@@ -370,20 +369,20 @@ function InventoryTabInner({
             )}
           </div>
 
-          <AnimatePresence mode="wait">
-            {selectedItem && (
-              <div key={selectedItem.id} className="w-52 shrink-0 min-h-0">
-                <ItemDetailPanel
-                  item={selectedItem}
-                  loading={loading}
-                  onEquip={handleEquip}
-                  onSell={handleSell}
-                  onForge={handleForge}
-                  onClose={() => setSelectedId(null)}
-                />
-              </div>
-            )}
-          </AnimatePresence>
+        <AnimatePresence mode="wait">
+          {selectedItem && (
+            <div key={selectedItem.id} className="shrink-0 min-h-0">
+              <ItemDetailPanel
+                item={selectedItem}
+                loading={loading}
+                onEquip={handleEquip}
+                onSell={handleSell}
+                onForge={handleForge}
+                onClose={() => setSelectedId(null)}
+              />
+            </div>
+          )}
+        </AnimatePresence>
         </div>
       </div>
     </motion.div>

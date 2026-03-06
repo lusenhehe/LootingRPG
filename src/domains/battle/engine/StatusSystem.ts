@@ -56,6 +56,13 @@ function createStatusTickListener(
       const target = findUnit(session, unit.id);
       if (!target) return;
 
+      // 单位已死亡 — 清除其状态监听器，不再触发 DoT
+      if (target.currentHp <= 0) {
+        target.statuses = [];
+        target.listeners = target.listeners?.filter((l) => !l.id.startsWith(`tick:${unit.id}:`));
+        return;
+      }
+
       const liveStatus = (target.statuses ?? []).find((s) => s.id === status.id);
       if (!liveStatus) {
         // Status was removed externally — clean up the listener

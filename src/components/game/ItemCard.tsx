@@ -2,7 +2,7 @@ import { Coins, Trash2, Shield, Zap, Gem, Crown, Star, Hexagon } from 'lucide-re
 import type { ReactNode } from 'react';
 import { QUALITY_CONFIG } from '../../config/game/equipment';
 import { getQualityLabel, getStatLabel } from '../../infra/i18n/labels';
-import type { Equipment } from '../../types/game';
+import type { Equipment } from '../../shared/types/game';
 import { useTranslation } from 'react-i18next';
 import { SLOT_EMOJI_MAP } from '../../config/ui/icons';
 

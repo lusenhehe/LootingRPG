@@ -159,10 +159,6 @@ const resolveBattleResult = (
 
   let nextState: GameState = {
     ...gameState,
-    battle: {
-      ...gameState.battle,
-      activeSession: null,
-    },
   };
 
   let xpGained = 0;
@@ -233,10 +229,17 @@ const resolveBattleResult = (
     finishedAt: Date.now(),
   };
 
+  const endedSession: BattleSession = {
+    ...session,
+    phase: 'finished',
+    status: won ? 'victory' : 'defeat',
+  };
+
   nextState = {
     ...nextState,
     battle: {
-      activeSession: null,
+      ...nextState.battle,
+      activeSession: endedSession,
       history: [...nextState.battle.history.slice(-39), history],
     },
   };
@@ -534,4 +537,37 @@ export const runBattleRetreat = (
     nextSession,
     false,
   );
+};
+
+export const closeBattleResult = (
+  gameState: GameState,
+): { nextGameState: GameState; logs: string[]; focusNodeId?: string; error?: string } => {
+  const session = gameState.battle.activeSession;
+  if (!session) {
+    return {
+      nextGameState: gameState,
+      logs: [],
+      error: 'No active battle session',
+    };
+  }
+
+  if (session.status === 'fighting') {
+    return {
+      nextGameState: gameState,
+      logs: [],
+      error: 'Battle is still in progress',
+    };
+  }
+
+  return {
+    nextGameState: {
+      ...gameState,
+      battle: {
+        ...gameState.battle,
+        activeSession: null,
+      },
+    },
+    logs: [toBattleLog('Battle settlement closed.')],
+    focusNodeId: session.nodeId,
+  };
 };

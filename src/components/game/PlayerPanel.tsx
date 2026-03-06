@@ -1,7 +1,7 @@
 import { Shield, Flame, Droplets, ShieldAlert, Sparkles, Gauge } from 'lucide-react';
 import { getDerivedStats } from '../../domains/player/services/derivedStats';
 import { SLOTS } from '../../config/game/equipment';
-import type { Equipment, GameState } from '../../types/game';
+import type { Equipment, GameState } from '../../shared/types/game';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
 import type { ReactNode } from 'react';

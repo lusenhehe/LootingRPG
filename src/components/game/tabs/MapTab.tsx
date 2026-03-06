@@ -3,8 +3,8 @@ import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData'
 import { Star, ChevronDown, Mountain, Lock } from 'lucide-react';
 import { MAP_CHAPTERS } from '../../../config/map/ChapterData';
 import type { MapProgressState } from '../../../shared/types/game';
-import type { ActiveTab } from '../../../types/game';
-import type { PlayerStats } from '../../../types/game';
+import type { ActiveTab } from '../../../shared/types/game';
+import type { PlayerStats } from '../../../shared/types/game';
 import { themeColors } from '../../../config/map/mapNode';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';

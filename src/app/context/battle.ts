@@ -7,6 +7,7 @@ export interface BattleContextValue {
   ) => void;
   handleBattleAttack: (targetId?: string) => void;
   handleBattleRetreat: () => void;
+  handleBattleCloseResult: () => void;
   handleBattleUseSkill: (skillId: string, targetId?: string) => void;
 }
 

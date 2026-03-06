@@ -4,6 +4,18 @@ import type { BattleEventBus } from './EventBus';
 import { resolveAction } from './ActionResolver';
 import { resolveEffects } from './EffectResolver';
 import { BattleListenerRegistry } from './ListenerRegistry';
+import battleBalanceJson from '@data/config/game/battleBalance.json';
+
+const BALANCE_CFG = battleBalanceJson as unknown as {
+  turnManager?: {
+    log?: { maxLines?: number };
+    player?: { basicAttack?: { energyGain?: number } };
+    enemy?: {
+      heavyAttack?: { damageMultiplier?: number };
+      intentProbabilities?: { heavyAttack?: number; defend?: number };
+    };
+  };
+};
 
 const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   ...unit,
@@ -22,11 +34,18 @@ const cloneBattleUnit = (unit: BattleUnitInstance): BattleUnitInstance => ({
   meta: unit.meta ? { ...unit.meta } : undefined,
 });
 
+/** 战斗日志最大保留条数（超出后保留最新的） */
+const MAX_LOG_LINES = BALANCE_CFG.turnManager?.log?.maxLines ?? 120;
+const BASIC_ATTACK_ENERGY_GAIN = BALANCE_CFG.turnManager?.player?.basicAttack?.energyGain ?? 25;
+const HEAVY_ATTACK_DAMAGE_MULTIPLIER = BALANCE_CFG.turnManager?.enemy?.heavyAttack?.damageMultiplier ?? 1.8;
+const HEAVY_INTENT_PROB = BALANCE_CFG.turnManager?.enemy?.intentProbabilities?.heavyAttack ?? 0.18;
+const DEFEND_INTENT_PROB = BALANCE_CFG.turnManager?.enemy?.intentProbabilities?.defend ?? 0.12;
+
 const cloneSession = (session: BattleSession): BattleSession => ({
   ...session,
   player: cloneBattleUnit(session.player),
   enemies: session.enemies.map((enemy) => cloneBattleUnit(enemy)),
-  logs: [...session.logs],
+  logs: session.logs.slice(-MAX_LOG_LINES),
   events: [],
   // listenerRegistry 由 resolveTurn 在克隆后立即重建，不继承旧引用
   listenerRegistry: undefined,
@@ -121,10 +140,9 @@ export const resolveTurn = (
 
   // ── 普攻积累 25 能量（技能消耗能量后能量不会额外再增加）────────────────────
   if (playerAction.type === 'basic_attack') {
-    const ENERGY_GAIN = 25;
     nextSession.player.currentEnergy = Math.min(
       nextSession.player.maxEnergy,
-      nextSession.player.currentEnergy + ENERGY_GAIN,
+      nextSession.player.currentEnergy + BASIC_ATTACK_ENERGY_GAIN,
     );
   }
   updateBattleOutcome(nextSession);
@@ -144,13 +162,24 @@ export const resolveTurn = (
 
   nextSession.phase = 'enemy_turn';
   for (const enemy of aliveEnemies) {
+    const intent = enemy.nextIntent;
+    // 防御意图：跳过攻击
+    if (intent?.type === 'defend') {
+      nextSession.logs.push(`[Battle] ${enemy.name} 进入防御妿态，这回合放弃攻击。`);
+      continue;
+    }
     const enemyAction: BattleAction = {
       id: `action_${nextSession.turn}_${enemy.id}`,
       type: 'basic_attack',
       sourceId: enemy.id,
       targetIds: [nextSession.player.id],
+      payload: intent?.type === 'heavy_attack' ? { damageMultiplier: HEAVY_ATTACK_DAMAGE_MULTIPLIER } : undefined,
     };
-
+    enemy.meta = {
+      ...(enemy.meta ?? {}),
+      lastAttackTurn: nextSession.turn,
+      lastAttackType: intent?.type === 'heavy_attack' ? 'heavy_attack' : 'attack',
+    };
     resolveAction(nextSession, enemyAction, eventBus);
   }
 
@@ -176,13 +205,14 @@ export const resolveTurn = (
   for (const enemy of nextWaveEnemies) {
     const atkEst = Math.floor(enemy.baseStats.attack);
     const roll = Math.random();
-    if (roll < 0.18) {
+    const defendThreshold = HEAVY_INTENT_PROB + DEFEND_INTENT_PROB;
+    if (roll < HEAVY_INTENT_PROB) {
       enemy.nextIntent = {
         type: 'heavy_attack',
         label: '💥 蓄力重击',
-        estimatedDamage: Math.floor(atkEst * 1.8),
+        estimatedDamage: Math.floor(atkEst * HEAVY_ATTACK_DAMAGE_MULTIPLIER),
       };
-    } else if (roll < 0.30) {
+    } else if (roll < defendThreshold) {
       enemy.nextIntent = {
         type: 'defend',
         label: '🛡️ 防御姿态',

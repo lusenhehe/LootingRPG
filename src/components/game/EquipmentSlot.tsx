@@ -71,7 +71,7 @@ function EquipmentTooltipInner({ item, position, anchor, onClose, onUnequip }: E
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95, y: 5 }}
       transition={{ duration: 0.15 }}
-      className={`z-tooltip-fixed w-64 p-3 rounded-sm border-2 ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
+      className={`z-popover w-64 p-3 rounded-sm border-2 ${quality.border} bg-gradient-to-b ${quality.bg} shadow-xl ${quality.glow}`}
       style={
         position === 'click' && anchor
           ? { position: 'fixed', left: anchor.x + 10, top: anchor.y + 10 }
@@ -246,7 +246,6 @@ function EquipmentSlotInner({ slot, item, isSelected, onSelect, onUnequip }: Equ
             </div>
           )}
         </AnimatePresence> */}
-
         <AnimatePresence>
           {isSelected && item && (
             <div className="pointer-events-auto">

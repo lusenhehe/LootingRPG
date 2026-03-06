@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { runBattlePlayerAttack, runBattleRetreat, startBattleSession, runBattlePlayerSkill } from '../../domains/battle/services/session';
+import { runBattlePlayerAttack, runBattleRetreat, startBattleSession, runBattlePlayerSkill, closeBattleResult } from '../../domains/battle/services/session';
 import { MAP_CHAPTERS } from '../../config/map/ChapterData';
 import type { GameState, MapProgressState } from '../../shared/types/game';
 import type { ActiveTab } from '../../shared/types/game';
@@ -48,6 +48,16 @@ export function useBattleSession({
     result.logs.forEach(addLog);
   }, [gameState, mapProgress, addLog, setGameState, setMapProgress, setFocusMapNode, setActiveTab]);
 
+  const handleBattleCloseResult = useCallback(() => {
+    const result = closeBattleResult(gameState);
+    setGameState(result.nextGameState);
+    if (result.focusNodeId) {
+      setFocusMapNode(result.focusNodeId);
+    }
+    setActiveTab('map');
+    result.logs.forEach(addLog);
+  }, [gameState, addLog, setGameState, setFocusMapNode, setActiveTab]);
+
   const handleBattleUseSkill = useCallback(
     (skillId: string, targetId?: string) => {
       const result = runBattlePlayerSkill(gameState, mapProgress, MAP_CHAPTERS, skillId, targetId);
@@ -76,7 +86,8 @@ export function useBattleSession({
 
   return {
     handleBattleAttack,
-    handleBattleRetreat,  
+    handleBattleRetreat,
+    handleBattleCloseResult,
     handleBattleUseSkill,
     handleEnterMapNode,
   } as const;

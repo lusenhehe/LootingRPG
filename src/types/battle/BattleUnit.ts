@@ -11,9 +11,7 @@ export interface BattleDerivedStats {
   thornsRate?: number
   elementalBonus?: number
 }
-
 export type Faction = 'player' | 'monster'
-
 export type BattleStatusKind = 'dot' | 'hot' | 'buff' | 'debuff' | 'shield'
 
 export interface BattleStatusInstance {

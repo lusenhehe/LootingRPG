@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { MapProgressState, ActiveTab } from '../../types/game';
+import type { MapProgressState, ActiveTab } from '../../shared/types/game';
 
 export interface MapContextValue {
   mapProgress: MapProgressState;

@@ -91,7 +91,7 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
     setFocusMapNode,
   } = useMapProgress();
 
-  const { handleBattleAttack, handleBattleRetreat, handleBattleUseSkill, handleEnterMapNode } = useBattleSession({
+  const { handleBattleAttack, handleBattleRetreat, handleBattleCloseResult, handleBattleUseSkill, handleEnterMapNode } = useBattleSession({
     gameState,
     mapProgress,
     setGameState,
@@ -207,6 +207,7 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
     handleEnterMapNode,
     handleBattleAttack,
     handleBattleRetreat,
+    handleBattleCloseResult,
     handleBattleUseSkill,
   };
 

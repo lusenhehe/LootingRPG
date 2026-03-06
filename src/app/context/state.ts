@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { GameState } from '../../types/game';
+import type { GameState } from '../../shared/types/game';
 
 export interface StateContextValue {
   gameState: GameState;

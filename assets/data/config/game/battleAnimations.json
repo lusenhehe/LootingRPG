@@ -1,0 +1,36 @@
+{
+  "enemyAttack": {
+    "baseAttack": {
+      "cssClass": "battle-anim-enemy-attack",
+      "durationMs": 400,
+      "description": "敌人普通攻击：向左猛冲再弹回"
+    },
+    "heavyAttack": {
+      "cssClass": "battle-anim-enemy-heavy",
+      "durationMs": 600,
+      "description": "敌人重击：大幅震荡闪红"
+    },
+    "defend": {
+      "cssClass": "battle-anim-enemy-defend",
+      "durationMs": 300,
+      "description": "敌人防御：蓝色护盾脉冲"
+    }
+  },
+  "playerAttack": {
+    "baseAttack": {
+      "cssClass": "battle-anim-player-attack",
+      "durationMs": 350,
+      "description": "玩家普通攻击：向右推进再拉回"
+    },
+    "skill": {
+      "cssClass": "battle-anim-player-skill",
+      "durationMs": 500,
+      "description": "玩家技能：旋转缩放特效"
+    }
+  },
+  "hit": {
+    "cssClass": "battle-anim-hit-flash",
+    "durationMs": 200,
+    "description": "受击：红色闪烁"
+  }
+}

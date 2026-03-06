@@ -1,4 +1,4 @@
-import type { Equipment } from '../../types/game';
+import type { Equipment } from '../../shared/types/game';
 
 /**
  * Normalizes equipment data and ensures structural consistency

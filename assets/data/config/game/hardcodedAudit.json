@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "updatedAt": "2026-02-28",
+  "scopes": {
+    "battleView": {
+      "file": "src/components/game/BattleView.tsx",
+      "hardcodedNow": [
+        "grid.cellSize=96",
+        "grid.mapSize=8x3",
+        "allySlots=6",
+        "enemySlots=9",
+        "energyBar动画duration=0.4"
+      ],
+      "alreadyConfigurable": [
+        "无目标提示文案",
+        "无目标提示时长",
+        "拖拽释放提示文案",
+        "日志显示条数"
+      ]
+    },
+    "enemyCard": {
+      "file": "src/components/game/EnemyCard.tsx",
+      "hardcodedNow": [
+        "HP阈值颜色(60/30)",
+        "状态图标映射",
+        "边框与高亮样式"
+      ],
+      "alreadyConfigurable": [
+        "攻击动画位移/缩放",
+        "攻击动画默认时长"
+      ]
+    },
+    "resultOverlay": {
+      "file": "src/components/game/BattleResultOverlay.tsx",
+      "hardcodedNow": [
+        "颜色与阴影样式",
+        "按钮图标类型"
+      ],
+      "alreadyConfigurable": [
+        "结算按钮文案",
+        "标题/副标题文案",
+        "所有关键动效时长",
+        "粒子数与裂缝数"
+      ]
+    },
+    "mapNodeDetail": {
+      "file": "src/components/game/map/MapViewport.tsx",
+      "hardcodedNow": [
+        "弹窗宽度与布局",
+        "怪物条目展示字段(monsterId)",
+        "星级规则(normal=1/elite=2/boss=3)"
+      ],
+      "alreadyConfigurable": [
+        "弹窗按钮文案",
+        "核心标签文案"
+      ]
+    },
+    "turnManager": {
+      "file": "src/domains/battle/engine/TurnManager.ts",
+      "hardcodedNow": [
+        "敌人意图文案(💥蓄力重击/🛡️防御姿态/⚔️普通攻击)"
+      ],
+      "alreadyConfigurable": [
+        "MAX_LOG_LINES",
+        "普攻回能",
+        "敌人重击倍率",
+        "敌人意图概率"
+      ]
+    }
+  },
+  "nextRecommend": [
+    "将 TurnManager 的数值常量迁移到 assets/data/config/game/battleBalance.json",
+    "将 BattleView 网格尺寸迁移到 assets/data/config/game/battleLayout.json",
+    "将 EnemyCard 状态图标与阈值迁移到 assets/data/config/game/battleTheme.json"
+  ]
+}

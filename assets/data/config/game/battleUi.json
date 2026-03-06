@@ -1,0 +1,69 @@
+{
+  "battleView": {
+    "noTargetToast": {
+      "text": "⚔ 请将技能/攻击拖拽至目标再释放",
+      "durationMs": 2000
+    },
+    "drag": {
+      "releaseText": "释放攻击"
+    },
+    "log": {
+      "displayLimit": 50
+    },
+    "waveTransition": {
+      "delayMs": 650
+    }
+  },
+  "resultOverlay": {
+    "buttonText": "返回地图",
+    "title": {
+      "victory": "VICTORY",
+      "defeat": "DEFEAT"
+    },
+    "subtitle": {
+      "victory": "战斗胜利！",
+      "defeat": "战斗失败，下次再来！"
+    },
+    "durations": {
+      "overlayFade": 0.4,
+      "entryDelay": 0.1,
+      "entrySpringStiffness": 260,
+      "entrySpringDamping": 20,
+      "iconVictoryLoop": 1.2,
+      "iconDefeatLoop": 0.8,
+      "dividerReveal": 0.5,
+      "buttonRevealDelay": 0.8
+    },
+    "effects": {
+      "victoryParticleCount": 18,
+      "defeatCrackCount": 5
+    }
+  },
+  "enemyCard": {
+    "attackMotion": {
+      "xStart": -24,
+      "xEnd": 0,
+      "scaleFrom": 1.06,
+      "scaleTo": 1,
+      "durationSec": 0.9,
+      "defaultDuration": 0.28,
+      "travelToPlayerRatio": 0.9,
+      "travelToPlayerYRatio": 0.9,
+      "minTravelPx": 260,
+      "maxTravelPx": 560,
+      "maxTravelYPx": 120
+    },
+    "deathMotion": {
+      "durationSec": 0.6
+    }
+  },
+  "mapNodeDetail": {
+    "enterButton": "进入挑战",
+    "closeButton": "关闭",
+    "labels": {
+      "waves": "波次数",
+      "monsters": "怪物数",
+      "firstReward": "首次奖励"
+    }
+  }
+}

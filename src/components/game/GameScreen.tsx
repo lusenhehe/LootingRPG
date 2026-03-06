@@ -1,8 +1,8 @@
-import type { ActiveTab, BattleSession, GameState } from '../../types/game';
-import type { MapProgressState } from '../../types/game';
+import type { ActiveTab, BattleSession, GameState } from '../../shared/types/game';
+import type { MapProgressState } from '../../shared/types/game';
 import type { MapChapterDef, MapNodeDef } from '../../config/map/ChapterData';
 import { GamePanel } from './GamePanel';
-import { BattleView } from './BattleView';
+import { BattleView } from './BattleView.tsx';
 import DebugPanel from './DebugPanel';
 import { memo } from 'react';
 interface GameScreenProps {
@@ -11,7 +11,7 @@ interface GameScreenProps {
   loading: boolean;
   playerName: string;
   /** current player stats summary used by header */
-  playerStats: import('../../types/game').PlayerStats;
+  playerStats: import('../../shared/types/game').PlayerStats;
   autoSellQualities: Record<string, boolean>;
   forgeSelectedId: string | null;
   battleSession: BattleSession | null;
@@ -27,6 +27,7 @@ interface GameScreenProps {
   onSelectMapChapter: (chapterId: string) => void;
   onBattleAttack: (targetId?: string) => void;
   onBattleRetreat: () => void;
+  onBattleClose: () => void;
   /** debug: cast skill by id */
   onBattleUseSkill?: (skillId: string, targetId?: string) => void;
   onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
@@ -61,6 +62,7 @@ function GameScreenInner({
   onSelectMapChapter,
   onBattleAttack,
   onBattleRetreat,
+  onBattleClose,
   onBattleUseSkill,
   onQuickSellByQualityRange,
   onEquip,
@@ -88,6 +90,7 @@ function GameScreenInner({
               session={battleSession}
               onAttack={onBattleAttack}
               onRetreat={onBattleRetreat}
+              onClose={onBattleClose}
               onSkill={onBattleUseSkill}
             />
           ) : (

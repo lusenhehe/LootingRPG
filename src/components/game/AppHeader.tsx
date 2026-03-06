@@ -2,7 +2,7 @@ import { Coins, Heart, Shield, Download, LogOut, RefreshCw, Sword, Upload, Setti
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
-import type { PlayerStats } from '../../types/game';
+import type { PlayerStats } from '../../shared/types/game';
 import { useTheme } from '../../config/themes/ThemeContext';
 
 interface AppHeaderProps {

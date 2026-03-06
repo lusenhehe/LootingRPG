@@ -4,66 +4,13 @@ import { useRef, useState, useEffect } from 'react';
 import { Package, Hammer, BookOpen, Coins } from 'lucide-react';
 import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData';
 import type { MapProgressState } from '../../../shared/types/game';
-import type { ActiveTab } from '../../../types/game';
-import type { PlayerStats } from '../../../types/game';
+import type { ActiveTab } from '../../../shared/types/game';
+import type { PlayerStats } from '../../../shared/types/game';
 import type { ChapterTheme } from '../../../config/map/mapNode';
 import { isNodeCleared, isNodeUnlocked,} from '../../../domains/map/services/progress';
 import { clampMapOffset, getZigzagNodePosition, chapterThemeStyles, getCanvasWidth, NODE_MARGIN_X, NODE_SPACING_X } from './MapConfig';
 import { getMapBackgroundLayers } from './mapBackgroundFactory';
-
-// ─── 环境粒子配置 ─────────────────────────────────────────────────────────────
-// [x%, y%, size_px, animDelay_s, animDur_s]
-type ParticleDef = [number, number, number, number, number];
-
-const THEME_PARTICLES: Record<string, ParticleDef[]> = {
-  '林地': [
-    [10, 74, 3,   0,   9 ], [26, 58, 2,   2.5, 11], [43, 80, 3,   1,   8 ],
-    [59, 65, 2,   4,   13], [74, 72, 3,   0.8, 10], [88, 57, 2,   3.2, 12],
-    [34, 42, 2,   5,   9 ], [67, 40, 3,   1.5, 14],
-  ],
-  '地牢': [
-    [14, 52, 2,   0,   14], [32, 35, 1.5, 3,   10], [50, 66, 2,   1.5, 12],
-    [68, 40, 1.5, 5,   16], [84, 60, 2,   2.2, 11], [46, 28, 1.5, 7,   15],
-  ],
-  '火山': [
-    // 余烬上浮：少量、沉重、随机 delay，突出「闷燃」感
-    [12, 76, 2.5, 0,   8.0], [38, 82, 2,   2.8, 9.5],
-    [62, 74, 3,   1.2, 7.5], [80, 80, 2,   4.5, 10 ],
-    [90, 70, 2.5, 3.0, 8.5],
-  ],
-  '亡灵': [
-    [12, 44, 4,   0,   16], [30, 62, 3,   4,   20], [48, 36, 4,   2,   14],
-    [64, 58, 3,   6,   18], [80, 43, 4,   1.5, 15], [22, 28, 3,   8,   19],
-  ],
-};
-
-const AIR_PARTICLES: ParticleDef[] = [
-  [6, 15, 1.5, 0, 14],
-  [14, 24, 2, 1.8, 12],
-  [21, 58, 1.5, 0.7, 16],
-  [33, 36, 2, 2.3, 13],
-  [41, 72, 1.8, 3.2, 15],
-  [53, 18, 2.2, 0.4, 11],
-  [62, 48, 1.7, 2.9, 17],
-  [70, 66, 1.4, 1.1, 14],
-  [79, 30, 2, 4.1, 12],
-  [87, 52, 1.6, 0.9, 16],
-  [93, 22, 1.4, 3.8, 13],
-];
-
-const PARTICLE_COLORS: Record<string, string> = {
-  '林地': 'rgba(138, 210, 88,  0.82)',
-  '地牢': 'rgba(168, 188, 228, 0.76)',
-  '火山': 'rgba(210, 62,  8,   0.72)',  // 暗红余烬，不用亮橙
-  '亡灵': 'rgba(158, 218, 198, 0.80)',
-};
-
-// 亡灵：横向漂移 | 火山：余烬缓升 | 其余：通用上浮
-const particleAnimation = (theme: string) => {
-  if (theme === '亡灵') return 'map-wisp-drift';
-  if (theme === '火山') return 'map-lava-ember';
-  return 'map-particle-float';
-};
+import StageDetailModal from './StageDetailModal';
 
 // ─── 主题地标装饰（在 Canvas SVG 内渲染，随地图平移） ─────────────────────────
 function renderGapDecoration(
@@ -89,7 +36,6 @@ function renderGapDecoration(
           <rect x="14" y="24" width="6" height="18" rx="1.5" fill="rgba(62,44,20,0.50)"/>
           <polygon points="17,0 2,20 32,20"  fill={canopyFill}/>
           <polygon points="17,12 4,28 30,28" fill={canopyFill} opacity="0.72"/>
-          {/* 树旁小蘑菇 */}
           <ellipse cx={isTop ? 28 : 6} cy="40" rx="5" ry="3" fill="rgba(100,70,35,0.32)"/>
           <ellipse cx={isTop ? 28 : 6} cy="38" rx="4" ry="4" fill="rgba(90,62,30,0.28)"/>
         </svg>
@@ -239,6 +185,7 @@ export default function MapViewport({
 }: MapViewportProps) {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [, setHoveredNode] = useState<string | null>(null);
+  const [detailNode, setDetailNode] = useState<MapNodeDef | null>(null);
   const mapViewportRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{ dragging: boolean; x: number; y: number }>({ dragging: false, x: 0, y: 0 });
   // ── 流畅拖拽：绕过 React 渲染，直接操作 DOM ─────────────────────────
@@ -482,48 +429,6 @@ export default function MapViewport({
           className="absolute inset-0 pointer-events-none"
           style={{ background: bgLayers.vignette }}
         />
-
-        {/* ── 环境粒子层（固定，不随地图平移）─────────────────────── */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {(THEME_PARTICLES[selectedChapter.theme] ?? []).map(([px, py, size, delay, dur], i) => (
-            <div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                left: `${px}%`,
-                top:  `${py}%`,
-                width:  size,
-                height: size,
-                background: `radial-gradient(circle, ${PARTICLE_COLORS[selectedChapter.theme] ?? 'rgba(200,200,200,0.7)'} 0%, transparent 70%)`,
-                animationName: particleAnimation(selectedChapter.theme),
-                animationDuration: `${dur}s`,
-                animationDelay: `${delay}s`,
-                animationIterationCount: 'infinite',
-                animationTimingFunction: 'ease-in-out',
-                animationFillMode: 'both',
-              }}
-            />
-          ))}
-        </div>
-
-        {/* ── 空气尘粒层（更明显但低干扰）──────────────────────────── */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {AIR_PARTICLES.map(([px, py, size, delay, dur], i) => (
-            <div
-              key={`air-${i}`}
-              className="absolute rounded-full map-air-particle"
-              style={{
-                left: `${px}%`,
-                top: `${py}%`,
-                width: size,
-                height: size,
-                animationDelay: `${delay}s`,
-                animationDuration: `${dur}s`,
-              }}
-            />
-          ))}
-        </div>
-
         {/* ── 滚动边缘提示（左右渐隐，暗示可拖动）───────────────────── */}
         <div
           className="absolute top-0 left-0 bottom-0 w-14 pointer-events-none z-10"
@@ -554,6 +459,17 @@ export default function MapViewport({
             <BookOpen size={11} /> 图鉴
           </button>
         </div>
+
+        <StageDetailModal
+          detailNode={detailNode}
+          selectedChapter={selectedChapter}
+          playerStats={playerStats}
+          onClose={() => setDetailNode(null)}
+          onEnter={(node, chapter) => {
+            setDetailNode(null);
+            onEnterNode(node, chapter);
+          }}
+        />
 
         {/* ── 可滚动画布内容（宽度 = 所有节点所需像素宽度）─────────── */}
         <div
@@ -596,10 +512,10 @@ export default function MapViewport({
               </filter>
             </defs>
 
-            {/* ── 节点间地标装饰 ── */}
+            {/* ── 节点间地标装饰 ──
             {selectedChapter.nodes.slice(0, -1).map((_, gapIdx) =>
               renderGapDecoration(selectedChapter.theme, gapIdx, selectedChapter.nodes.length)
-            )}
+            )} */}
 
             {/* ── 连接路径 ── */}
             {selectedChapter.nodes.slice(0, -1).map((node, index) => {
@@ -666,7 +582,7 @@ export default function MapViewport({
               normalizedProgress={normalizedProgress}
               playerLevel={playerLevel}
               loading={loading}
-              onEnterNode={onEnterNode}
+              onEnterNode={(targetNode) => setDetailNode(targetNode)}
               onHoverStart={() => setHoveredNode(node.id)}
               onHoverEnd={() => setHoveredNode(null)}
             />

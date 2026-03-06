@@ -2,7 +2,7 @@ import { LogIn, Plus, Trash2, User } from 'lucide-react';
 import { useState, memo } from 'react';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
-import type { SaveProfile } from '../../types/game';
+import type { SaveProfile } from '../../shared/types/game';
 
 interface LoginScreenProps {
   profiles: SaveProfile[];
