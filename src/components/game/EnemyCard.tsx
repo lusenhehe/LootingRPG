@@ -1,11 +1,12 @@
 import BattleUnitCardBase from './BattleUnitCardBase';
 import type { BattleUnitInstance } from '../../types/battle/BattleUnit';
-import type { BattleStatusInstance } from '../../types/battle/BattleUnit';
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Sword, Shield, Circle, Heart, Sparkles, Skull } from 'lucide-react';
+import { Sword, Shield } from 'lucide-react';
 import battleAnimJson from '@data/config/game/battleAnimations.json';
 import battleUiJson from '@data/config/game/battleUi.json';
+import { StatusBadge } from './battle/StatusBadge';
+import { ProgressBar } from '../../shared/ui';
 
 const ANIM_CFG = battleAnimJson as unknown as Record<string, Record<string, { cssClass: string; durationMs: number }>>;
 const UI_CFG = battleUiJson as unknown as {
@@ -27,32 +28,6 @@ const UI_CFG = battleUiJson as unknown as {
   }
 };
 
-const percent = (value: number, max: number) => {
-  if (max <= 0) return 0;
-  return Math.max(0, Math.min(100, (value / max) * 100));
-};
-const STATUS_ICONS: Record<string, React.ReactNode> = {
-  dot: <Circle size={12} className="text-red-500" />,      // generic status dot
-  hot: <Heart size={12} className="text-green-400" />,     // healing over time
-  buff: <Sparkles size={12} className="text-yellow-300" />, // positive buff
-  debuff: <Skull size={12} className="text-gray-400" />,   // negative effect
-  shield: <Shield size={12} className="text-blue-400" />,   // shield status
-};
-
-function StatusBadge({ status }: { status: BattleStatusInstance }) {
-  const icon = STATUS_ICONS[status.kind] ?? '❓';
-  return (
-    <span
-      title={`${status.id} ×${status.stacks} (${status.remainingTurns}t)`}
-      className="inline-flex items-center gap-[1px] text-[7px] leading-none px-0.5 py-[1px] rounded bg-black/60 text-gray-200 shrink-0"
-    >
-      <span className="text-[8px] leading-none">{icon}</span>
-      {status.stacks > 1 && <span>×{status.stacks}</span>}
-      <span className="text-gray-500">{status.remainingTurns}</span>
-    </span>
-  );
-}
-
 interface EnemyCardProps {
   enemy: BattleUnitInstance;
   currentTurn?: number;
@@ -72,10 +47,6 @@ function EnemyCardInner({ enemy, currentTurn = 0, attackTravelPx = 320, attackTr
   const handleMouseEnter = useCallback(() => onHover?.(enemy.id), [onHover, enemy.id]);
   const handleMouseLeave = useCallback(() => onHover?.(null), [onHover]);
   const icon = typeof enemy.meta?.icon === 'string' ? enemy.meta.icon : '👾';
-
-  const hpPercent = percent(enemy.currentHp, enemy.baseStats.hp);
-  const hpColor =
-    hpPercent > 60 ? 'bg-green-500' : hpPercent > 30 ? 'bg-yellow-500' : 'bg-red-500';
 
   const element = enemy.elements?.[0];
   const statuses = enemy.statuses ?? [];
@@ -168,7 +139,7 @@ function EnemyCardInner({ enemy, currentTurn = 0, attackTravelPx = 320, attackTr
         {statuses.length > 0 && (
           <div className="mb-1 flex items-center gap-0.5 flex-wrap min-w-0 shrink-0 overflow-hidden max-h-[14px]">
             {statuses.slice(0, 3).map((s) => (
-              <StatusBadge key={s.id} status={s} />
+              <StatusBadge key={s.id} status={s} iconMode="lucide" />
             ))}
             {statuses.length > 3 && (
               <span className="text-[7px] text-gray-400">+{statuses.length - 3}</span>
@@ -220,12 +191,7 @@ function EnemyCardInner({ enemy, currentTurn = 0, attackTravelPx = 320, attackTr
           </div>
         </div>
 
-        <div className="h-1.5 rounded-sm bg-gray-900/80 overflow-hidden shrink-0">
-          <div
-            className={`h-full ${hpColor} transition-all duration-300`}
-            style={{ width: `${hpPercent}%` }}
-          />
-        </div>
+        <ProgressBar value={enemy.currentHp} max={enemy.baseStats.hp} color="auto" />
       </div>
     </BattleUnitCardBase>
     </motion.div>

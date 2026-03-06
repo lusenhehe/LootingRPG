@@ -2,29 +2,25 @@ import { normalizeMapProgress, getChapterProgress} from '../../../domains/map/se
 import type { MapChapterDef, MapNodeDef } from '../../../config/map/ChapterData';
 import { Star, ChevronDown, Mountain, Lock } from 'lucide-react';
 import { MAP_CHAPTERS } from '../../../config/map/ChapterData';
-import type { MapProgressState } from '../../../shared/types/game';
-import type { ActiveTab } from '../../../shared/types/game';
-import type { PlayerStats } from '../../../shared/types/game';
 import { themeColors } from '../../../config/map/mapNode';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import MapViewport from '../map/MapViewport';
 import { useMemo, useState, memo } from 'react';
-interface MapTabProps {
-  activeTab: ActiveTab;
-  playerName: string;
-  playerStats: PlayerStats;
-  playerLevel: number;
-  loading: boolean;
-  progress: MapProgressState;
-  onSetTab: (tab: ActiveTab) => void;
-  onSelectChapter: (chapterId: string) => void;
-  onEnterNode: (node: MapNodeDef, chapter: MapChapterDef) => void;
-  focusNodeId?: string | null;
-  onClearFocus?: () => void;
-}
-
-function MapTabInner({ activeTab, playerName, playerStats, playerLevel, loading, progress, onSetTab, onSelectChapter, onEnterNode, focusNodeId, onClearFocus }: MapTabProps) {
+import { useMapContext } from '../../../app/context/map';
+import { useBattleContext } from '../../../app/context/battle';
+import { useStateContext } from '../../../app/context/state';
+import { useAuthContext } from '../../../app/context/auth';
+function MapTabInner() {
+  const { mapProgress: progress, setMapProgress, activeTab, setActiveTab: onSetTab, focusMapNode: focusNodeId, setFocusMapNode } = useMapContext();
+  const { handleEnterMapNode: onEnterNode } = useBattleContext();
+  const { gameState, loading } = useStateContext();
+  const { profiles, activeProfileId } = useAuthContext();
+  const playerName = profiles.find(p => p.id === activeProfileId)?.name ?? 'Unknown Player';
+  const playerStats = gameState.playerStats;
+  const playerLevel = gameState.playerStats.level;
+  const onSelectChapter = (chapterId: string) => setMapProgress((prev) => ({ ...prev, selectedChapterId: chapterId }));
+  const onClearFocus = () => setFocusMapNode(null);
   const { t } = useTranslation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const normalizedProgress = useMemo(() => normalizeMapProgress(progress, MAP_CHAPTERS), [progress]);

@@ -63,6 +63,11 @@ export const normalizeGameState = (state: GameState): GameState => {
 // Re-export all state creation and management functions
 export { createFreshInitialState } from './globalState';
 export { normalizeInventory } from './inventoryState';
+export type { GameStateAction } from './actions';
+export { rootReducer } from './rootReducer';
+export { reduceInventorySlice } from './slices/inventorySlice';
+export { reduceBattleSlice } from './slices/battleSlice';
+export { reducePlayerSlice } from './slices/playerSlice';
 
 // Export the StateManager class
 export { StateManager } from './stateManager';

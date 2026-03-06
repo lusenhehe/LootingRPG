@@ -1,52 +1,50 @@
 import { useCallback } from 'react';
 import type { GameState } from '../../shared/types/game';
+import type { GameStateAction } from '../../app/state/actions';
 import { quickSellByQualityRange as quickSellBackpackByRange } from '../../domains/inventory/services/quickSell';
 import { applyInventoryAction, type InventoryAction } from '../../domains/inventory/services/actions';
 import { recalculatePlayerStats } from '../../domains/player/services/recalculatePlayerStats';
 
 interface UseInventoryActionsParams {
-  gameState: GameState;
+  /** 返回最新 gameState 的函数（通过 ref 实现，避免闭包陈旧值） */
+  getGameState: () => GameState;
   loading: boolean;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  dispatchGameState: React.Dispatch<GameStateAction>;
   setLoading: (loading: boolean) => void;
   addLog: (msg: string) => void;
   reportError: (err: unknown, context?: { action?: string }) => void;
 }
 
 export const useInventoryActions = ({
-  setGameState,
+  getGameState,
   setLoading,
+  dispatchGameState,
   addLog,
   reportError,
 }: UseInventoryActionsParams) => {
   const quickSellByQualityRange = useCallback((minQuality: string, maxQuality: string) => {
-    setGameState((prev) => {
-      const result = quickSellBackpackByRange(prev, minQuality, maxQuality);
-      addLog(result.message);
-      return recalculatePlayerStats(result.nextState);
-    });
-  }, [setGameState, addLog]);
+    const current = getGameState();
+    const result = quickSellBackpackByRange(current, minQuality, maxQuality);
+    addLog(result.message);
+    dispatchGameState({ type: 'INVENTORY/QUICK_SELL', payload: recalculatePlayerStats(result.nextState) });
+  }, [getGameState, dispatchGameState, addLog]);
 
   const processAction = useCallback((action: InventoryAction) => {
     setLoading(true);
 
     setTimeout(() => {
       try {
-        setGameState((prev) => {
-          try {
-            const result = applyInventoryAction(prev, action);
-            result.logs.forEach(addLog);
-            return recalculatePlayerStats(result.nextState);
-          } catch (error) {
-            reportError(error, { action: action.type });
-            return prev;
-          }
-        });
+        const current = getGameState();
+        const result = applyInventoryAction(current, action);
+        result.logs.forEach(addLog);
+        dispatchGameState({ type: 'INVENTORY/APPLY', payload: recalculatePlayerStats(result.nextState) });
+      } catch (error) {
+        reportError(error, { action: action.type });
       } finally {
         setLoading(false);
       }
     });
-  }, [setLoading, setGameState, addLog, reportError]);
+  }, [getGameState, setLoading, dispatchGameState, addLog, reportError]);
 
   return {
     quickSellByQualityRange,

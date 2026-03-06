@@ -3,11 +3,12 @@ import { runBattlePlayerAttack, runBattleRetreat, startBattleSession, runBattleP
 import { MAP_CHAPTERS } from '../../config/map/ChapterData';
 import type { GameState, MapProgressState } from '../../shared/types/game';
 import type { ActiveTab } from '../../shared/types/game';
+import type { GameStateAction } from '../../app/state/actions';
 
 interface UseBattleSessionParams {
   gameState: GameState;
   mapProgress: MapProgressState;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  dispatchGameState: React.Dispatch<GameStateAction>;
   setMapProgress: React.Dispatch<React.SetStateAction<MapProgressState>>;
   addLog: (msg: string) => void;
   setActiveTab: React.Dispatch<React.SetStateAction<ActiveTab>>;
@@ -20,7 +21,7 @@ interface UseBattleSessionParams {
 export function useBattleSession({
   gameState,
   mapProgress,
-  setGameState,
+  dispatchGameState,
   setMapProgress,
   addLog,
   setActiveTab,
@@ -28,40 +29,40 @@ export function useBattleSession({
 }: UseBattleSessionParams) {
   const handleBattleAttack = useCallback((targetId?: string) => {
     const result = runBattlePlayerAttack(gameState, mapProgress, MAP_CHAPTERS, targetId);
-    setGameState(result.nextGameState);
+    dispatchGameState({ type: 'BATTLE/UPDATE', payload: result.nextGameState });
     setMapProgress(result.nextMapProgress);
     if (result.focusNodeId) {
       setFocusMapNode(result.focusNodeId);
       setActiveTab('map');
     }
     result.logs.forEach(addLog);
-  }, [gameState, mapProgress, addLog, setGameState, setMapProgress, setFocusMapNode, setActiveTab]);
+  }, [gameState, mapProgress, addLog, dispatchGameState, setMapProgress, setFocusMapNode, setActiveTab]);
 
   const handleBattleRetreat = useCallback(() => {
     const result = runBattleRetreat(gameState, mapProgress, MAP_CHAPTERS);
-    setGameState(result.nextGameState);
+    dispatchGameState({ type: 'BATTLE/RETREAT', payload: result.nextGameState });
     setMapProgress(result.nextMapProgress);
     setActiveTab('map');
     if (result.focusNodeId) {
       setFocusMapNode(result.focusNodeId);
     }
     result.logs.forEach(addLog);
-  }, [gameState, mapProgress, addLog, setGameState, setMapProgress, setFocusMapNode, setActiveTab]);
+  }, [gameState, mapProgress, addLog, dispatchGameState, setMapProgress, setFocusMapNode, setActiveTab]);
 
   const handleBattleCloseResult = useCallback(() => {
     const result = closeBattleResult(gameState);
-    setGameState(result.nextGameState);
+    dispatchGameState({ type: 'BATTLE/CLOSE_RESULT', payload: result.nextGameState });
     if (result.focusNodeId) {
       setFocusMapNode(result.focusNodeId);
     }
     setActiveTab('map');
     result.logs.forEach(addLog);
-  }, [gameState, addLog, setGameState, setFocusMapNode, setActiveTab]);
+  }, [gameState, addLog, dispatchGameState, setFocusMapNode, setActiveTab]);
 
   const handleBattleUseSkill = useCallback(
     (skillId: string, targetId?: string) => {
       const result = runBattlePlayerSkill(gameState, mapProgress, MAP_CHAPTERS, skillId, targetId);
-      setGameState(result.nextGameState);
+      dispatchGameState({ type: 'BATTLE/UPDATE', payload: result.nextGameState });
       setMapProgress(result.nextMapProgress);
       if (result.focusNodeId) {
         setFocusMapNode(result.focusNodeId);
@@ -69,7 +70,7 @@ export function useBattleSession({
       }
       result.logs.forEach(addLog);
     },
-    [gameState, mapProgress, addLog, setGameState, setMapProgress, setFocusMapNode, setActiveTab],
+    [gameState, mapProgress, addLog, dispatchGameState, setMapProgress, setFocusMapNode, setActiveTab],
   );
 
   const handleEnterMapNode = useCallback(
@@ -78,10 +79,10 @@ export function useBattleSession({
       chapter: Parameters<typeof startBattleSession>[1],
     ) => {
       const battle = startBattleSession(gameState, chapter, node);
-      setGameState(battle.nextGameState);
+      dispatchGameState({ type: 'BATTLE/START', payload: battle.nextGameState });
       battle.logs.forEach(addLog);
     },
-    [gameState, addLog, setGameState],
+    [gameState, addLog, dispatchGameState],
   );
 
   return {

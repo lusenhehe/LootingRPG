@@ -1,20 +1,21 @@
-import React, { createContext, useContext, useReducer, useState, useCallback } from 'react';
+// 统一的游戏上下文，集中管理所有游戏相关的状态和操作
+import React, { createContext, useContext, useReducer, useState, useCallback, useRef } from 'react';
 import { createFreshInitialState } from './state';
-import type { GameState } from '../shared/types/game';
+import { rootReducer } from './state';
 import { createInitialMapProgress } from '../domains/map/services/progress';
 import { MAP_CHAPTERS } from '../config/map/ChapterData';
 import { useProfileSave } from '../hooks/profile/useProfileSave';
 import { useInventoryActions } from '../hooks/game/useInventoryActions';
 import { ACTIVE_PROFILE_KEY } from '../config/runtime/storage';
 
-// smaller hooks
+//  更小的上下文拆分，减少不必要的重渲染
 import { useGameLogger } from '../hooks/game/useGameLogger';
 import { useAutoSell } from '../hooks/game/useAutoSell';
 import { useMapProgress } from '../hooks/game/useMapProgress';
 import { useBattleSession } from '../hooks/game/useBattleSession';
 import { useDebug } from '../hooks/game/useDebug';
 
-// split contexts for better render isolation
+// 集中导出所有 context，提供一个统一的 useGame() hook 供组件使用
 import { AuthContext, type AuthContextValue } from './context/auth';
 import { LogContext, type LogContextValue } from './context/log';
 import { AutoSellContext, type AutoSellContextValue } from './context/autoSell';
@@ -25,22 +26,8 @@ import { DebugContext, type DebugContextValue } from './context/debug';
 import { MiscContext, type MiscContextValue } from './context/misc';
 import { StateContext, type StateContextValue } from './context/state';
 
-// --- game state reducer --------------------------------------------------
+// ---  GameState  --------------------------------------------------
 
-type GameStateAction =
-  | { type: 'RESET' }
-  | { type: 'SET'; payload: GameState };
-
-function gameReducer(state: GameState, action: GameStateAction): GameState {
-  switch (action.type) {
-    case 'RESET':
-      return createFreshInitialState();
-    case 'SET':
-      return action.payload;
-    default:
-      return state;
-  }
-}
 export interface GameContextValue
   extends AuthContextValue,
     LogContextValue,
@@ -56,25 +43,15 @@ const GameContext = createContext<GameContextValue | undefined>(undefined);
 
 export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
   const [gameState, dispatchGameState] = useReducer(
-    gameReducer,
+    rootReducer,
     undefined,
     () => createFreshInitialState(),
   );
-  const setGameState: React.Dispatch<React.SetStateAction<GameState>> = useCallback(
-    (value) => {
-      if (typeof value === 'function') {
-        // cast because TS can't infer from overloaded Dispatch type
-        const updater = value as (prev: GameState) => GameState;
-        dispatchGameState({ type: 'SET', payload: updater(gameState) });
-      } else {
-        dispatchGameState({ type: 'SET', payload: value });
-      }
-    },
-    [gameState],
-  );
+  // Ref 供需要 "最新状态" 的回调使用（避免闭包捕获到旧值）
+  const gameStateRef = useRef(gameState);
+  gameStateRef.current = gameState;
 
   const [loading, setLoading] = useState(false);
-  const [forgeSelectedId, setForgeSelectedId] = useState<string | null>(null);
 
   const { logs, setLogs, addLog } = useGameLogger();
   const {
@@ -94,7 +71,7 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
   const { handleBattleAttack, handleBattleRetreat, handleBattleCloseResult, handleBattleUseSkill, handleEnterMapNode } = useBattleSession({
     gameState,
     mapProgress,
-    setGameState,
+    dispatchGameState,
     setMapProgress,
     addLog,
     setActiveTab,
@@ -117,7 +94,7 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
     logs,
     autoSellQualities,
     mapProgress,
-    setGameState,
+    dispatchGameState,
     setLogs,
     setAutoSellQualities,
     setMapProgress,
@@ -135,9 +112,9 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
   );
 
   const { quickSellByQualityRange, processAction } = useInventoryActions({
-    gameState,
+    getGameState: () => gameStateRef.current,
     loading,
-    setGameState,
+    dispatchGameState,
     setLoading,
     addLog,
     reportError,
@@ -160,14 +137,14 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
 
   const handleReset = useCallback(() => {
     if (confirm('你确定要重置当前存档吗？此操作无法撤销。')) {
-      setGameState(createFreshInitialState());
+      dispatchGameState({ type: 'SYSTEM/RESET_SAVE', payload: createFreshInitialState() });
       setLoading(false);
       setLogs(['[System] 存档已重置完成。storage 已清除。']);
       setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
     }
-  }, [setGameState, setLoading, setLogs, setMapProgress]);
+  }, [setLoading, setLogs, setMapProgress]);
 
-  const { handleDebugAddItems } = useDebug({ gameState, setGameState, addLog });
+  const { handleDebugAddItems } = useDebug({ gameState, dispatchGameState, addLog });
 
   const authValue: AuthContextValue = {
     profiles,
@@ -233,8 +210,6 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
     dispatchGameState,
     loading,
     setLoading,
-    forgeSelectedId,
-    setForgeSelectedId,
   };
 
   const gameValue: GameContextValue = {
@@ -251,23 +226,23 @@ export const GameProvider: React.FC<React.PropsWithChildren<unknown>> = ({ child
 
   return (
     <AuthContext.Provider value={authValue}>
-      <LogContext.Provider value={logValue}>
-        <AutoSellContext.Provider value={autoSellValue}>
-          <MapContext.Provider value={mapValue}>
-            <BattleContext.Provider value={battleValue}>
-              <InventoryContext.Provider value={inventoryValue}>
-                <DebugContext.Provider value={debugValue}>
-                  <MiscContext.Provider value={miscValue}>
-                    <StateContext.Provider value={stateValue}>
-                      <GameContext.Provider value={gameValue}>{children}</GameContext.Provider>
-                    </StateContext.Provider>
-                  </MiscContext.Provider>
-                </DebugContext.Provider>
-              </InventoryContext.Provider>
-            </BattleContext.Provider>
-          </MapContext.Provider>
-        </AutoSellContext.Provider>
-      </LogContext.Provider>
+    <LogContext.Provider value={logValue}>
+    <AutoSellContext.Provider value={autoSellValue}>
+    <MapContext.Provider value={mapValue}>
+    <BattleContext.Provider value={battleValue}>
+    <InventoryContext.Provider value={inventoryValue}>
+    <DebugContext.Provider value={debugValue}>
+    <MiscContext.Provider value={miscValue}>
+    <StateContext.Provider value={stateValue}>
+    <GameContext.Provider value={gameValue}>{children}</GameContext.Provider>
+    </StateContext.Provider>
+    </MiscContext.Provider>
+    </DebugContext.Provider>
+    </InventoryContext.Provider>
+    </BattleContext.Provider>
+    </MapContext.Provider>
+    </AutoSellContext.Provider>
+    </LogContext.Provider>
     </AuthContext.Provider>
   );
 };

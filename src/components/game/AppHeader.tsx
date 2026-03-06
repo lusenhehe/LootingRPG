@@ -2,31 +2,28 @@ import { Coins, Heart, Shield, Download, LogOut, RefreshCw, Sword, Upload, Setti
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, memo } from 'react';
 import { createPortal } from 'react-dom';
-import type { PlayerStats } from '../../shared/types/game';
 import { useTheme } from '../../config/themes/ThemeContext';
+import { useStateContext } from '../../app/context/state';
+import { useAuthContext } from '../../app/context/auth';
+import { useMiscContext } from '../../app/context/misc';
 
-interface AppHeaderProps {
-  gold: number;
-  playerName: string;
-  playerStats: PlayerStats;
-  onReset: () => void;
-  onLogout: () => void;
-  onExportSave: () => void;
-  onImportSave: () => void;
-}
 const commonStyles = {
   gradientBorder: "border border-stone-700/50",
   statBadge: "flex items-center gap-1.5 px-2.5 py-1 text-xs border rounded-sm",
   gradientBg: "bg-gradient-to-br",
   divider: "w-px h-8 bg-gradient-to-b from-transparent via-stone-700/50 to-transparent"
 };
-function AppHeaderInner({
-  gold, playerName, playerStats,
-  onReset,
-  onLogout,
-  onExportSave,
-  onImportSave,
-}: AppHeaderProps) {
+function AppHeaderInner() {
+  const { gameState } = useStateContext();
+  const { profiles, activeProfileId, handleLogoutAction, handleExportSave, handleImportSave } = useAuthContext();
+  const { handleReset } = useMiscContext();
+  const playerName = profiles.find(p => p.id === activeProfileId)?.name ?? 'Unknown Player';
+  const gold = gameState.playerStats.gold;
+  const playerStats = gameState.playerStats;
+  const onReset = handleReset;
+  const onLogout = handleLogoutAction;
+  const onExportSave = handleExportSave;
+  const onImportSave = handleImportSave;
   const { theme, themes, setTheme } = useTheme();
   const [showMenu, setShowMenu] = useState(false);
   const expNeeded = playerStats.level * 100;

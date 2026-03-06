@@ -6,10 +6,11 @@ import { createAutoSellQualityMap } from '../../domains/inventory/services/autoS
 import { recalculatePlayerStats } from '../../domains/player/services/recalculatePlayerStats';
 import { MAP_CHAPTERS } from '../../config/map/ChapterData';
 import { useState, useEffect } from 'react';
+import type { GameStateAction } from '../../app/state/actions';
 /// 个人存档管理逻辑，包含创建/加载/保存/删除存档，以及导入导出功能
 interface UseProfileSaveParams {
   gameState: GameState; logs: string[]; autoSellQualities: Record<string, boolean>; mapProgress: MapProgressState;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  dispatchGameState: React.Dispatch<GameStateAction>;
   setLogs:      React.Dispatch<React.SetStateAction<string[]>>;
   setAutoSellQualities: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   setMapProgress:  React.Dispatch<React.SetStateAction<MapProgressState>>;
@@ -20,7 +21,7 @@ const getProfileSaveKey = (profileId: string) => `${STORAGE_KEY}_${profileId}`;
 /// 个人存档管理 Hook，提供存档列表、当前活跃存档 ID、认证状态，以及登录/创建/删除/导入/导出存档的处理函数
 export function useProfileSave({
   gameState, logs, autoSellQualities, mapProgress,
-  setGameState, setLogs, setAutoSellQualities, setMapProgress, addLog,
+  dispatchGameState, setLogs, setAutoSellQualities, setMapProgress, addLog,
 }: UseProfileSaveParams) {
   const [profiles, setProfiles] = useState<SaveProfile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
@@ -62,7 +63,7 @@ export function useProfileSave({
       const freshMapProgress = createInitialMapProgress(MAP_CHAPTERS);
       const freshAutoSell = createAutoSellQualityMap();
 
-      setGameState(freshGameState);
+      dispatchGameState({ type: 'LOAD_SAVE', payload: freshGameState });
       setLogs(freshLogs);
       setMapProgress(freshMapProgress);
       setAutoSellQualities(freshAutoSell);
@@ -114,7 +115,7 @@ export function useProfileSave({
   const loadProfile = (profileId: string) => {
     const payloadText = localStorage.getItem(getProfileSaveKey(profileId));
     if (!payloadText) {
-      setGameState(createFreshInitialState());
+      dispatchGameState({ type: 'LOAD_SAVE', payload: createFreshInitialState() });
       setLogs(['[System] New player save created.']);
       setAutoSellQualities(createAutoSellQualityMap());
       setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
@@ -123,12 +124,12 @@ export function useProfileSave({
 
     try {
       const payload = JSON.parse(payloadText) as SavePayload;
-      setGameState(recalculatePlayerStats(normalizeGameState(payload.gameState)));
+      dispatchGameState({ type: 'LOAD_SAVE', payload: recalculatePlayerStats(normalizeGameState(payload.gameState)) });
       setLogs(payload.logs?.length ? payload.logs : ['[System] Save loaded.']);
       setAutoSellQualities(convertAutoSell(payload.autoSellQualities));
       setMapProgress(normalizeMapProgress(payload.mapProgress, MAP_CHAPTERS));
     } catch {
-      setGameState(createFreshInitialState());
+      dispatchGameState({ type: 'LOAD_SAVE', payload: createFreshInitialState() });
       setLogs(['[System] Save data corrupted. Reset to a fresh save.']);
       setAutoSellQualities(createAutoSellQualityMap());
       setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
@@ -180,7 +181,7 @@ export function useProfileSave({
     if (activeProfileId === profileId) {
       setIsAuthenticated(false);
       setActiveProfileId(null);
-      setGameState(createFreshInitialState());
+      dispatchGameState({ type: 'LOAD_SAVE', payload: createFreshInitialState() });
       setLogs(['[System] Please sign in to a player save.']);
       setAutoSellQualities(createAutoSellQualityMap());
       setMapProgress(createInitialMapProgress(MAP_CHAPTERS));
@@ -229,7 +230,7 @@ export function useProfileSave({
 
         const payload = parsed;
         loadProfile('');
-        setGameState(recalculatePlayerStats(normalizeGameState(payload.gameState)));
+        dispatchGameState({ type: 'LOAD_SAVE', payload: recalculatePlayerStats(normalizeGameState(payload.gameState)) });
         setLogs(payload.logs?.length ? payload.logs : ['[System] Save imported successfully.']);
         setAutoSellQualities(payload.autoSellQualities ?? createAutoSellQualityMap());
         setMapProgress(normalizeMapProgress(payload.mapProgress, MAP_CHAPTERS));

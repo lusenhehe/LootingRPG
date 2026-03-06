@@ -2,65 +2,23 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { lazy, Suspense, memo } from 'react';
 import { Trophy, Map } from 'lucide-react';
-import type { ActiveTab, GameState, MapProgressState } from '../../shared/types/game';
-import type { MapChapterDef, MapNodeDef } from '../../config/map/ChapterData';
+import { useMapContext } from '../../app/context/map';
+import { useStateContext } from '../../app/context/state';
 
 const InventoryTab = lazy(() => import('./tabs/InventoryTab').then(m => ({ default: m.InventoryTab })));
 const ForgeTab = lazy(() => import('./tabs/ForgeTab').then(m => ({ default: m.ForgeTab })));
 const MonsterCodexTab = lazy(() => import('./tabs/MonsterCodexTab').then(m => ({ default: m.MonsterCodexTab })));
 const MapTab = lazy(() => import('./tabs/MapTab').then(m => ({ default: m.MapTab })));
 
-interface GamePanelProps {
-  gameState: GameState;
-  activeTab: ActiveTab;
-  playerName: string;
-  playerStats: GameState['playerStats'];
-  loading: boolean;
-  focusMapNode: string | null;
-  onClearFocusMapNode: () => void;
-  onSetTab: (tab: ActiveTab) => void;
-  onEnterMapNode: (node: MapNodeDef, chapter: MapChapterDef) => void;
-  mapProgress: MapProgressState;
-  onSelectMapChapter: (chapterId: string) => void;
-  onEquip: (id: string) => void;
-  onSell: (id: string) => void;
-  onForge: (id: string) => void;
-  onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
-  autoSellQualities: Record<string, boolean>;
-  onToggleAutoSellQuality: (quality: string) => void;
-  onReroll: (id: string, lockTypes?: string[]) => void;
-  forgeSelectedId: string | null;
-  onSelectForgeItem: (id: string) => void;
-  onUnequip: (slot: string) => void;
-}
+const TabFallback = () => (
+  <div className="h-full flex items-center justify-center text-gray-500">Loading...</div>
+);
 
-function GamePanelInner({
-  gameState,
-  activeTab,
-  playerName,
-  playerStats,
-  loading,
-  focusMapNode,
-  onClearFocusMapNode,
-  onSetTab,
-  onEnterMapNode,
-  mapProgress,
-  onSelectMapChapter,
-  onEquip,
-  onSell,
-  onForge,
-  onQuickSellByQualityRange,
-  autoSellQualities,
-  onToggleAutoSellQuality,
-  onReroll,
-  forgeSelectedId,
-  onSelectForgeItem,
-  onUnequip,
-}: GamePanelProps) {
+function GamePanelInner() {
   const { t } = useTranslation();
-  const inventoryItems = gameState.backpack
-    .filter((item) => !item.equipped)
-    .map((item) => ({ ...item, equipped: false }));
+  const { activeTab, setActiveTab } = useMapContext();
+  const { gameState } = useStateContext();
+
   return (
     <div className="dark-stage-shell overflow-hidden h-full min-h-0 relative flex flex-col">
       <div className="absolute inset-0 bg-gradient-to-br from-red-950/20 via-transparent to-amber-950/10 pointer-events-none" />
@@ -82,25 +40,14 @@ function GamePanelInner({
                 transition={{ duration: 0.3 }}
                 className="h-full"
               >
-                <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">Loading...</div>}>
-                  <InventoryTab
-                    items={inventoryItems}
-                    loading={loading}
-                    onEquip={onEquip}
-                    onSell={onSell}
-                  onForge={onForge}
-                  onQuickSellByQualityRange={onQuickSellByQualityRange}
-                  autoSellQualities={autoSellQualities}
-                  onToggleAutoSellQuality={onToggleAutoSellQuality}
-                  gameState={gameState}
-                  onUnequip={onUnequip}
-                />
+                <Suspense fallback={<TabFallback />}>
+                  <InventoryTab />
                 </Suspense>
               </motion.div>
             )}
 
             {activeTab === 'map' && (
-              <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">Loading...</div>}>
+              <Suspense fallback={<TabFallback />}>
                 <motion.div
                   key="map"
                   initial={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -109,25 +56,13 @@ function GamePanelInner({
                   transition={{ duration: 0.3 }}
                   className="h-full"
                 >
-                  <MapTab
-                    activeTab={activeTab}
-                    playerName={playerName}
-                    playerStats={playerStats}
-                    playerLevel={gameState.playerStats.level}
-                    loading={loading}
-                    progress={mapProgress}
-                    onSetTab={onSetTab}
-                    onSelectChapter={onSelectMapChapter}
-                    onEnterNode={onEnterMapNode}
-                    focusNodeId={focusMapNode}
-                    onClearFocus={onClearFocusMapNode}
-                  />
+                  <MapTab />
                 </motion.div>
               </Suspense>
             )}
 
             {activeTab === 'forge' && (
-              <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">Loading...</div>}>
+              <Suspense fallback={<TabFallback />}>
                 <motion.div 
                   key="forge"
                   initial={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -136,20 +71,13 @@ function GamePanelInner({
                   transition={{ duration: 0.3 }}
                   className="h-full"
                 >
-                  <ForgeTab
-                    gameState={gameState}
-                    selectedId={forgeSelectedId}
-                    loading={loading}
-                    onSelect={onSelectForgeItem}
-                    onForge={onForge}
-                    onReroll={onReroll}
-                  />
+                  <ForgeTab />
                 </motion.div>
               </Suspense>
             )}
 
             {activeTab === 'codex' && (
-              <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-500">Loading...</div>}>
+              <Suspense fallback={<TabFallback />}>
                 <motion.div 
                   key="codex"
                   initial={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -169,7 +97,7 @@ function GamePanelInner({
           <div className="flex gap-1.5">
             {activeTab !== 'map' && (
               <button
-                onClick={() => onSetTab('map')}
+                onClick={() => setActiveTab('map')}
                 className="px-2.5 py-1.5 clip-corner-8 border border-amber-700/40 text-amber-200 bg-amber-900/20 flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Map size={11} /> {t('map.explore')}

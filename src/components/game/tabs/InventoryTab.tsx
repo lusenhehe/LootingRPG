@@ -3,11 +3,14 @@ import { QUALITIES, QUALITY_CONFIG } from '../../../config/game/equipment';
 import { getQualityLabel, getSlotLabel, getStatLabel } from '../../../infra/i18n/labels';
 import { SLOT_EMOJI_MAP, QUALITY_STYLE_MAP_ENHANCED} from '../../../config/ui/icons';
 import { useMemo, useState, useCallback, memo } from 'react';
-import type { Equipment, GameState } from '../../../shared/types/game';
+import type { Equipment } from '../../../shared/types/game';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import type { ReactNode } from 'react';
 import { PlayerPanel } from '../PlayerPanel';
+import { useStateContext } from '../../../app/context/state';
+import { useInventoryContext } from '../../../app/context/inventory';
+import { useAutoSellContext } from '../../../app/context/autoSell';
 const iconMap: Record<string, ReactNode> = {
   shield:  <Shield  size={14} className="text-gray-400" />,
   zap:     <Zap     size={14} className="text-emerald-400" />,
@@ -192,34 +195,23 @@ function ItemDetailPanel({
 }
 
 // ─── 主组件 ─────────────────────────────────────────────────────────────────
-interface InventoryTabProps {
-  items: Equipment[];
-  gameState: GameState;
-  loading: boolean;
-  onEquip: (id: string) => void;
-  onSell: (id: string) => void;
-  onForge: (id: string) => void;
-  onUnequip: (slot: string) => void;
-  onQuickSellByQualityRange: (minQuality: string, maxQuality: string) => void;
-  autoSellQualities: Record<string, boolean>;
-  onToggleAutoSellQuality: (quality: string) => void;
-}
-
 type SortField = 'quality' | 'price' | 'name' | 'enchantment';
 type SortOrder = 'asc' | 'desc';
 
-function InventoryTabInner({
-  items,
-  gameState,
-  loading,
-  onEquip,
-  onSell,
-  onForge,
-  onUnequip,
-  onQuickSellByQualityRange,
-  autoSellQualities,
-  onToggleAutoSellQuality,
-}: InventoryTabProps) {
+function InventoryTabInner() {
+  const { gameState, loading } = useStateContext();
+  const {
+    handleEquip: onEquip,
+    handleSell: onSell,
+    handleForge: onForge,
+    handleUnequip: onUnequip,
+    quickSellByQualityRange: onQuickSellByQualityRange,
+  } = useInventoryContext();
+  const { autoSellQualities, handleToggleAutoSellQuality: onToggleAutoSellQuality } = useAutoSellContext();
+  const items = useMemo(
+    () => gameState.backpack.filter((item) => !item.equipped).map((item) => ({ ...item, equipped: false as const })),
+    [gameState.backpack],
+  );
   const [sortField, setSortField] = useState<SortField>('quality');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [selectedId, setSelectedId] = useState<string | null>(null);

@@ -1,35 +1,9 @@
 import BattleUnitCardBase from './BattleUnitCardBase';
 import type { BattleSession } from '../../shared/types/game';
-import type { BattleStatusInstance } from '../../types/battle/BattleUnit';
 import { memo } from 'react';
 import { User } from 'lucide-react';
-
-const percent = (value: number, max: number) => {
-  if (max <= 0) return 0;
-  return Math.max(0, Math.min(100, (value / max) * 100));
-};
-
-const STATUS_ICONS: Record<string, string> = {
-  dot: '🔴',
-  hot: '💚',
-  buff: '✨',
-  debuff: '💀',
-  shield: '🛡',
-};
-
-function StatusBadge({ status }: { status: BattleStatusInstance }) {
-  const icon = STATUS_ICONS[status.kind] ?? '❓';
-  return (
-    <span
-      title={`${status.id} ×${status.stacks} (${status.remainingTurns}t)`}
-      className="inline-flex items-center gap-[1px] text-[7px] leading-none px-0.5 py-[1px] rounded bg-black/60 text-gray-200 shrink-0"
-    >
-      <span className="text-[8px] leading-none">{icon}</span>
-      {status.stacks > 1 && <span>×{status.stacks}</span>}
-      <span className="text-gray-500">{status.remainingTurns}</span>
-    </span>
-  );
-}
+import { StatusBadge } from './battle/StatusBadge';
+import { ProgressBar } from '../../shared/ui';
 
 interface PlayerCardProps {
   session: BattleSession;
@@ -37,12 +11,9 @@ interface PlayerCardProps {
 }
 
 function PlayerCardInner({ session, isActive = false }: PlayerCardProps) {
-  const hpRatio = percent(session.player.currentHp, session.player.baseStats.hp);
   const playerName = session.player.name || 'PLAYER';
   const hpText = `${Math.max(0, Math.round(session.player.currentHp))}/${Math.max(1, Math.round(session.player.baseStats.hp))}`;
   const statuses = session.player.statuses ?? [];
-
-  const isAlive = session.player.currentHp > 0;
 
   /** 仅在「处理中」阶段显示荧光边框，避免玩家等待时一直有选中感 */
   const activeRing = isActive && session.phase === 'resolving'
@@ -86,12 +57,7 @@ function PlayerCardInner({ session, isActive = false }: PlayerCardProps) {
         </div>
 
         {/* HP 条 */}
-        <div className="h-1.5 rounded-sm bg-gray-900/80 overflow-hidden shrink-0">
-          <div
-            className="h-full bg-emerald-500 transition-all duration-300"
-            style={{ width: `${hpRatio}%` }}
-          />
-        </div>
+        <ProgressBar value={session.player.currentHp} max={session.player.baseStats.hp} />
 
 
       </div>

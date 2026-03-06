@@ -1,17 +1,18 @@
 import { useCallback } from 'react';
 import { createCustomEquipment } from '../../domains/inventory/services/equipment';
 import type { Equipment, GameState } from '../../shared/types/game';
+import type { GameStateAction } from '../../app/state/actions';
 
 interface UseDebugParams {
   gameState: GameState;
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
+  dispatchGameState: React.Dispatch<GameStateAction>;
   addLog: (msg: string) => void;
 }
 
 /**
  * 提供调试工具（目前仅是添加自定义装备）
  */
-export function useDebug({ gameState, setGameState, addLog }: UseDebugParams) {
+export function useDebug({ gameState, dispatchGameState, addLog }: UseDebugParams) {
   const handleDebugAddItems = useCallback(
     (quality: string, slot: string, count: number, level?: number) => {
       const items: Equipment[] = [];
@@ -21,10 +22,13 @@ export function useDebug({ gameState, setGameState, addLog }: UseDebugParams) {
         items.push(createCustomEquipment(quality, slot, lv));
       }
 
-      setGameState((prev) => ({ ...prev, backpack: [...prev.backpack, ...items] }));
+      dispatchGameState({
+        type: 'DEBUG/ADD_ITEMS',
+        payload: { ...gameState, backpack: [...gameState.backpack, ...items] },
+      });
       addLog(`[Debug] Added ${count} ${quality} ${slot} items (Lv.${lv}) to backpack`);
     },
-    [gameState.playerStats.level, setGameState, addLog],
+    [gameState, dispatchGameState, addLog],
   );
 
   return { handleDebugAddItems } as const;

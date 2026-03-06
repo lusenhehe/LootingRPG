@@ -2,30 +2,27 @@ import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LOCK_COST, QUALITY_CONFIG, REROLL_BASE_COST } from '../../../config/game/equipment';
 import { getSlotLabel, getStatLabel } from '../../../infra/i18n/labels';
-import type { Equipment, GameState } from '../../../shared/types/game';
+import type { Equipment } from '../../../shared/types/game';
 import { useTranslation } from 'react-i18next';
 import { useMemo, useState } from 'react';
 import { calculateEnchantCost, previewEnchant } from '../../../domains/inventory/services/equipment';
 import { SLOT_EMOJI_MAP } from '../../../config/ui/icons';
+import { useStateContext } from '../../../app/context/state';
+import { useInventoryContext } from '../../../app/context/inventory';
 
 const slotEmojiMap = SLOT_EMOJI_MAP;
 
-
-interface ForgeTabProps {
-  gameState: GameState;
-  selectedId: string | null;
-  loading: boolean;
-  onSelect: (id: string) => void;
-  onForge: (id: string) => void;
-  onReroll: (id: string, lockTypes?: string[]) => void;
-}
 
 type ForgeCandidate = {
   item: Equipment;
   source: string;
 };
 
-export function ForgeTab({ gameState, selectedId, loading, onSelect, onForge, onReroll }: ForgeTabProps) {
+export function ForgeTab() {
+  const { gameState, loading } = useStateContext();
+  const { handleForge: onForge, handleReroll: onReroll } = useInventoryContext();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const onSelect = setSelectedId;
   const { t } = useTranslation();
 
   const equipped = (Object.entries(gameState.currentEquipment) as [string, Equipment | null][])
